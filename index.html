@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="毛孩账本">
     <meta name="application-name" content="毛孩账本">
-    <meta name="theme-color" content="#8b5cf6">
+    <meta name="theme-color" content="#c4b5fd">
     
     <title>毛孩账本</title>
     
@@ -104,6 +104,22 @@
         .nav-item i { width: 22px; height: 22px; }
         .nav-item.active { background: var(--primary-light); color: var(--primary-dark); font-weight: 500; }
 
+        /* 滑动卡片 */
+        .category-scroll {
+            display: flex; gap: 10px; overflow-x: auto;
+            padding: 4px 2px 12px; scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+        .category-scroll::-webkit-scrollbar { display: none; }
+        .category-card {
+            flex: 0 0 120px; scroll-snap-align: start;
+            background: var(--card-bg); border-radius: 20px;
+            padding: 14px 10px; border: 1px solid var(--border-light);
+            text-align: center; cursor: pointer;
+        }
+        .category-card.active { border: 2px solid var(--primary-dark); background: var(--primary-light); }
+        .category-icon { font-size: 32px; margin-bottom: 6px; }
+
         .date-picker-bar {
             display: flex; align-items: center; justify-content: space-between;
             margin-bottom: 14px;
@@ -165,26 +181,26 @@
         .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
         .modal-actions button { flex: 1; }
 
-        .drilldown-panel {
-            background: var(--bg-page); border-radius: 14px; padding: 14px;
-            margin-top: 12px; display: none;
-        }
-        .drilldown-panel.show { display: block; }
-        .drilldown-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 10px;
-        }
-        .drilldown-item {
-            display: flex; justify-content: space-between; padding: 6px 0;
-            border-bottom: 1px solid var(--border-light);
-        }
-
         .avatar {
-            width: 42px; height: 42px; border-radius: 21px;
+            width: 48px; height: 48px; border-radius: 24px;
             background: var(--primary-light); overflow: hidden;
             display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
         }
-        .avatar i { width: 24px; height: 24px; color: var(--primary-dark); }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar i { width: 28px; height: 28px; color: var(--primary-dark); }
+
+        .pet-item {
+            display: flex; align-items: center; gap: 12px; padding: 10px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .pet-info { flex: 1; }
+
+        .filter-badge {
+            background: var(--primary-light); color: var(--primary-dark);
+            padding: 4px 12px; border-radius: 20px; font-size: 13px;
+            display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px;
+        }
 
         .offline-badge {
             position: fixed; top: 8px; left: 50%; transform: translateX(-50%);
@@ -207,8 +223,6 @@
         }
         .context-menu-item i { width: 18px; height: 18px; }
         .context-menu-item.delete { color: #dc2626; }
-
-        .category-icon { font-size: 28px; line-height: 1; }
     </style>
 </head>
 <body>
@@ -269,7 +283,15 @@
             <h3 style="font-size: 16px; display: flex; align-items: center; gap: 4px;"><i data-lucide="folder"></i> 家族</h3>
             <button class="btn-outline btn-small" onclick="app.showPage('pets')">管理</button>
         </div>
-        <div id="categoryGrid" class="grid-2"></div>
+        
+        <!-- 滑动大类 -->
+        <div class="category-scroll" id="categoryScroll"></div>
+        
+        <!-- 筛选标签 -->
+        <div id="filterBadge" style="display: none;" class="filter-badge">
+            <span id="filterText"></span>
+            <i data-lucide="x" style="width: 16px; height: 16px; cursor: pointer;" onclick="app.clearFilter()"></i>
+        </div>
     </div>
 
     <div class="card">
@@ -305,7 +327,7 @@
     <div id="addCategoryPanel" class="card" style="display: none;">
         <h3>新建大类</h3>
         <div class="form-row"><input type="text" id="newCategoryName" placeholder="名称"></div>
-        <div class="form-row"><input type="text" id="newCategoryIcon" placeholder="图标名 (cat/fish/rat)" value="cat"></div>
+        <div class="form-row"><input type="text" id="newCategoryIcon" placeholder="图标 (cat/fish/rat)" value="cat"></div>
         <button class="btn" id="saveCategoryBtn" onclick="app.saveCategory()">创建</button>
         <button class="btn-outline" onclick="app.hideAddCategory()">取消</button>
     </div>
@@ -313,6 +335,12 @@
     <div id="petEditPanel" class="card" style="display: none;">
         <h3 id="petEditTitle">添加宠物</h3>
         <input type="hidden" id="editPetId"><input type="hidden" id="editPetCategoryId">
+        <div class="form-row" style="display: flex; justify-content: center;">
+            <div class="avatar" id="petAvatarPreview" onclick="app.selectAvatar()">
+                <i data-lucide="camera"></i>
+            </div>
+            <input type="file" id="petAvatarInput" accept="image/*" style="display: none;" onchange="app.previewAvatar()">
+        </div>
         <div class="form-row"><label>名字</label><input type="text" id="petNameInput" placeholder="咪咪"></div>
         <div class="form-row"><label>生日</label><input type="date" id="petBirthdayInput"></div>
         <button class="btn" id="savePetBtn" onclick="app.savePet()">保存</button>
@@ -349,8 +377,8 @@
     <div class="card">
         <h3 style="font-size: 16px; margin-bottom: 8px;">大类占比</h3>
         <div style="height:180px;"><canvas id="pieChart"></canvas></div>
-        <div class="drilldown-panel" id="drilldownPanel">
-            <div class="drilldown-header">
+        <div class="drilldown-panel" id="drilldownPanel" style="display: none; background: var(--bg-page); border-radius: 14px; padding: 14px; margin-top: 12px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                 <span id="drilldownTitle"></span>
                 <button class="btn-outline btn-small" onclick="app.closeDrilldown()"><i data-lucide="arrow-left"></i> 返回</button>
             </div>
@@ -377,23 +405,14 @@
         <div id="expenseCategoryList"></div>
         <div class="form-row" style="display:flex; gap:6px; margin-top:10px;">
             <input type="text" id="newExpenseCatName" placeholder="新类别">
-            <button class="btn-small btn" id="addExpenseCatBtn" onclick="app.addExpenseCategory()"><i data-lucide="plus"></i></button>
-        </div>
-    </div>
-    <div class="card">
-        <h3>事项模板</h3>
-        <div id="taskTemplateList"></div>
-        <div style="display:flex; gap:6px; margin-top:10px;">
-            <input type="text" id="newTaskName" placeholder="事项名称">
-            <select id="newTaskScope"><option value="shared">共用</option><option value="pet">专属</option></select>
-            <button class="btn-small btn" onclick="app.addTaskTemplate()"><i data-lucide="plus"></i></button>
+            <button class="btn-small btn" onclick="app.addExpenseCategory()"><i data-lucide="plus"></i></button>
         </div>
     </div>
     <div class="card">
         <h3>数据管理</h3>
         <button class="btn-danger" onclick="app.resetAllData()"><i data-lucide="alert-triangle"></i> 重置所有数据</button>
     </div>
-    <div class="version-info">毛孩账本 2.0 · 简洁版</div>
+    <div class="version-info">毛孩账本 2.1 · 可爱爪印版</div>
 </div>
 
 <!-- 底部导航 -->
@@ -414,22 +433,24 @@
         records: [],
         expenseCategories: [
             { name: '食品' }, { name: '医疗' }, { name: '玩具' }, { name: '美容' }, { name: '日用' }
-        ],
-        taskTemplates: []
+        ]
     };
     
     let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    const STORAGE_KEY = 'pet_clean_v2';
+    const STORAGE_KEY = 'pet_21_paw';
 
     let viewMode = 'month';
     let currentYear = new Date().getFullYear();
     let currentMonth = new Date().getMonth() + 1;
+    let filterCategoryId = null;
+    
     let statPeriod = 'month';
     let statYear = new Date().getFullYear();
     let statMonth = new Date().getMonth() + 1;
     let statDay = new Date().getDate();
     let contextRecordId = null;
     let pieChart = null, trendChart = null;
+    let tempAvatar = null;
 
     function loadData() {
         try {
@@ -440,7 +461,6 @@
                 appData.pets = parsed.pets || [];
                 appData.records = parsed.records || [];
                 appData.expenseCategories = parsed.expenseCategories || DEFAULT_DATA.expenseCategories;
-                appData.taskTemplates = parsed.taskTemplates || [];
             }
         } catch (e) { appData = JSON.parse(JSON.stringify(DEFAULT_DATA)); }
     }
@@ -478,6 +498,7 @@
         document.querySelector(`.view-switch button[data-view="${mode}"]`).classList.add('active');
         renderHome();
     }
+    
     function prevPeriod() {
         if (viewMode === 'month') { currentMonth--; if (currentMonth < 1) { currentMonth = 12; currentYear--; } }
         else { currentYear--; }
@@ -488,35 +509,66 @@
         else { currentYear++; }
         renderHome();
     }
+    
     function getPeriodFilter() {
         return (r) => {
             if (!r.date) return false;
             const d = new Date(r.date);
-            return viewMode === 'month' ? d.getFullYear() === currentYear && d.getMonth()+1 === currentMonth : d.getFullYear() === currentYear;
+            let match = viewMode === 'month' ? d.getFullYear() === currentYear && d.getMonth()+1 === currentMonth : d.getFullYear() === currentYear;
+            if (match && filterCategoryId) match = r.categoryId === filterCategoryId;
+            return match;
         };
+    }
+
+    function filterByCategory(catId) {
+        filterCategoryId = catId;
+        renderHome();
+    }
+    
+    function clearFilter() {
+        filterCategoryId = null;
+        renderHome();
     }
 
     function renderHome() {
         document.getElementById('currentPeriodDisplay').innerText = viewMode === 'month' ? `${currentYear}.${String(currentMonth).padStart(2,'0')}` : `${currentYear}`;
-        document.getElementById('periodTotalLabel').innerText = viewMode === 'month' ? '本月总支出' : '今年总支出';
-        const filtered = appData.records.filter(getPeriodFilter());
+        document.getElementById('periodTotalLabel').innerText = (viewMode === 'month' ? '本月' : '今年') + (filterCategoryId ? '该类' : '') + '总支出';
+        
+        let filtered = appData.records.filter(getPeriodFilter());
         const total = filtered.reduce((s, r) => s + (parseFloat(r.amount)||0), 0);
         document.getElementById('periodTotalAmount').innerText = `¥${total.toFixed(2)}`;
 
-        const grid = document.getElementById('categoryGrid');
+        // 滑动大类
+        const scroll = document.getElementById('categoryScroll');
         if (!appData.categories.length) {
-            grid.innerHTML = '<div style="grid-column:span 2;padding:16px;text-align:center;color:var(--text-sub);">点击"管理"添加大类</div>';
+            scroll.innerHTML = '<div style="padding:16px;color:var(--text-sub);">点击"管理"添加大类</div>';
         } else {
-            grid.innerHTML = appData.categories.map(cat => {
-                const catTotal = filtered.filter(r => r.categoryId === cat.id).reduce((s, r) => s + (parseFloat(r.amount)||0), 0);
-                const iconName = cat.icon || 'cat';
-                return `<div class="card" style="padding:12px;"><div class="category-icon"><i data-lucide="${iconName}"></i></div><div style="font-weight:600;">${cat.name}</div><div style="color:var(--primary-dark);">¥${catTotal.toFixed(2)}</div></div>`;
+            scroll.innerHTML = appData.categories.map(cat => {
+                const catTotal = appData.records.filter(r => r.categoryId === cat.id && 
+                    (viewMode === 'month' ? new Date(r.date).getFullYear() === currentYear && new Date(r.date).getMonth()+1 === currentMonth : new Date(r.date).getFullYear() === currentYear)
+                ).reduce((s, r) => s + (parseFloat(r.amount)||0), 0);
+                return `<div class="category-card ${filterCategoryId === cat.id ? 'active' : ''}" onclick="app.filterByCategory('${cat.id}')">
+                    <div class="category-icon"><i data-lucide="${cat.icon || 'cat'}"></i></div>
+                    <div style="font-weight:600;">${cat.name}</div>
+                    <div style="color:var(--primary-dark);">¥${catTotal.toFixed(0)}</div>
+                </div>`;
             }).join('');
+        }
+
+        // 筛选标签
+        const badge = document.getElementById('filterBadge');
+        if (filterCategoryId) {
+            const cat = appData.categories.find(c => c.id === filterCategoryId);
+            document.getElementById('filterText').innerHTML = `<i data-lucide="${cat?.icon||'cat'}"></i> 只看${cat?.name||''}`;
+            badge.style.display = 'inline-flex';
+        } else {
+            badge.style.display = 'none';
         }
 
         const container = document.getElementById('recordsContainer');
         if (viewMode === 'month') renderMonthView(container, filtered);
         else renderYearView(container, filtered);
+        
         setTimeout(() => lucide.createIcons(), 10);
     }
 
@@ -621,6 +673,7 @@
     function addRecord() {
         const amt = parseFloat(document.getElementById('amountInput').value);
         if (!amt || amt<=0) { showToast('金额无效', false); return; }
+        if (!appData.categories.length) { showToast('请先创建大类', false); return; }
         appData.records.push({
             id: Date.now()+Math.random(), amount: amt, date: document.getElementById('dateInput').value,
             categoryId: document.getElementById('categoryTypeSelect').value,
@@ -639,11 +692,18 @@
             html += `<div class="card" oncontextmenu="app.deleteCategory('${cat.id}');return false;">
                 <div style="display:flex; justify-content:space-between;"><h3><i data-lucide="${cat.icon||'cat'}"></i> ${cat.name}</h3><button class="btn-outline btn-small" onclick="app.showAddPet('${cat.id}')"><i data-lucide="plus"></i></button></div>`;
             const pets = appData.pets.filter(p=> p.categoryId===cat.id);
-            pets.forEach(p=> html += `<div style="display:flex; align-items:center; gap:10px; padding:8px 0;"><div class="avatar"><i data-lucide="${cat.icon||'cat'}"></i></div><span>${p.name}</span><button class="btn-outline btn-small" onclick="app.editPet('${p.id}')"><i data-lucide="edit"></i></button></div>`);
+            pets.forEach(p => {
+                html += `<div class="pet-item">
+                    <div class="avatar" onclick="app.editPet('${p.id}')">${p.avatar ? `<img src="${p.avatar}">` : `<i data-lucide="${cat.icon||'cat'}"></i>`}</div>
+                    <div class="pet-info"><b>${p.name}</b><br><small>${p.birthday||'未设置生日'}</small></div>
+                    <button class="btn-outline btn-small" onclick="app.editPet('${p.id}')"><i data-lucide="edit"></i></button>
+                </div>`;
+            });
             html += '</div>';
         });
         container.innerHTML = html; lucide.createIcons();
     }
+    
     function deleteCategory(id) { if (!confirm('删除大类？')) return; appData.categories = appData.categories.filter(c=>c.id!==id); saveData(); renderPetsPage(); showToast('已删除'); }
     function showAddCategory() { document.getElementById('addCategoryPanel').style.display='block'; }
     function hideAddCategory() { document.getElementById('addCategoryPanel').style.display='none'; }
@@ -652,23 +712,54 @@
         appData.categories.push({ id: Date.now()+'', name, icon: document.getElementById('newCategoryIcon').value||'cat' });
         saveData(); hideAddCategory(); renderPetsPage(); showToast('已创建');
     }
+    
     function showAddPet(catId) {
         document.getElementById('editPetId').value=''; document.getElementById('editPetCategoryId').value=catId;
         document.getElementById('petNameInput').value=''; document.getElementById('petBirthdayInput').value='';
+        tempAvatar = null;
+        document.getElementById('petAvatarPreview').innerHTML = '<i data-lucide="camera"></i>';
         document.getElementById('petEditPanel').style.display='block';
+        lucide.createIcons();
     }
     function editPet(id) {
         const p = appData.pets.find(p=>p.id===id); if(!p) return;
         document.getElementById('editPetId').value=id; document.getElementById('editPetCategoryId').value=p.categoryId;
         document.getElementById('petNameInput').value=p.name; document.getElementById('petBirthdayInput').value=p.birthday||'';
+        tempAvatar = p.avatar || null;
+        const preview = document.getElementById('petAvatarPreview');
+        preview.innerHTML = p.avatar ? `<img src="${p.avatar}">` : '<i data-lucide="camera"></i>';
         document.getElementById('petEditPanel').style.display='block';
+        lucide.createIcons();
     }
     function hidePetEdit() { document.getElementById('petEditPanel').style.display='none'; }
+    
+    function selectAvatar() { document.getElementById('petAvatarInput').click(); }
+    function previewAvatar() {
+        const file = document.getElementById('petAvatarInput').files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                tempAvatar = e.target.result;
+                document.getElementById('petAvatarPreview').innerHTML = `<img src="${tempAvatar}">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+    
     function savePet() {
         const id = document.getElementById('editPetId').value;
         const name = document.getElementById('petNameInput').value.trim(); if (!name) return;
-        if (id) { const p = appData.pets.find(p=>p.id===id); p.name=name; p.birthday=document.getElementById('petBirthdayInput').value; }
-        else { appData.pets.push({ id: Date.now()+'', categoryId: document.getElementById('editPetCategoryId').value, name, birthday: document.getElementById('petBirthdayInput').value }); }
+        if (id) {
+            const p = appData.pets.find(p=>p.id===id);
+            p.name=name; p.birthday=document.getElementById('petBirthdayInput').value;
+            if (tempAvatar !== undefined) p.avatar = tempAvatar;
+        } else {
+            appData.pets.push({
+                id: Date.now()+'', categoryId: document.getElementById('editPetCategoryId').value,
+                name, birthday: document.getElementById('petBirthdayInput').value,
+                avatar: tempAvatar || ''
+            });
+        }
         saveData(); hidePetEdit(); renderPetsPage(); showToast('已保存');
     }
 
@@ -706,34 +797,39 @@
         filtered.forEach(r=> { if (catTotals.hasOwnProperty(r.categoryId)) catTotals[r.categoryId] += parseFloat(r.amount)||0; });
         const ctx = document.getElementById('pieChart').getContext('2d');
         if (pieChart) pieChart.destroy();
-        pieChart = new Chart(ctx, { type:'pie', data:{ labels: appData.categories.map(c=>c.name), datasets:[{ data: appData.categories.map(c=>catTotals[c.id]||0), backgroundColor: ['#c4b5fd','#fde68a','#bae6fd','#a7f3d0','#fbcfe8','#fdba74'] }] }, options:{ onClick:(e,item)=>{ if(item?.length){ const cat=appData.categories[item[0].index]; const catRecs=filtered.filter(r=>r.categoryId===cat.id); const exp={}; catRecs.forEach(r=> exp[r.expenseCategory]=(exp[r.expenseCategory]||0)+(parseFloat(r.amount)||0)); document.getElementById('drilldownTitle').innerHTML=`<i data-lucide="${cat.icon||'cat'}"></i> ${cat.name}`; document.getElementById('drilldownContent').innerHTML=Object.entries(exp).map(([n,a])=>`<div class="drilldown-item"><span>${n}</span><span>¥${a.toFixed(2)}</span></div>`).join('')||'暂无'; document.getElementById('drilldownPanel').classList.add('show'); lucide.createIcons(); } } }});
+        pieChart = new Chart(ctx, { type:'pie', data:{ labels: appData.categories.map(c=>c.name), datasets:[{ data: appData.categories.map(c=>catTotals[c.id]||0), backgroundColor: ['#c4b5fd','#fde68a','#bae6fd','#a7f3d0','#fbcfe8','#fdba74'] }] }, options:{ onClick:(e,item)=>{ if(item?.length){ const cat=appData.categories[item[0].index]; const catRecs=filtered.filter(r=>r.categoryId===cat.id); const exp={}; catRecs.forEach(r=> exp[r.expenseCategory]=(exp[r.expenseCategory]||0)+(parseFloat(r.amount)||0)); document.getElementById('drilldownTitle').innerHTML=`<i data-lucide="${cat.icon||'cat'}"></i> ${cat.name}`; document.getElementById('drilldownContent').innerHTML=Object.entries(exp).map(([n,a])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;"><span>${n}</span><span>¥${a.toFixed(2)}</span></div>`).join('')||'暂无'; document.getElementById('drilldownPanel').style.display='block'; lucide.createIcons(); } } }});
         const months=[], totals=[]; const now=new Date();
         for(let i=5; i>=0; i--) { const d=new Date(now.getFullYear(), now.getMonth()-i, 1); months.push(`${d.getMonth()+1}月`); totals.push(appData.records.filter(r=>{ if(!r.date) return false; const rd=new Date(r.date); return rd.getFullYear()===d.getFullYear() && rd.getMonth()===d.getMonth(); }).reduce((s,r)=> s+(parseFloat(r.amount)||0),0)); }
         const tCtx = document.getElementById('trendChart').getContext('2d');
         if (trendChart) trendChart.destroy();
         trendChart = new Chart(tCtx, { type:'bar', data:{ labels:months, datasets:[{ data:totals, backgroundColor:'#c4b5fd' }] }, options:{ plugins:{ legend:{ display:false } } } });
     }
-    function closeDrilldown() { document.getElementById('drilldownPanel').classList.remove('show'); }
+    function closeDrilldown() { document.getElementById('drilldownPanel').style.display='none'; }
     function exportCSV() { const f=appData.records.filter(getStatFilter()); if(!f.length){ showToast('暂无记录',false); return; } let csv='日期,金额,大类,类别,支付,备注\n'; f.forEach(r=>{ const c=appData.categories.find(c=>c.id===r.categoryId); csv+=`${r.date},${r.amount},${c?.name||''},${r.expenseCategory},${r.payment},${r.note}\n`; }); const b=new Blob(['\uFEFF'+csv],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='export.csv'; a.click(); showToast('导出中'); }
     function exportImage() { html2canvas(document.getElementById('pageStats')).then(c=>{ const a=document.createElement('a'); a.download='stats.png'; a.href=c.toDataURL(); a.click(); showToast('已保存'); }); }
     function renderSettings() {
         document.getElementById('expenseCategoryList').innerHTML = appData.expenseCategories.map((ec,i)=>`<div style="display:flex; justify-content:space-between; padding:6px 0;"><span>${ec.name}</span><button class="btn-outline btn-small" onclick="app.removeExpenseCategory(${i})"><i data-lucide="trash-2"></i></button></div>`).join('');
-        document.getElementById('taskTemplateList').innerHTML = appData.taskTemplates.map((t,i)=>`<div style="display:flex; justify-content:space-between;"><span>${t.name} (${t.scope==='shared'?'共用':'专属'})</span><button class="btn-outline btn-small" onclick="app.removeTaskTemplate(${i})"><i data-lucide="trash-2"></i></button></div>`).join('');
         lucide.createIcons();
     }
     function addExpenseCategory() { const n=document.getElementById('newExpenseCatName').value.trim(); if(!n) return; appData.expenseCategories.push({ name:n }); saveData(); renderSettings(); showToast('已添加'); }
     function removeExpenseCategory(i) { appData.expenseCategories.splice(i,1); saveData(); renderSettings(); }
-    function addTaskTemplate() { const n=document.getElementById('newTaskName').value.trim(); if(!n) return; appData.taskTemplates.push({ id:Date.now()+'', name:n, scope:document.getElementById('newTaskScope').value }); saveData(); renderSettings(); showToast('已添加'); }
-    function removeTaskTemplate(i) { appData.taskTemplates.splice(i,1); saveData(); renderSettings(); }
     function resetAllData() { if(confirm('重置所有数据？')) { appData = JSON.parse(JSON.stringify(DEFAULT_DATA)); saveData(); showPage('home'); showToast('已重置'); } }
 
+    // PWA 可爱图标
     (function pwa(){
-        const m={name:"毛孩账本",short_name:"毛孩账本",start_url:".",display:"standalone",theme_color:"#8b5cf6",background_color:"#faf8f5",icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%238b5cf6'/%3E%3Ctext x='50' y='70' font-size='50' text-anchor='middle' fill='white'%3E🐾%3C/text%3E%3C/svg%3E",sizes:"512x512"}]};
-        document.getElementById('manifest').href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/json'}));
-        if('serviceWorker' in navigator) navigator.serviceWorker.register(URL.createObjectURL(new Blob(['self.addEventListener("install",e=>{e.waitUntil(caches.open("v2").then(c=>c.addAll(["."])));self.skipWaiting()});self.addEventListener("fetch",e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match("."))))});'],{type:'application/javascript'})));
+        const m = {
+            name: "毛孩账本", short_name: "毛孩账本", start_url: ".", display: "standalone",
+            theme_color: "#c4b5fd", background_color: "#faf8f5",
+            icons: [{
+                src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23c4b5fd'/%3E%3Ccircle cx='50' cy='50' r='38' fill='%23ede9fe'/%3E%3Ctext x='50' y='72' font-size='55' text-anchor='middle' fill='%238b5cf6'%3E🐾%3C/text%3E%3C/svg%3E",
+                sizes: "512x512", type: "image/svg+xml"
+            }]
+        };
+        document.getElementById('manifest').href = URL.createObjectURL(new Blob([JSON.stringify(m)], {type:'application/json'}));
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register(URL.createObjectURL(new Blob(['self.addEventListener("install",e=>{e.waitUntil(caches.open("v21").then(c=>c.addAll(["."])));self.skipWaiting()});self.addEventListener("fetch",e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match("."))))});'], {type:'application/javascript'})));
     })();
 
-    window.app = { showPage, setViewMode, prevPeriod, nextPeriod, toggleMonthRecords, showContextMenu, contextEdit, contextDelete, closeEditModal, saveEditRecord, showAddCategory, hideAddCategory, saveCategory, showAddPet, editPet, hidePetEdit, savePet, deleteCategory, addRecord, setStatPeriod, statPrevPeriod, statNextPeriod, closeDrilldown, exportCSV, exportImage, addExpenseCategory, removeExpenseCategory, addTaskTemplate, removeTaskTemplate, resetAllData };
+    window.app = { showPage, setViewMode, prevPeriod, nextPeriod, filterByCategory, clearFilter, toggleMonthRecords, showContextMenu, contextEdit, contextDelete, closeEditModal, saveEditRecord, showAddCategory, hideAddCategory, saveCategory, showAddPet, editPet, hidePetEdit, selectAvatar, previewAvatar, savePet, deleteCategory, addRecord, setStatPeriod, statPrevPeriod, statNextPeriod, closeDrilldown, exportCSV, exportImage, addExpenseCategory, removeExpenseCategory, resetAllData };
     loadData(); showPage('home');
 })();
 </script>
