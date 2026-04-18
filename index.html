@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- 版本信息 -->
+    <meta name="version" content="1.0.0">
+    <meta name="updated" content="2026-04-19">
+    
+    <!-- PWA 配置 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="毛孩账本">
+    <meta name="application-name" content="毛孩账本">
+    <meta name="theme-color" content="#d47b5a">
+    
+    <title>🐾 毛孩账本</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <link rel="manifest" id="manifest">
+    
+    <style>
+        :root {
+            --bg-page: #f8f6f3;
+            --card-bg: #ffffff;
+            --primary: #d47b5a;
+            --primary-light: #f3dfd6;
+            --text-main: #2c241e;
+            --text-sub: #7a6b5e;
+            --border-light: #e8e0da;
+            --shadow: 0 4px 12px rgba(0,0,0,0.04);
+            --radius-card: 22px;
+            --warning: #e6a345;
+            --danger: #d4735a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-page);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 85px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page { display: none; padding: 16px 16px 20px; max-width: 500px; margin: 0 auto; }
+        .page.active { display: block; }
+
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+        h1, h2 { font-weight: 650; letter-spacing: -0.3px; }
+        h2 { font-size: 22px; }
+
+        .card {
+            background: var(--card-bg); border-radius: var(--radius-card);
+            padding: 18px 16px; box-shadow: var(--shadow);
+            border: 1px solid var(--border-light); margin-bottom: 18px;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .btn {
+            background: var(--primary); color: white; border: none;
+            padding: 12px 18px; border-radius: 40px; font-weight: 600;
+            font-size: 16px; cursor: pointer; box-shadow: 0 4px 8px rgba(212,123,90,0.15);
+            transition: 0.15s; text-align: center;
+        }
+        .btn:disabled { opacity: 0.6; }
+        .btn-outline {
+            background: transparent; color: var(--text-main);
+            border: 1.5px solid var(--border-light); box-shadow: none;
+        }
+        .btn-small { padding: 8px 14px; font-size: 14px; }
+        .btn-danger {
+            background: var(--danger); color: white; border: none;
+            padding: 8px 14px; border-radius: 40px; font-size: 14px; cursor: pointer;
+        }
+
+        input, select, textarea {
+            width: 100%; padding: 12px 14px; border: 1.5px solid var(--border-light);
+            border-radius: 18px; background: var(--card-bg); font-size: 16px;
+            font-family: inherit;
+        }
+        .form-row { margin-bottom: 14px; }
+        label { font-size: 13px; font-weight: 500; color: var(--text-sub); display: block; margin-bottom: 5px; }
+
+        .nav-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(8px); display: flex; justify-content: space-around;
+            padding: 10px 16px 20px; border-top: 1px solid var(--border-light);
+            max-width: 500px; margin: 0 auto;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            font-size: 12px; color: var(--text-sub); background: none; border: none;
+            cursor: pointer; padding: 6px 16px; border-radius: 30px;
+        }
+        .nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+        .nav-icon { font-size: 22px; }
+
+        .day-group { margin-bottom: 20px; }
+        .day-header {
+            display: flex; justify-content: space-between; align-items: baseline;
+            padding: 8px 4px; border-bottom: 1px dashed var(--border-light);
+        }
+        .day-label { font-weight: 650; }
+        .day-total { color: var(--primary); font-weight: 700; }
+        .record-card {
+            background: var(--card-bg); border-radius: 18px; padding: 14px;
+            margin: 10px 0; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            border: 1px solid var(--border-light);
+        }
+        .record-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .record-cat { font-weight: 600; }
+        .record-amount { font-weight: 700; font-size: 18px; }
+        .dashed-line { border-bottom: 1px dashed var(--border-light); margin: 10px 0; opacity: 0.5; }
+        .record-meta { display: flex; justify-content: space-between; color: var(--text-sub); font-size: 13px; }
+
+        .task-item {
+            background: #faf8f6; border-radius: 16px; padding: 12px; margin: 8px 0;
+            border-left: 4px solid var(--primary);
+        }
+        .task-warning { border-left-color: var(--warning); }
+        .task-danger { border-left-color: var(--danger); }
+        .pet-actions { display: flex; gap: 6px; }
+        .avatar {
+            width: 48px; height: 48px; border-radius: 24px;
+            background: var(--primary-light); overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px;
+        }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        .offline-badge {
+            position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+            background: var(--warning); color: white; padding: 6px 16px;
+            border-radius: 40px; font-size: 13px; z-index: 9999;
+            display: none;
+        }
+        .offline-badge.show { display: block; }
+
+        .version-info {
+            font-size: 12px; color: var(--text-sub); text-align: center;
+            margin-top: 12px; padding: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="offline-badge" id="offlineBadge">📡 离线模式</div>
+
+<!-- 首页 -->
+<div id="pageHome" class="page active">
+    <div class="header">
+        <h1>🐾 毛孩账本</h1>
+        <button class="btn-outline btn-small" onclick="app.showPage('settings')">⚙️</button>
+    </div>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+            <h3>📂 我的家族</h3>
+            <button class="btn-outline btn-small" onclick="app.showPage('pets')">管理</button>
+        </div>
+        <div id="categoryGrid" class="grid-2"></div>
+    </div>
+
+    <div class="card">
+        <h3 style="margin-bottom: 12px;">📋 最近流水</h3>
+        <div id="recentRecords"></div>
+    </div>
+</div>
+
+<!-- 记账页 -->
+<div id="pageAdd" class="page">
+    <div class="header"><h2>✏️ 记一笔</h2></div>
+    <div class="card">
+        <div class="form-row"><label>💰 金额</label><input type="number" id="amountInput" placeholder="0.00" step="0.01"></div>
+        <div class="form-row"><label>📅 日期</label><input type="date" id="dateInput"></div>
+        <div class="form-row"><label>🐾 大类</label><select id="categoryTypeSelect"></select></div>
+        <div class="form-row"><label>📂 支出类别</label><select id="expenseCategorySelect"></select></div>
+        <div class="form-row"><label>💳 支付方式</label>
+            <select id="paymentSelect"><option>微信</option><option>支付宝</option><option>现金</option><option>银行卡</option></select>
+        </div>
+        <div class="form-row"><label>📝 备注</label><textarea id="noteInput" rows="2"></textarea></div>
+        <button class="btn" id="saveRecordBtn" onclick="app.addRecord()">保存记录</button>
+    </div>
+</div>
+
+<!-- 宠物档案页 -->
+<div id="pagePets" class="page">
+    <div class="header">
+        <h2>🐕 宠物档案</h2>
+        <button class="btn-outline btn-small" onclick="app.showAddCategory()">+ 大类</button>
+    </div>
+    <div id="categoryListContainer"></div>
+    
+    <div id="addCategoryPanel" class="card" style="display: none;">
+        <h3>新建大类</h3>
+        <div class="form-row"><input type="text" id="newCategoryName" placeholder="例如: 猫咪"></div>
+        <div class="form-row"><input type="text" id="newCategoryIcon" placeholder="图标 🐱" value="🐱"></div>
+        <button class="btn" id="saveCategoryBtn" onclick="app.saveCategory()">创建</button>
+        <button class="btn-outline" onclick="app.hideAddCategory()">取消</button>
+    </div>
+    
+    <div id="petEditPanel" class="card" style="display: none;">
+        <h3 id="petEditTitle">添加宠物</h3>
+        <input type="hidden" id="editPetId">
+        <input type="hidden" id="editPetCategoryId">
+        <div class="form-row"><label>头像</label><input type="file" id="petAvatarInput" accept="image/*"></div>
+        <div class="form-row"><label>名字</label><input type="text" id="petNameInput" placeholder="咪咪"></div>
+        <div class="form-row"><label>生日</label><input type="date" id="petBirthdayInput"></div>
+        <button class="btn" id="savePetBtn" onclick="app.savePet()">保存</button>
+        <button class="btn-outline" onclick="app.hidePetEdit()">取消</button>
+    </div>
+</div>
+
+<!-- 统计页 -->
+<div id="pageStats" class="page">
+    <div class="header"><h2>📊 统计分析</h2></div>
+    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+        <button class="btn-outline btn-small" data-period="day" onclick="app.setStatPeriod('day')">日</button>
+        <button class="btn-outline btn-small" data-period="month" onclick="app.setStatPeriod('month')">月</button>
+        <button class="btn-outline btn-small" data-period="year" onclick="app.setStatPeriod('year')">年</button>
+        <input type="date" id="statDatePicker" style="width: auto; flex:1;">
+    </div>
+    <div class="card"><div style="display: flex; justify-content: space-between;"><span id="statTotalLabel">本月总支出</span><span class="stat-value" id="statTotalAmount">¥0.00</span></div></div>
+    <div class="card"><h3>🍥 大类占比</h3><div style="height:200px;"><canvas id="pieChart"></canvas></div></div>
+    <div class="grid-2">
+        <button class="btn-outline" onclick="app.exportCSV()">📄 导出CSV</button>
+        <button class="btn-outline" onclick="app.exportImage()">🖼️ 导出图片</button>
+    </div>
+</div>
+
+<!-- 设置页 -->
+<div id="pageSettings" class="page">
+    <div class="header"><h2>⚙️ 设置</h2></div>
+    <div class="card">
+        <h3>📂 支出类别管理</h3>
+        <div id="expenseCategoryList"></div>
+        <div class="form-row" style="display:flex; gap:8px; margin-top:12px;">
+            <input type="text" id="newExpenseCatName" placeholder="新类别名称">
+            <input type="number" id="newExpenseCatBudget" placeholder="月预算" style="width:100px;">
+            <button class="btn-small btn" id="addExpenseCatBtn" onclick="app.addExpenseCategory()">+</button>
+        </div>
+    </div>
+    <div class="card">
+        <h3>📋 事项模板库</h3>
+        <div id="taskTemplateList"></div>
+        <div style="display:flex; gap:8px; margin-top:12px;">
+            <input type="text" id="newTaskName" placeholder="事项名称">
+            <select id="newTaskScope"><option value="shared">共用</option><option value="pet">专属</option></select>
+            <input type="number" id="newTaskThreshold" placeholder="提醒天数" style="width:80px;">
+            <button class="btn-small btn" id="addTaskBtn" onclick="app.addTaskTemplate()">+</button>
+        </div>
+    </div>
+    <div class="card" style="margin-top:20px;">
+        <h3>🗑️ 数据管理</h3>
+        <button class="btn-danger" onclick="app.resetAllData()">重置所有数据</button>
+        <p style="font-size:12px; color:var(--text-sub); margin-top:8px;">⚠️ 此操作不可恢复</p>
+    </div>
+    <div class="version-info">
+        <span id="versionDisplay"></span>
+        <button class="btn-outline btn-small" style="margin-left:8px;" onclick="app.checkUpdate()">检查更新</button>
+    </div>
+</div>
+
+<!-- 底部导航 -->
+<div class="nav-bar">
+    <button class="nav-item active" data-page="home" onclick="app.showPage('home')"><span class="nav-icon">🏠</span>首页</button>
+    <button class="nav-item" data-page="add" onclick="app.showPage('add')"><span class="nav-icon">✏️</span>记账</button>
+    <button class="nav-item" data-page="pets" onclick="app.showPage('pets')"><span class="nav-icon">🐾</span>档案</button>
+    <button class="nav-item" data-page="stats" onclick="app.showPage('stats')"><span class="nav-icon">📊</span>统计</button>
+</div>
+
+<script>
+// ========== 版本管理 ==========
+const APP_VERSION = '1.0.0';
+const APP_UPDATED = '2026-04-19';
+const VERSION_CHECK_URL = 'https://api.github.com/repos/你的用户名/仓库名/commits/main';
+
+function displayVersion() {
+    document.getElementById('versionDisplay').innerHTML = `🐾 版本 ${APP_VERSION} (${APP_UPDATED})`;
+}
+
+// ========== PWA 初始化 ==========
+(function initPWA() {
+    const manifest = {
+        name: "毛孩账本",
+        short_name: "毛孩账本",
+        description: "多宠记账与事项追踪",
+        start_url: ".",
+        display: "standalone",
+        orientation: "portrait",
+        theme_color: "#d47b5a",
+        background_color: "#f8f6f3",
+        icons: [
+            { src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23d47b5a'/%3E%3Ctext x='50' y='70' font-size='50' text-anchor='middle' fill='white'%3E🐾%3C/text%3E%3C/svg%3E", sizes: "512x512", type: "image/svg+xml" }
+        ]
+    };
+    
+    const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+    document.getElementById('manifest').href = URL.createObjectURL(manifestBlob);
+    
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register(
+            URL.createObjectURL(new Blob([
+                `self.addEventListener('install', (e) => {
+                    e.waitUntil(caches.open('pet-v1').then(c => c.addAll(['.'])));
+                    self.skipWaiting();
+                });
+                self.addEventListener('fetch', (e) => {
+                    e.respondWith(
+                        caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('.')))
+                    );
+                });`
+            ], { type: 'application/javascript' }))
+        ).then(() => console.log('✅ SW 已注册')).catch(e => console.log('SW 注册失败', e));
+    }
+    
+    window.addEventListener('online', () => document.getElementById('offlineBadge').classList.remove('show'));
+    window.addEventListener('offline', () => document.getElementById('offlineBadge').classList.add('show'));
+    if (!navigator.onLine) document.getElementById('offlineBadge').classList.add('show');
+    
+    displayVersion();
+})();
+
+// ========== 主应用逻辑 ==========
+(function(){
+    'use strict';
+    
+    const DEFAULT_DATA = {
+        categories: [],
+        pets: [],
+        records: [],
+        expenseCategories: [
+            { name: '食品', budget: null },
+            { name: '医疗', budget: null },
+            { name: '玩具', budget: null },
+            { name: '美容', budget: null },
+            { name: '日用', budget: null }
+        ],
+        taskTemplates: []
+    };
+    
+    let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    const STORAGE_KEY = 'pet_pwa_v1';
+
+    function loadData() {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                appData.categories = Array.isArray(parsed.categories) ? parsed.categories : [];
+                appData.pets = Array.isArray(parsed.pets) ? parsed.pets : [];
+                appData.records = Array.isArray(parsed.records) ? parsed.records : [];
+                appData.expenseCategories = Array.isArray(parsed.expenseCategories) ? parsed.expenseCategories : DEFAULT_DATA.expenseCategories;
+                appData.taskTemplates = Array.isArray(parsed.taskTemplates) ? parsed.taskTemplates : [];
+            }
+        } catch (e) {
+            appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        }
+    }
+
+    function saveData() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+            return true;
+        } catch (e) {
+            if (e.name === 'QuotaExceededError') {
+                showToast('存储空间不足，请导出后清理', false);
+            }
+            return false;
+        }
+    }
+
+    function resetAllData() {
+        if (!confirm('确定重置所有数据吗？')) return;
+        appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        saveData();
+        showPage('home');
+        showToast('✅ 数据已重置');
+    }
+
+    const getToday = () => new Date().toISOString().slice(0,10);
+    const formatYMD = (d) => { 
+        if (!d) return '';
+        const date = new Date(d); 
+        return `${date.getFullYear()}年${date.getMonth()+1}月${date.getDate()}日`; 
+    };
+    const getWeekday = (d) => ['周日','周一','周二','周三','周四','周五','周六'][new Date(d).getDay()];
+
+    function showToast(msg, isGood = true) {
+        const toast = document.createElement('div');
+        toast.style.cssText = `position:fixed; bottom:100px; left:50%; transform:translateX(-50%); background:${isGood?'#2c241e':'#d4735a'}; color:white; padding:12px 24px; border-radius:40px; z-index:9999; font-weight:500;`;
+        toast.innerText = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
+
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('page' + pageId.charAt(0).toUpperCase() + pageId.slice(1)).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.querySelector(`.nav-item[data-page="${pageId}"]`)?.classList.add('active');
+
+        if (pageId === 'home') renderHome();
+        else if (pageId === 'add') renderAddForm();
+        else if (pageId === 'pets') renderPetsPage();
+        else if (pageId === 'stats') renderStatsPage();
+        else if (pageId === 'settings') renderSettings();
+    }
+
+    function renderHome() {
+        const grid = document.getElementById('categoryGrid');
+        if (!appData.categories.length) {
+            grid.innerHTML = '<div style="grid-column:span 2;padding:20px;text-align:center;color:var(--text-sub);">点击"管理"添加大类</div>';
+        } else {
+            grid.innerHTML = appData.categories.map(cat => {
+                const total = appData.records.filter(r => r.categoryId === cat.id).reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
+                return `<div class="card" style="padding:16px;"><div style="font-size:32px;">${cat.icon||'🐾'}</div><div style="font-weight:600;">${cat.name}</div><div>¥${total.toFixed(2)}</div></div>`;
+            }).join('');
+        }
+
+        const recordsByDay = {};
+        [...appData.records].sort((a,b)=> (b.date||'').localeCompare(a.date||'')).forEach(r => {
+            if (!recordsByDay[r.date]) recordsByDay[r.date] = [];
+            recordsByDay[r.date].push(r);
+        });
+        
+        const container = document.getElementById('recentRecords');
+        let html = '';
+        const dates = Object.keys(recordsByDay).slice(0, 7);
+        if (dates.length === 0) {
+            html = '<div style="padding:20px;text-align:center;color:var(--text-sub);">暂无流水</div>';
+        } else {
+            dates.forEach(date => {
+                const dayRecords = recordsByDay[date];
+                const dayTotal = dayRecords.reduce((s,r)=> s + (parseFloat(r.amount)||0), 0);
+                html += `<div class="day-group"><div class="day-header"><span class="day-label">${formatYMD(date)} ${getWeekday(date)}</span><span class="day-total">支出 ¥${dayTotal.toFixed(2)}</span></div>`;
+                dayRecords.forEach(r => {
+                    const cat = appData.categories.find(c=>c.id===r.categoryId);
+                    html += `<div class="record-card"><div class="record-row"><span class="record-cat">${r.expenseCategory}</span><span class="record-amount">¥${parseFloat(r.amount).toFixed(2)}</span></div><div class="dashed-line"></div><div class="record-meta"><span>📝 ${r.note||'无'}</span><span>🐾 ${cat?.name||''}</span></div></div>`;
+                });
+                html += '</div>';
+            });
+        }
+        container.innerHTML = html;
+    }
+
+    function renderAddForm() {
+        document.getElementById('dateInput').value = getToday();
+        const catSelect = document.getElementById('categoryTypeSelect');
+        catSelect.innerHTML = appData.categories.map(c => `<option value="${c.id}">${c.icon||''} ${c.name}</option>`).join('');
+        const expSelect = document.getElementById('expenseCategorySelect');
+        expSelect.innerHTML = appData.expenseCategories.map(ec => `<option>${ec.name}</option>`).join('');
+    }
+
+    function addRecord() {
+        const btn = document.getElementById('saveRecordBtn');
+        btn.disabled = true;
+        
+        const amount = parseFloat(document.getElementById('amountInput').value);
+        if (!amount || amount <= 0) {
+            showToast('金额无效', false);
+            btn.disabled = false;
+            return;
+        }
+        
+        if (!appData.categories.length) {
+            showToast('请先创建大类', false);
+            btn.disabled = false;
+            return;
+        }
+        
+        appData.records.push({
+            id: Date.now() + Math.random(),
+            amount: amount,
+            date: document.getElementById('dateInput').value,
+            categoryId: document.getElementById('categoryTypeSelect').value,
+            expenseCategory: document.getElementById('expenseCategorySelect').value,
+            payment: document.getElementById('paymentSelect').value,
+            note: document.getElementById('noteInput').value
+        });
+        
+        saveData();
+        showToast('✅ 记录已保存');
+        document.getElementById('amountInput').value = '';
+        document.getElementById('noteInput').value = '';
+        btn.disabled = false;
+        renderHome();
+    }
+
+    function renderPetsPage() {
+        const container = document.getElementById('categoryListContainer');
+        if (!appData.categories.length) {
+            container.innerHTML = '<div class="card" style="text-align:center;color:var(--text-sub);">暂无大类，请点击"+ 大类"创建</div>';
+            return;
+        }
+        
+        let html = '';
+        appData.categories.forEach(cat => {
+            const pets = appData.pets.filter(p => p.categoryId === cat.id);
+            html += `<div class="card"><div style="display:flex; justify-content:space-between;"><h3>${cat.icon||'🐾'} ${cat.name}</h3><button class="btn-outline btn-small" onclick="app.showAddPet('${cat.id}')">+ 宠物</button></div>`;
+            
+            if (pets.length === 0) {
+                html += '<div style="padding:16px;text-align:center;color:var(--text-sub);">暂无宠物，点击上方添加</div>';
+            } else {
+                pets.forEach(pet => {
+                    const age = calcAge(pet.birthday);
+                    html += `<div style="display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid var(--border-light);">`;
+                    html += `<div class="avatar">${pet.avatar ? `<img src="${pet.avatar}">` : '🐕'}</div>`;
+                    html += `<div style="flex:1">`;
+                    html += `<div style="display:flex; justify-content:space-between;">`;
+                    html += `<b>${pet.name}</b>`;
+                    html += `<div class="pet-actions">`;
+                    html += `<button class="btn-outline btn-small" onclick="app.editPet('${pet.id}')">编辑</button>`;
+                    html += `<button class="btn-danger btn-small" onclick="app.deletePet('${pet.id}')">删除</button>`;
+                    html += `</div></div>`;
+                    html += `<small>🎂 ${pet.birthday || '未设置'} (${age})</small>`;
+                    
+                    const tasks = getPetTasks(pet.id);
+                    tasks.forEach(t => {
+                        const last = getLastTaskRecord(pet, t.id);
+                        const days = last ? Math.floor((new Date() - new Date(last.date)) / 86400000) : null;
+                        const warnClass = days !== null && t.thresholdDays && days > t.thresholdDays ? (days > t.thresholdDays*1.5 ? 'task-danger' : 'task-warning') : '';
+                        html += `<div class="task-item ${warnClass}" style="margin-top:8px;">`;
+                        html += `<div style="display:flex; justify-content:space-between;"><span>📌 ${t.name}</span><span>${days !== null ? days + '天前' : '未记录'}</span></div>`;
+                        if (t.thresholdDays) html += `<small>提醒阈值: ${t.thresholdDays}天</small>`;
+                        html += `<button class="btn-outline btn-small" style="margin-top:6px;" onclick="app.recordTask('${pet.id}','${t.id}')">记录</button>`;
+                        html += `</div>`;
+                    });
+                    
+                    html += `</div></div>`;
+                });
+            }
+            html += '</div>';
+        });
+        container.innerHTML = html;
+    }
+
+    function calcAge(b) {
+        if (!b) return '未知';
+        const birth = new Date(b);
+        const now = new Date();
+        let y = now.getFullYear() - birth.getFullYear();
+        let m = now.getMonth() - birth.getMonth();
+        if (m < 0) { y--; m += 12; }
+        return `${y}岁${m}个月`;
+    }
+
+    function getPetTasks(petId) {
+        return appData.taskTemplates.filter(t => t.scope === 'shared' || (t.scope === 'pet' && t.petId === petId));
+    }
+
+    function getLastTaskRecord(pet, templateId) {
+        const task = pet.tasks?.find(t => t.templateId === templateId);
+        return task?.records?.slice(-1)[0] || null;
+    }
+
+    function recordTask(petId, templateId) {
+        const pet = appData.pets.find(p => p.id === petId);
+        if (!pet) return;
+        if (!pet.tasks) pet.tasks = [];
+        
+        let task = pet.tasks.find(t => t.templateId === templateId);
+        if (!task) {
+            task = { templateId, records: [] };
+            pet.tasks.push(task);
+        }
+        
+        const note = prompt('备注（可选）');
+        task.records.push({ date: getToday(), note: note || '' });
+        saveData();
+        renderPetsPage();
+        showToast('✅ 已记录');
+    }
+
+    function showAddCategory() {
+        document.getElementById('addCategoryPanel').style.display = 'block';
+        document.getElementById('newCategoryName').value = '';
+        document.getElementById('newCategoryIcon').value = '🐱';
+    }
+
+    function hideAddCategory() {
+        document.getElementById('addCategoryPanel').style.display = 'none';
+    }
+
+    function saveCategory() {
+        const btn = document.getElementById('saveCategoryBtn');
+        btn.disabled = true;
+        
+        const name = document.getElementById('newCategoryName').value.trim();
+        if (!name) {
+            showToast('请输入名称', false);
+            btn.disabled = false;
+            return;
+        }
+        
+        appData.categories.push({
+            id: Date.now() + '',
+            name: name,
+            icon: document.getElementById('newCategoryIcon').value || '🐾'
+        });
+        
+        saveData();
+        hideAddCategory();
+        renderPetsPage();
+        showToast('✅ 大类已创建');
+        btn.disabled = false;
+    }
+
+    function showAddPet(catId) {
+        document.getElementById('petEditTitle').innerText = '添加宠物';
+        document.getElementById('editPetId').value = '';
+        document.getElementById('editPetCategoryId').value = catId;
+        document.getElementById('petNameInput').value = '';
+        document.getElementById('petBirthdayInput').value = '';
+        document.getElementById('petAvatarInput').value = '';
+        document.getElementById('petEditPanel').style.display = 'block';
+    }
+
+    function editPet(petId) {
+        const pet = appData.pets.find(p => p.id === petId);
+        if (!pet) return;
+        
+        document.getElementById('petEditTitle').innerText = '编辑宠物';
+        document.getElementById('editPetId').value = petId;
+        document.getElementById('editPetCategoryId').value = pet.categoryId;
+        document.getElementById('petNameInput').value = pet.name;
+        document.getElementById('petBirthdayInput').value = pet.birthday || '';
+        document.getElementById('petAvatarInput').value = '';
+        document.getElementById('petEditPanel').style.display = 'block';
+    }
+
+    function hidePetEdit() {
+        document.getElementById('petEditPanel').style.display = 'none';
+    }
+
+    function savePet() {
+        const btn = document.getElementById('savePetBtn');
+        if (btn.disabled) return;
+        btn.disabled = true;
+        
+        const id = document.getElementById('editPetId').value;
+        const categoryId = document.getElementById('editPetCategoryId').value;
+        const name = document.getElementById('petNameInput').value.trim();
+        
+        if (!name) {
+            showToast('请输入名字', false);
+            btn.disabled = false;
+            return;
+        }
+        
+        const birthday = document.getElementById('petBirthdayInput').value;
+        const avatarInput = document.getElementById('petAvatarInput');
+        
+        const finishSaving = (avatarData) => {
+            if (id) {
+                const pet = appData.pets.find(p => p.id === id);
+                if (pet) {
+                    pet.name = name;
+                    pet.birthday = birthday;
+                    if (avatarData) pet.avatar = avatarData;
+                }
+            } else {
+                appData.pets.push({
+                    id: Date.now() + '',
+                    categoryId: categoryId,
+                    name: name,
+                    birthday: birthday,
+                    avatar: avatarData || '',
+                    tasks: []
+                });
+            }
+            
+            saveData();
+            hidePetEdit();
+            renderPetsPage();
+            showToast(id ? '✅ 宠物已更新' : '✅ 宠物已添加');
+            btn.disabled = false;
+        };
+        
+        if (avatarInput.files.length > 0) {
+            const reader = new FileReader();
+            reader.onload = (e) => finishSaving(e.target.result);
+            reader.readAsDataURL(avatarInput.files[0]);
+        } else {
+            finishSaving(null);
+        }
+    }
+
+    function deletePet(petId) {
+        if (!confirm('确定删除这只宠物吗？')) return;
+        appData.pets = appData.pets.filter(p => p.id !== petId);
+        saveData();
+        renderPetsPage();
+        showToast('🗑️ 宠物已删除');
+    }
+
+    let pieChart = null;
+    
+    function renderStatsPage() {
+        document.getElementById('statDatePicker').valueAsDate = new Date();
+        
+        const totals = {};
+        appData.categories.forEach(c => totals[c.id] = 0);
+        appData.records.forEach(r => {
+            if (totals.hasOwnProperty(r.categoryId)) {
+                totals[r.categoryId] += parseFloat(r.amount) || 0;
+            }
+        });
+        
+        const total = Object.values(totals).reduce((a, b) => a + b, 0);
+        document.getElementById('statTotalAmount').innerText = `¥${total.toFixed(2)}`;
+        
+        const ctx = document.getElementById('pieChart').getContext('2d');
+        if (pieChart) pieChart.destroy();
+        
+        if (appData.categories.length > 0) {
+            pieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: appData.categories.map(c => c.name),
+                    datasets: [{
+                        data: appData.categories.map(c => totals[c.id] || 0),
+                        backgroundColor: ['#d47b5a', '#e0a98a', '#a7c5a1', '#c4b0c4', '#9fc0d4', '#e8c4a0']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: true }
+            });
+        }
+    }
+
+    function setStatPeriod(p) {
+        renderStatsPage();
+    }
+
+    function exportCSV() {
+        if (!appData.records.length) {
+            showToast('暂无记录可导出', false);
+            return;
+        }
+        let csv = "日期,金额,大类,类别,支付,备注\n";
+        appData.records.forEach(r => {
+            const cat = appData.categories.find(c => c.id === r.categoryId);
+            csv += `${r.date},${r.amount},${cat?.name || ''},${r.expenseCategory},${r.payment},${r.note}\n`;
+        });
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `pet_export_${getToday()}.csv`;
+        a.click();
+        showToast('📄 CSV 导出中');
+    }
+
+    function exportImage() {
+        html2canvas(document.getElementById('pageStats')).then(canvas => {
+            const a = document.createElement('a');
+            a.download = `stats_${getToday()}.png`;
+            a.href = canvas.toDataURL();
+            a.click();
+            showToast('🖼️ 图片已保存');
+        });
+    }
+
+    function renderSettings() {
+        const expList = document.getElementById('expenseCategoryList');
+        expList.innerHTML = appData.expenseCategories.map((ec, i) => 
+            `<div style="display:flex; justify-content:space-between; padding:8px 0;">
+                <span>${ec.name} ${ec.budget ? '(预算 ¥' + ec.budget + ')' : ''}</span>
+                <button class="btn-outline btn-small" onclick="app.removeExpenseCategory(${i})">删除</button>
+            </div>`
+        ).join('');
+        
+        const taskList = document.getElementById('taskTemplateList');
+        taskList.innerHTML = appData.taskTemplates.map((t, i) => 
+            `<div style="display:flex; justify-content:space-between; padding:8px 0;">
+                <span>${t.name} (${t.scope === 'shared' ? '共用' : '专属'}) ${t.thresholdDays ? '⏰' + t.thresholdDays + '天' : ''}</span>
+                <button class="btn-outline btn-small" onclick="app.removeTaskTemplate(${i})">删除</button>
+            </div>`
+        ).join('');
+    }
+
+    function addExpenseCategory() {
+        const btn = document.getElementById('addExpenseCatBtn');
+        btn.disabled = true;
+        
+        const name = document.getElementById('newExpenseCatName').value.trim();
+        if (!name) {
+            showToast('请输入名称', false);
+            btn.disabled = false;
+            return;
+        }
+        
+        const budget = document.getElementById('newExpenseCatBudget').value;
+        appData.expenseCategories.push({
+            name: name,
+            budget: budget ? parseFloat(budget) : null
+        });
+        
+        saveData();
+        renderSettings();
+        showToast('✅ 类别已添加');
+        document.getElementById('newExpenseCatName').value = '';
+        document.getElementById('newExpenseCatBudget').value = '';
+        btn.disabled = false;
+    }
+
+    function removeExpenseCategory(i) {
+        appData.expenseCategories.splice(i, 1);
+        saveData();
+        renderSettings();
+    }
+
+    function addTaskTemplate() {
+        const btn = document.getElementById('addTaskBtn');
+        btn.disabled = true;
+        
+        const name = document.getElementById('newTaskName').value.trim();
+        if (!name) {
+            showToast('请输入名称', false);
+            btn.disabled = false;
+            return;
+        }
+        
+        const scope = document.getElementById('newTaskScope').value;
+        const threshold = document.getElementById('newTaskThreshold').value;
+        
+        appData.taskTemplates.push({
+            id: Date.now() + '',
+            name: name,
+            scope: scope,
+            thresholdDays: threshold ? parseInt(threshold) : null
+        });
+        
+        saveData();
+        renderSettings();
+        showToast('✅ 模板已添加');
+        document.getElementById('newTaskName').value = '';
+        document.getElementById('newTaskThreshold').value = '';
+        btn.disabled = false;
+    }
+
+    function removeTaskTemplate(i) {
+        appData.taskTemplates.splice(i, 1);
+        saveData();
+        renderSettings();
+    }
+
+    function checkUpdate() {
+        showToast('📡 当前已是最新版本 ' + APP_VERSION);
+        // GitHub API 检测需要配置，先简化
+    }
+
+    window.app = {
+        showPage,
+        showAddCategory, hideAddCategory, saveCategory,
+        showAddPet, editPet, hidePetEdit, savePet, deletePet,
+        addRecord,
+        setStatPeriod, exportCSV, exportImage,
+        addExpenseCategory, removeExpenseCategory,
+        addTaskTemplate, removeTaskTemplate,
+        recordTask,
+        resetAllData,
+        checkUpdate
+    };
+
+    loadData();
+    showPage('home');
+})();
+</script>
+</body>
+</html>
