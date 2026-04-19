@@ -30,6 +30,9 @@
             --cancel-bg: #fce4ec;
             --cancel-text: #e91e63;
             --success: #a7f3d0;
+            --upcoming-color: #f97316;
+            --overdue-color: #dc2626;
+            --normal-color: #9ca3af;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-page); color: var(--text-main); min-height: 100vh; padding-bottom: 80px; }
@@ -72,7 +75,6 @@
             gap: 6px; 
             transition: all 0.2s ease;
         }
-        .btn:hover { transform: scale(1.02); background: #7c3aed; }
         .btn:active { transform: scale(0.96); }
         
         .btn-cancel { 
@@ -98,7 +100,7 @@
         }
         .btn-outline:active { transform: scale(0.96); }
         
-        .btn-small { padding: 6px 12px; font-size: 13px; }
+        .btn-small { padding: 6px 12px; font-size: 12px; }
         
         .data-btn {
             background: var(--primary-dark);
@@ -115,7 +117,6 @@
         }
         .data-btn:active { transform: scale(0.96); }
         
-        /* 悬浮按钮 */
         .fab {
             position: fixed;
             bottom: 85px;
@@ -210,9 +211,66 @@
         .category-card:active { transform: scale(0.95); }
         .category-card.active { border: 2px solid var(--primary-dark); background: var(--primary-light); }
         
-        .reminder-item { background: var(--warning); border-radius: 14px; padding: 10px 14px; margin: 8px 0; display: flex; align-items: center; gap: 10px; }
-        .reminder-item.danger { background: var(--danger); }
-        .reminder-item.upcoming { background: var(--primary-light); }
+        /* 日程提醒卡片样式 */
+        .reminder-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .reminder-item:last-child { border-bottom: none; }
+        .reminder-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+        .reminder-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .reminder-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .reminder-avatar i { width: 24px; height: 24px; color: var(--primary-dark); }
+        .reminder-info { flex: 1; }
+        .reminder-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+        .reminder-date {
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+        .reminder-days {
+            font-size: 15px;
+            font-weight: 600;
+            text-align: right;
+            margin-right: 12px;
+            min-width: 70px;
+        }
+        .reminder-days.upcoming { color: var(--upcoming-color); }
+        .reminder-days.overdue { color: var(--overdue-color); }
+        .reminder-days.normal { color: var(--normal-color); }
+        .reminder-complete {
+            background: var(--primary-light);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--primary-dark);
+            cursor: pointer;
+        }
+        .reminder-complete:active { transform: scale(0.95); }
         
         input, select, textarea { 
             width: 100%; 
@@ -320,7 +378,6 @@
         .wish-status-bought { color: #10b981; }
         .wish-status-pending { color: var(--text-sub); }
         
-        /* 总支出卡片内的时间选择器 */
         .period-selector {
             display: flex;
             align-items: center;
@@ -384,9 +441,10 @@
         <div style="font-size: 32px; font-weight: 700; color: var(--primary-dark);" id="periodTotalAmount">¥0.00</div>
     </div>
     
-    <div class="card" id="healthReminderCard">
-        <h3 style="font-size: 16px; margin-bottom: 8px;"><i data-lucide="heart-pulse"></i> 健康提醒</h3>
-        <div id="healthReminderList"></div>
+    <!-- 日程提醒卡片 -->
+    <div class="card" id="scheduleReminderCard">
+        <h3 style="font-size: 16px; margin-bottom: 12px;"><i data-lucide="calendar"></i> 日程提醒</h3>
+        <div id="scheduleReminderList"></div>
     </div>
     
     <div class="card" id="wishlistCard">
@@ -417,13 +475,13 @@
 <!-- 悬浮记账按钮 -->
 <button class="fab" onclick="app.openQuickRecordModal()"><i data-lucide="plus"></i></button>
 
-<!-- 记录页（只有愿望清单/体重/事项） -->
+<!-- 记录页（愿望清单 / 体重记录 / 日程记录） -->
 <div id="pageRecord" class="page">
     <div class="header"><h2>记录</h2></div>
     <div class="tabs">
         <button class="tab active" onclick="app.setRecordTab('wish')">愿望清单</button>
         <button class="tab" onclick="app.setRecordTab('weight')">体重记录</button>
-        <button class="tab" onclick="app.setRecordTab('task')">事项记录</button>
+        <button class="tab" onclick="app.setRecordTab('schedule')">日程记录</button>
     </div>
     <div id="wishRecordContent">
         <div class="card">
@@ -449,7 +507,7 @@
             <div style="height:200px;"><canvas id="weightTrendChart"></canvas></div>
         </div>
     </div>
-    <div id="taskRecordContent" style="display: none;">
+    <div id="scheduleRecordContent" style="display: none;">
         <div class="card">
             <div class="form-row"><label>宠物</label><select id="taskRecordPetSelect"></select></div>
             <div class="form-row"><label>事项</label><select id="taskTypeSelect">
@@ -457,16 +515,18 @@
                 <option value="疫苗">疫苗</option>
                 <option value="洗澡">洗澡</option>
                 <option value="体检">体检</option>
+                <option value="剪指甲">剪指甲</option>
+                <option value="梳毛">梳毛</option>
                 <option value="其他">其他</option>
             </select></div>
             <div class="form-row"><label>日期</label><input type="date" id="taskRecordDateInput"></div>
-            <div class="form-row"><label>备注</label><input type="text" id="taskRecordNoteInput" placeholder="如：下次驱虫时间、疫苗品牌等"></div>
+            <div class="form-row"><label>备注</label><input type="text" id="taskRecordNoteInput" placeholder="可选"></div>
             <div class="modal-buttons">
                 <button class="btn" onclick="app.addTaskRecord()"><i data-lucide="plus"></i> 保存</button>
             </div>
         </div>
         <div class="card">
-            <h3>最近事项记录</h3>
+            <h3>最近日程记录</h3>
             <div id="recentTaskList"></div>
         </div>
     </div>
@@ -527,7 +587,7 @@
     <div class="card"><h3>定期记账</h3><div id="recurringList"></div></div>
     <div class="card"><h3>预算设置</h3><div class="form-row"><label>月度预算</label><input type="number" id="monthlyBudget" step="0.01" placeholder="输入预算金额"><button class="btn btn-small" style="margin-top: 8px;" onclick="app.saveBudget()">保存预算</button></div><div id="budgetDisplay" style="margin-top: 12px;"></div></div>
     <div class="card"><h3>数据</h3><div style="display: flex; flex-wrap: wrap; gap: 8px;"><button class="data-btn" onclick="app.exportData()"><i data-lucide="download"></i> 导出数据</button><label class="data-btn" style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;"><i data-lucide="upload"></i> 导入数据<input type="file" id="importFileInput" accept=".json" onchange="app.importData(this)" style="display: none;"></label><button class="data-btn" onclick="app.resetAllData()" style="background: #dc2626;"><i data-lucide="alert-triangle"></i> 重置</button></div></div>
-    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v2.9 · 正式版</div>
+    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v3.0 · 正式版</div>
 </div>
 
 <!-- 底部导航 -->
@@ -546,9 +606,7 @@
 <div class="modal" id="editRecordModal"><div class="modal-content"><h3>编辑记录</h3><input type="hidden" id="editRecordId"><div class="form-row"><label>金额</label><input type="number" id="editAmountInput" step="0.01"></div><div class="form-row"><label>日期</label><input type="date" id="editDateInput"></div><div class="form-row"><label>所属宠物</label><select id="editPetSelect"></select></div><div class="form-row"><label>家族</label><select id="editCategorySelect"></select></div><div class="form-row"><label>类别</label><select id="editExpenseCategorySelect"></select></div><div class="form-row"><label>支付</label><select id="editPaymentSelect"><option>微信</option><option>支付宝</option><option>现金</option></select></div><div class="form-row"><label>备注</label><textarea id="editNoteInput" rows="2"></textarea></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeEditModal()">取消</button><button class="btn" onclick="app.saveEditRecord()">保存</button></div></div></div>
 <div class="modal" id="deletePetModal"><div class="modal-content"><h3>删除宠物</h3><p style="margin-bottom: 16px;">请选择处理方式：</p><button class="btn" style="margin-bottom: 8px; background: #dc2626;" onclick="app.confirmDeletePet('both')">删除宠物及其所有账单</button><button class="btn-cancel" onclick="app.confirmDeletePet('keep')">保留账单，仅解除关联</button><div class="modal-buttons" style="margin-top: 12px;"><button class="btn-cancel" onclick="app.closeDeletePetModal()">取消</button></div></div></div>
 <div class="modal" id="wishlistModal"><div class="modal-content"><h3 id="wishlistModalTitle">🎁 新建愿望清单</h3><input type="hidden" id="editWishlistId"><div class="form-row"><label>清单名称</label><input type="text" id="wishlistName" placeholder="如：养猫预备金"></div><div class="form-row"><label>关联宠物</label><select id="wishlistPetSelect"><option value="">无</option></select></div><div style="margin: 12px 0;"><label style="font-weight: 500;">愿望项目</label><div id="wishItemsContainer"></div><button class="btn-outline btn-small" style="margin-top: 8px;" onclick="app.addWishItemField()"><i data-lucide="plus"></i> 添加项目</button></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeWishlistModal()">取消</button><button class="btn" onclick="app.saveWishlist()">保存</button></div></div></div>
-
-<!-- 快捷记账弹窗 -->
-<div class="modal" id="quickRecordModal"><div class="modal-content"><h3>📝 记账</h3><div class="form-row"><label>金额</label><input type="number" id="quickAmount" step="0.01" placeholder="0.00"></div><div class="form-row"><label>日期</label><input type="date" id="quickDate"></div><div class="form-row"><label>宠物</label><select id="quickPetSelect"><option value="">无</option></select></div><div class="form-row"><label>家族</label><select id="quickCategorySelect"></select></div><div class="form-row"><label>类别</label><select id="quickExpenseSelect"></select></div><div class="form-row"><label>支付</label><select id="quickPaymentSelect"><option>微信</option><option>支付宝</option><option>现金</option></select></div><div class="form-row"><label>关联愿望</label><select id="quickWishSelect"><option value="">无</option></select></div><div class="form-row"><label>备注</label><input type="text" id="quickNote" placeholder="可选"></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeQuickRecordModal()">取消</button><button class="btn" onclick="app.saveQuickRecord()">保存</button></div></div></div>
+<div class="modal" id="quickRecordModal"><div class="modal-content"><h3>记账</h3><div class="form-row"><label>金额</label><input type="number" id="quickAmount" step="0.01" placeholder="0.00"></div><div class="form-row"><label>日期</label><input type="date" id="quickDate"></div><div class="form-row"><label>宠物</label><select id="quickPetSelect"><option value="">无</option></select></div><div class="form-row"><label>家族</label><select id="quickCategorySelect"></select></div><div class="form-row"><label>类别</label><select id="quickExpenseSelect"></select></div><div class="form-row"><label>支付</label><select id="quickPaymentSelect"><option>微信</option><option>支付宝</option><option>现金</option></select></div><div class="form-row"><label>关联愿望</label><select id="quickWishSelect"><option value="">无</option></select></div><div class="form-row"><label>备注</label><input type="text" id="quickNote" placeholder="可选"></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeQuickRecordModal()">取消</button><button class="btn" onclick="app.saveQuickRecord()">保存</button></div></div></div>
 
 <div class="context-menu" id="contextMenu"><div class="context-menu-item" onclick="app.contextEdit()"><i data-lucide="edit"></i> 编辑</div><div class="context-menu-item delete" onclick="app.contextDelete()"><i data-lucide="trash-2"></i> 删除</div></div>
 
@@ -570,8 +628,19 @@
     };
     
     let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    const STORAGE_KEY = 'pet_v29_full';
-    const OLD_STORAGE_KEYS = ['pet_v28_full', 'pet_v27_full', 'pet_v26_full'];
+    const STORAGE_KEY = 'pet_v30_full';
+    const OLD_STORAGE_KEYS = ['pet_v29_full', 'pet_v28_full', 'pet_v27_full'];
+
+    // 事项间隔天数（天）
+    const TASK_INTERVALS = {
+        '驱虫': 90,
+        '疫苗': 365,
+        '洗澡': 30,
+        '体检': 180,
+        '剪指甲': 14,
+        '梳毛': 7,
+        '其他': 30
+    };
 
     function migrateOldData() {
         for (let oldKey of OLD_STORAGE_KEYS) {
@@ -635,7 +704,7 @@
     }
 
     const getToday = () => new Date().toISOString().slice(0,10);
-    const formatYMD = (d) => { if(!d) return ''; const dt = new Date(d); return `${dt.getMonth()+1}月${dt.getDate()}日`; };
+    const formatYMD = (d) => { if(!d) return ''; return d.replace(/-/g, '.'); };
     const getWeekday = (d) => ['周日','周一','周二','周三','周四','周五','周六'][new Date(d).getDay()];
     
     function calculateAge(birthday) {
@@ -650,52 +719,118 @@
         else return '小于1个月';
     }
 
-    // 健康提醒
-    function getHealthReminders() {
-        const upcoming = [], overdue = [];
+    // 日程提醒：计算每个事项的下次日期和剩余天数
+    function getScheduleReminders() {
+        const reminders = [];
+        // 按宠物分组，取每个宠物每种事项的最新记录
+        const latestByPetAndType = {};
         appData.taskRecords.forEach(task => {
-            const taskDate = new Date(task.date);
-            const today = new Date();
-            const daysSince = Math.floor((today - taskDate) / 86400000);
-            let interval = 90;
-            if (task.type === '疫苗') interval = 365;
-            if (task.type === '洗澡') interval = 30;
-            if (task.type === '体检') interval = 180;
-            if (task.type === '其他') interval = 30;
-            const daysUntilNext = interval - daysSince;
-            const pet = appData.pets.find(p => p.id === task.petId);
-            if (!pet) return;
-            if (daysSince >= interval) {
-                overdue.push({ pet: pet.name, petId: pet.id, task: task.type, daysOver: daysSince - interval });
-            } else if (daysUntilNext <= 7 && daysUntilNext >= 0) {
-                upcoming.push({ pet: pet.name, petId: pet.id, task: task.type, daysLeft: daysUntilNext });
+            const key = `${task.petId}_${task.type}`;
+            if (!latestByPetAndType[key] || task.date > latestByPetAndType[key].date) {
+                latestByPetAndType[key] = task;
             }
         });
-        return { upcoming, overdue };
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        for (const key in latestByPetAndType) {
+            const task = latestByPetAndType[key];
+            const interval = TASK_INTERVALS[task.type] || 30;
+            const lastDate = new Date(task.date);
+            lastDate.setHours(0, 0, 0, 0);
+            
+            // 计算下次日期
+            const nextDate = new Date(lastDate);
+            nextDate.setDate(lastDate.getDate() + interval);
+            
+            // 计算剩余天数
+            const daysLeft = Math.ceil((nextDate - today) / 86400000);
+            
+            const pet = appData.pets.find(p => p.id === task.petId);
+            if (!pet) continue;
+            
+            reminders.push({
+                petId: task.petId,
+                petName: pet.name,
+                petAvatar: pet.avatar,
+                taskType: task.type,
+                lastDate: task.date,
+                nextDate: nextDate.toISOString().slice(0,10),
+                daysLeft: daysLeft,
+                interval: interval
+            });
+        }
+        
+        // 排序：按剩余天数从小到大
+        reminders.sort((a, b) => a.daysLeft - b.daysLeft);
+        return reminders;
     }
     
-    function renderHealthReminders() {
-        const { upcoming, overdue } = getHealthReminders();
-        const container = document.getElementById('healthReminderList');
-        if (!container) return;
-        if (upcoming.length === 0 && overdue.length === 0) {
-            container.innerHTML = '<div style="padding: 8px 0; text-align: center; color: var(--text-sub);"><i data-lucide="check-circle"></i> 暂无待办</div>';
-        } else {
-            let html = '';
-            if (upcoming.length) {
-                html += '<div style="margin-bottom: 8px;"><small>📅 即将到来</small></div>';
-                upcoming.forEach(r => {
-                    html += `<div class="reminder-item upcoming"><i data-lucide="clock"></i><div style="flex:1;"><b>${r.pet}</b> ${r.task} · ${r.daysLeft}天后</div><button class="btn-small btn-outline" onclick="app.quickAddTask('${r.petId}','${r.task}')">记录</button></div>`;
-                });
-            }
-            if (overdue.length) {
-                html += '<div style="margin: 8px 0 4px;"><small>⚠️ 已过期</small></div>';
-                overdue.forEach(r => {
-                    html += `<div class="reminder-item danger"><i data-lucide="alert-circle"></i><div style="flex:1;"><b>${r.pet}</b> ${r.task} · 超期${r.daysOver}天</div><button class="btn-small btn-outline" onclick="app.quickAddTask('${r.petId}','${r.task}')">记录</button></div>`;
-                });
-            }
-            container.innerHTML = html;
+    // 完成事项：添加一条今天的记录
+    function completeTask(petId, taskType) {
+        const today = getToday();
+        // 检查今天是否已经有记录（避免重复）
+        const existing = appData.taskRecords.some(t => t.petId === petId && t.type === taskType && t.date === today);
+        if (existing) {
+            showToast('今天已记录过', false);
+            return;
         }
+        appData.taskRecords.push({
+            id: Date.now() + Math.random(),
+            petId: petId,
+            type: taskType,
+            date: today,
+            note: '快捷完成'
+        });
+        saveData();
+        renderScheduleReminders();
+        renderRecentTasks();
+        showToast(`已记录 ${taskType}`);
+    }
+    
+    function renderScheduleReminders() {
+        const reminders = getScheduleReminders();
+        const container = document.getElementById('scheduleReminderList');
+        if (!container) return;
+        
+        if (reminders.length === 0) {
+            container.innerHTML = '<div style="padding: 12px 0; text-align: center; color: var(--text-sub);">暂无日程数据，去记录页添加吧</div>';
+            return;
+        }
+        
+        let html = '';
+        reminders.forEach(r => {
+            // 确定天数样式
+            let daysClass = 'normal';
+            let daysText = `${r.daysLeft} 天`;
+            if (r.daysLeft <= 0) {
+                daysClass = 'overdue';
+                daysText = `超期 ${Math.abs(r.daysLeft)} 天`;
+            } else if (r.daysLeft <= 7) {
+                daysClass = 'upcoming';
+            }
+            
+            // 头像
+            const avatarHtml = r.petAvatar 
+                ? `<img src="${r.petAvatar}">` 
+                : `<i data-lucide="cat"></i>`;
+            
+            html += `
+                <div class="reminder-item">
+                    <div class="reminder-left">
+                        <div class="reminder-avatar">${avatarHtml}</div>
+                        <div class="reminder-info">
+                            <div class="reminder-title">${r.taskType}</div>
+                            <div class="reminder-date">上次：${formatYMD(r.lastDate)}</div>
+                        </div>
+                    </div>
+                    <div class="reminder-days ${daysClass}">${daysText}</div>
+                    <button class="reminder-complete" onclick="app.completeTask('${r.petId}','${r.taskType}')">完成</button>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
         lucide.createIcons();
     }
 
@@ -885,7 +1020,7 @@
         document.getElementById('page' + pageId.charAt(0).toUpperCase() + pageId.slice(1)).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.querySelector(`.nav-item[data-page="${pageId}"]`)?.classList.add('active');
-        if (pageId === 'home') { renderHome(); renderHealthReminders(); renderWishlistPreview(); }
+        if (pageId === 'home') { renderHome(); renderScheduleReminders(); renderWishlistPreview(); }
         else if (pageId === 'record') { renderWishlistFull(); renderWeightTrendChart(); renderRecentTasks(); }
         else if (pageId === 'pets') renderPetsPage();
         else if (pageId === 'stats') renderStatsPage();
@@ -899,9 +1034,9 @@
         event.target.classList.add('active');
         document.getElementById('wishRecordContent').style.display = tab === 'wish' ? 'block' : 'none';
         document.getElementById('weightRecordContent').style.display = tab === 'weight' ? 'block' : 'none';
-        document.getElementById('taskRecordContent').style.display = tab === 'task' ? 'block' : 'none';
+        document.getElementById('scheduleRecordContent').style.display = tab === 'schedule' ? 'block' : 'none';
         if (tab === 'weight') renderWeightTrendChart();
-        if (tab === 'task') renderRecentTasks();
+        if (tab === 'schedule') renderRecentTasks();
     }
 
     function renderHome() {
@@ -942,17 +1077,16 @@
     function closeEditModal() { document.getElementById('editRecordModal').classList.remove('show'); }
     function saveEditRecord() { const r = appData.records.find(r => r.id == document.getElementById('editRecordId').value); if (!r) return; r.amount = parseFloat(document.getElementById('editAmountInput').value); r.date = document.getElementById('editDateInput').value; r.petId = document.getElementById('editPetSelect').value; r.categoryId = document.getElementById('editCategorySelect').value; r.expenseCategory = document.getElementById('editExpenseCategorySelect').value; r.payment = document.getElementById('editPaymentSelect').value; r.note = document.getElementById('editNoteInput').value; saveData(); closeEditModal(); renderHome(); showToast('已更新'); }
 
-    function quickAddTask(petId, taskType) { document.getElementById('taskRecordPetSelect').value = petId; document.getElementById('taskTypeSelect').value = taskType; document.getElementById('taskRecordDateInput').value = getToday(); document.getElementById('taskRecordNoteInput').value = ''; setRecordTab('task'); showPage('record'); }
-    function addTaskRecord() { const petId = document.getElementById('taskRecordPetSelect').value; if (!petId) return showToast('请选择宠物', false); const type = document.getElementById('taskTypeSelect').value; const date = document.getElementById('taskRecordDateInput').value; if (!date) return showToast('请选择日期', false); const note = document.getElementById('taskRecordNoteInput').value; appData.taskRecords.push({ id: Date.now() + Math.random(), petId, type, date, note }); saveData(); showToast('事项已记录'); document.getElementById('taskRecordNoteInput').value = ''; renderRecentTasks(); renderHealthReminders(); if (document.getElementById('pageHome').classList.contains('active')) renderHome(); }
-    function renderRecentTasks() { const recentTasks = [...appData.taskRecords].sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 10); const container = document.getElementById('recentTaskList'); if (!container) return; if (recentTasks.length === 0) { container.innerHTML = '<div style="text-align:center; padding:20px;">暂无事项记录</div>'; return; } container.innerHTML = recentTasks.map(task => { const pet = appData.pets.find(p => p.id === task.petId); return `<div class="task-item"><div><div class="task-badge">${task.type}</div><div style="font-size: 13px;">${pet ? pet.name : '未知'} · ${formatYMD(task.date)}</div>${task.note ? `<div style="font-size: 12px; color: var(--text-sub);">${task.note}</div>` : ''}</div><button class="delete-event-btn" onclick="app.deleteTaskRecord('${task.id}')"><i data-lucide="trash-2" style="width: 16px;"></i></button></div>`; }).join(''); lucide.createIcons(); }
-    function deleteTaskRecord(id) { if (confirm('删除这条记录？')) { appData.taskRecords = appData.taskRecords.filter(t => t.id != id); saveData(); renderRecentTasks(); renderHealthReminders(); if (document.getElementById('pageHome').classList.contains('active')) renderHome(); showToast('已删除'); } }
+    function addTaskRecord() { const petId = document.getElementById('taskRecordPetSelect').value; if (!petId) return showToast('请选择宠物', false); const type = document.getElementById('taskTypeSelect').value; const date = document.getElementById('taskRecordDateInput').value; if (!date) return showToast('请选择日期', false); const note = document.getElementById('taskRecordNoteInput').value; appData.taskRecords.push({ id: Date.now() + Math.random(), petId, type, date, note }); saveData(); showToast('日程已记录'); document.getElementById('taskRecordNoteInput').value = ''; renderRecentTasks(); renderScheduleReminders(); if (document.getElementById('pageHome').classList.contains('active')) renderHome(); }
+    function renderRecentTasks() { const recentTasks = [...appData.taskRecords].sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 10); const container = document.getElementById('recentTaskList'); if (!container) return; if (recentTasks.length === 0) { container.innerHTML = '<div style="text-align:center; padding:20px;">暂无日程记录</div>'; return; } container.innerHTML = recentTasks.map(task => { const pet = appData.pets.find(p => p.id === task.petId); return `<div class="task-item"><div><div class="task-badge">${task.type}</div><div style="font-size: 13px;">${pet ? pet.name : '未知'} · ${formatYMD(task.date)}</div>${task.note ? `<div style="font-size: 12px; color: var(--text-sub);">${task.note}</div>` : ''}</div><button class="delete-event-btn" onclick="app.deleteTaskRecord('${task.id}')"><i data-lucide="trash-2" style="width: 16px;"></i></button></div>`; }).join(''); lucide.createIcons(); }
+    function deleteTaskRecord(id) { if (confirm('删除这条记录？')) { appData.taskRecords = appData.taskRecords.filter(t => t.id != id); saveData(); renderRecentTasks(); renderScheduleReminders(); if (document.getElementById('pageHome').classList.contains('active')) renderHome(); showToast('已删除'); } }
 
     function addWeightRecord() { const petId = document.getElementById('weightRecordPetSelect').value; if (!petId) return showToast('请选择宠物', false); const weight = parseFloat(document.getElementById('weightRecordValue').value); if (!weight) return showToast('请输入体重', false); appData.weightRecords.push({ id: Date.now() + Math.random(), petId, date: document.getElementById('weightRecordDate').value, weight, note: document.getElementById('weightRecordNote').value || '' }); saveData(); showToast('体重已记录'); document.getElementById('weightRecordValue').value = ''; document.getElementById('weightRecordNote').value = ''; renderWeightTrendChart(); }
     function renderWeightTrendChart() { const petId = document.getElementById('weightRecordPetSelect').value; if (!petId) return; const records = appData.weightRecords.filter(w => w.petId === petId).sort((a, b) => (a.date || '').localeCompare(b.date || '')); const ctx = document.getElementById('weightTrendChart').getContext('2d'); if (weightTrendChart) weightTrendChart.destroy(); weightTrendChart = new Chart(ctx, { type: 'line', data: { labels: records.map(r => r.date), datasets: [{ label: '体重(kg)', data: records.map(r => r.weight), borderColor: '#8b5cf6', tension: 0.2, fill: false }] } }); document.getElementById('weightRecordPetSelect').onchange = renderWeightTrendChart; }
 
     function renderPetsPage() { const container = document.getElementById('categoryListContainer'); if (!appData.categories.length) { container.innerHTML = '<div class="card">暂无家族，点击"家族"创建</div>'; return; } let html = ''; appData.categories.forEach(cat => { html += `<div class="card"><div style="display:flex; justify-content:space-between; margin-bottom: 12px;"><h3><i data-lucide="${cat.icon || 'cat'}"></i> ${cat.name}</h3><button class="btn-outline btn-small" onclick="app.deleteCategory('${cat.id}')"><i data-lucide="trash-2"></i></button></div>`; const pets = appData.pets.filter(p => p.categoryId === cat.id); if (pets.length) { pets.forEach(p => { html += `<div class="pet-item" data-pet-id="${p.id}" onclick="app.showPetDetail('${p.id}')" oncontextmenu="app.showPetContextMenu(event,'${p.id}');return false;"><div class="avatar">${p.avatar ? `<img src="${p.avatar}">` : `<i data-lucide="${cat.icon || 'cat'}"></i>`}</div><div class="pet-info" style="flex:1;"><b>${p.name}</b><br><small>${p.birthday || '未设置生日'}</small></div></div>`; }); } else { html += '<div style="padding:16px;text-align:center;color:var(--text-sub);">暂无宠物</div>'; } html += `<div style="margin-top: 12px;"><button class="btn-outline btn-small" onclick="app.showAddPet('${cat.id}')"><i data-lucide="plus"></i> 添加宠物</button></div></div>`; }); container.innerHTML = html; lucide.createIcons(); }
-    function showPetDetail(petId) { const pet = appData.pets.find(p => p.id === petId); if (!pet) return; const category = appData.categories.find(c => c.id === pet.categoryId); const petSpending = appData.records.filter(r => r.petId === petId).reduce((s, r) => s + (parseFloat(r.amount) || 0), 0); const lifeEvents = appData.lifeEvents.filter(e => e.petId === petId).sort((a, b) => (b.date || '').localeCompare(a.date || '')); const taskRecords = appData.taskRecords.filter(t => t.petId === petId).sort((a, b) => (b.date || '').localeCompare(a.date || '')); let eventsHtml = ''; if (lifeEvents.length) { lifeEvents.forEach(event => { eventsHtml += `<div class="life-event-item"><div><div class="life-event-date">${formatYMD(event.date)}</div><div>📌 ${event.title}</div>${event.note ? `<div style="font-size:12px;color:var(--text-sub);">${event.note}</div>` : ''}</div><button class="delete-event-btn" onclick="app.deleteLifeEvent('${event.id}')"><i data-lucide="trash-2" style="width:16px;"></i></button></div>`; }); } else { eventsHtml = '<div style="text-align:center; padding:12px;">暂无记录</div>'; } let tasksHtml = ''; if (taskRecords.length) { taskRecords.forEach(task => { tasksHtml += `<div class="life-event-item"><div><div class="life-event-date">${formatYMD(task.date)}</div><div><span class="task-badge">${task.type}</span></div>${task.note ? `<div style="font-size:12px;color:var(--text-sub);">${task.note}</div>` : ''}</div><button class="delete-event-btn" onclick="app.deleteTaskRecord('${task.id}')"><i data-lucide="trash-2" style="width:16px;"></i></button></div>`; }); } else { tasksHtml = '<div style="text-align:center; padding:12px;">暂无记录</div>'; } const html = `<div style="cursor:pointer; text-align:right; margin-bottom:8px;" onclick="app.closePetDetail()">✕</div><div class="pet-detail-header"><div class="avatar pet-detail-avatar">${pet.avatar ? `<img src="${pet.avatar}">` : `<i data-lucide="${category?.icon || 'cat'}"></i>`}</div><div class="pet-detail-name">${pet.name}</div></div><div class="pet-detail-info"><div><div class="pet-detail-info-label">生日</div><div>${pet.birthday || '未设置'}</div></div><div><div class="pet-detail-info-label">年龄</div><div>${calculateAge(pet.birthday)}</div></div><div><div class="pet-detail-info-label">身价</div><div>¥${petSpending.toFixed(2)}</div></div><div><div class="pet-detail-info-label">家族</div><div>${category?.name || '未知'}</div></div></div><h4 style="margin-bottom:8px;">📖 宠生大事 <button class="btn-outline btn-small" onclick="app.openLifeEventModal('${pet.id}')">+ 记录</button></h4><div style="max-height:150px; overflow-y:auto; margin-bottom:16px;">${eventsHtml}</div><h4 style="margin-bottom:8px;">📋 事项记录 <button class="btn-outline btn-small" onclick="app.quickAddTaskFromPet('${pet.id}')">+ 记录</button></h4><div style="max-height:150px; overflow-y:auto;">${tasksHtml}</div><div class="modal-buttons" style="margin-top:16px;"><button class="btn-outline" onclick="app.closePetDetail();app.editPet('${pet.id}')">编辑资料</button><button class="btn-outline" onclick="app.closePetDetail();app.showDeletePetOptions('${pet.id}')" style="color:#dc2626;">删除宠物</button></div>`; const contentDiv = document.getElementById('petDetailContent'); contentDiv.setAttribute('data-current-pet', petId); contentDiv.innerHTML = html; document.getElementById('petDetailModal').classList.add('show'); lucide.createIcons(); }
-    function quickAddTaskFromPet(petId) { document.getElementById('taskRecordPetSelect').value = petId; document.getElementById('taskTypeSelect').value = '驱虫'; document.getElementById('taskRecordDateInput').value = getToday(); document.getElementById('taskRecordNoteInput').value = ''; setRecordTab('task'); showPage('record'); closePetDetail(); }
+    function showPetDetail(petId) { const pet = appData.pets.find(p => p.id === petId); if (!pet) return; const category = appData.categories.find(c => c.id === pet.categoryId); const petSpending = appData.records.filter(r => r.petId === petId).reduce((s, r) => s + (parseFloat(r.amount) || 0), 0); const lifeEvents = appData.lifeEvents.filter(e => e.petId === petId).sort((a, b) => (b.date || '').localeCompare(a.date || '')); const taskRecords = appData.taskRecords.filter(t => t.petId === petId).sort((a, b) => (b.date || '').localeCompare(a.date || '')); let eventsHtml = ''; if (lifeEvents.length) { lifeEvents.forEach(event => { eventsHtml += `<div class="life-event-item"><div><div class="life-event-date">${formatYMD(event.date)}</div><div>📌 ${event.title}</div>${event.note ? `<div style="font-size:12px;color:var(--text-sub);">${event.note}</div>` : ''}</div><button class="delete-event-btn" onclick="app.deleteLifeEvent('${event.id}')"><i data-lucide="trash-2" style="width:16px;"></i></button></div>`; }); } else { eventsHtml = '<div style="text-align:center; padding:12px;">暂无记录</div>'; } let tasksHtml = ''; if (taskRecords.length) { taskRecords.forEach(task => { tasksHtml += `<div class="life-event-item"><div><div class="life-event-date">${formatYMD(task.date)}</div><div><span class="task-badge">${task.type}</span></div>${task.note ? `<div style="font-size:12px;color:var(--text-sub);">${task.note}</div>` : ''}</div><button class="delete-event-btn" onclick="app.deleteTaskRecord('${task.id}')"><i data-lucide="trash-2" style="width:16px;"></i></button></div>`; }); } else { tasksHtml = '<div style="text-align:center; padding:12px;">暂无记录</div>'; } const html = `<div style="cursor:pointer; text-align:right; margin-bottom:8px;" onclick="app.closePetDetail()">✕</div><div class="pet-detail-header"><div class="avatar pet-detail-avatar">${pet.avatar ? `<img src="${pet.avatar}">` : `<i data-lucide="${category?.icon || 'cat'}"></i>`}</div><div class="pet-detail-name">${pet.name}</div></div><div class="pet-detail-info"><div><div class="pet-detail-info-label">生日</div><div>${pet.birthday || '未设置'}</div></div><div><div class="pet-detail-info-label">年龄</div><div>${calculateAge(pet.birthday)}</div></div><div><div class="pet-detail-info-label">身价</div><div>¥${petSpending.toFixed(2)}</div></div><div><div class="pet-detail-info-label">家族</div><div>${category?.name || '未知'}</div></div></div><h4 style="margin-bottom:8px;">📖 宠生大事 <button class="btn-outline btn-small" onclick="app.openLifeEventModal('${pet.id}')">+ 记录</button></h4><div style="max-height:150px; overflow-y:auto; margin-bottom:16px;">${eventsHtml}</div><h4 style="margin-bottom:8px;">📋 日程记录 <button class="btn-outline btn-small" onclick="app.openScheduleRecordFromPet('${pet.id}')">+ 记录</button></h4><div style="max-height:150px; overflow-y:auto;">${tasksHtml}</div><div class="modal-buttons" style="margin-top:16px;"><button class="btn-outline" onclick="app.closePetDetail();app.editPet('${pet.id}')">编辑资料</button><button class="btn-outline" onclick="app.closePetDetail();app.showDeletePetOptions('${pet.id}')" style="color:#dc2626;">删除宠物</button></div>`; const contentDiv = document.getElementById('petDetailContent'); contentDiv.setAttribute('data-current-pet', petId); contentDiv.innerHTML = html; document.getElementById('petDetailModal').classList.add('show'); lucide.createIcons(); }
+    function openScheduleRecordFromPet(petId) { document.getElementById('taskRecordPetSelect').value = petId; document.getElementById('taskTypeSelect').value = '驱虫'; document.getElementById('taskRecordDateInput').value = getToday(); document.getElementById('taskRecordNoteInput').value = ''; setRecordTab('schedule'); showPage('record'); closePetDetail(); }
     function openLifeEventModal(petId) { const select = document.getElementById('eventPetSelect'); select.innerHTML = appData.pets.map(p => `<option value="${p.id}" ${p.id === petId ? 'selected' : ''}>${p.name}</option>`).join(''); document.getElementById('eventTitle').value = ''; document.getElementById('eventDate').value = getToday(); document.getElementById('eventNote').value = ''; document.getElementById('lifeEventModal').classList.add('show'); }
     function closeLifeEventModal() { document.getElementById('lifeEventModal').classList.remove('show'); }
     function saveLifeEvent() { const petId = document.getElementById('eventPetSelect').value; if (!petId) return showToast('请选择宠物', false); const title = document.getElementById('eventTitle').value.trim(); if (!title) return showToast('请输入事件名称', false); const date = document.getElementById('eventDate').value; if (!date) return showToast('请选择日期', false); const note = document.getElementById('eventNote').value; appData.lifeEvents.push({ id: Date.now() + Math.random(), petId, title, date, note }); saveData(); closeLifeEventModal(); showToast('已记录'); const openPetId = document.getElementById('petDetailContent').getAttribute('data-current-pet'); if (openPetId) showPetDetail(openPetId); }
@@ -1007,9 +1141,10 @@
         showPetDetail, closePetDetail, showPetContextMenu, editPetFromContext, deletePetFromContext,
         showDeletePetOptions, closeDeletePetModal, confirmDeletePet,
         openLifeEventModal, closeLifeEventModal, saveLifeEvent, deleteLifeEvent,
-        addTaskRecord, deleteTaskRecord, quickAddTask, quickAddTaskFromPet, renderRecentTasks,
+        addTaskRecord, deleteTaskRecord, renderRecentTasks, openScheduleRecordFromPet,
         openWishlistModal, closeWishlistModal, saveWishlist, addWishItemField, removeWishItem,
-        openWishlistDetail, closeWishlistDetail, deleteWishlist
+        openWishlistDetail, closeWishlistDetail, deleteWishlist,
+        completeTask, getScheduleReminders, renderScheduleReminders
     };
 
     loadData();
