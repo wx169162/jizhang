@@ -1088,15 +1088,18 @@
                 expenseTotals[r.expenseCategory] += parseFloat(r.amount) || 0;
             });
             
+            // 将支出类别按金额从高到低排序
+            const sortedExpenses = Object.entries(expenseTotals).sort((a, b) => b[1] - a[1]);
+            
             let html = `<div style="margin-bottom: 12px; font-weight: 500; display: flex; align-items: center; gap: 8px;">
                 <i data-lucide="${category.icon || 'cat'}" style="width: 20px; height: 20px;"></i>
                 <span>${category.name} 详细支出</span>
             </div>`;
             
-            for(let exp in expenseTotals) {
-                html += `<div class="pie-detail-item" onclick="app.filterByExpenseCategory('${exp}')">
-                    <span><span class="pie-detail-color" style="background: ${color}"></span>${exp}</span>
-                    <span>¥${expenseTotals[exp].toFixed(2)}</span>
+            for(let [expName, expAmount] of sortedExpenses) {
+                html += `<div class="pie-detail-item" onclick="app.filterByExpenseCategory('${expName}')">
+                    <span><span class="pie-detail-color" style="background: ${color}"></span>${expName}</span>
+                    <span>¥${expAmount.toFixed(2)}</span>
                 </div>`;
             }
             
