@@ -32,46 +32,267 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-page); color: var(--text-main); min-height: 100vh; padding-bottom: 80px; }
-        .page { display: none; padding: 14px 14px 20px; max-width: 480px; margin: 0 auto; }
+        .page { display: none; padding: 14px 14px 20px; max-width: 480px; margin: 0 auto; animation: fadeIn 0.3s ease; }
         .page.active { display: block; }
+        
+        /* ========== 动画效果 ========== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(139, 92, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+        }
+        
+        /* 卡片动画 */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-card);
+            padding: 16px 14px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-light);
+            margin-bottom: 14px;
+            transition: all 0.25s ease;
+            animation: fadeIn 0.4s ease backwards;
+        }
+        
+        .card:nth-child(1) { animation-delay: 0.05s; }
+        .card:nth-child(2) { animation-delay: 0.1s; }
+        .card:nth-child(3) { animation-delay: 0.15s; }
+        .card:nth-child(4) { animation-delay: 0.2s; }
+        
+        /* 按钮统一样式 + 动效 */
+        .btn { 
+            background: var(--primary-dark); 
+            color: white; 
+            border: none; 
+            padding: 10px 16px; 
+            border-radius: 30px; 
+            font-weight: 500; 
+            font-size: 14px; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 6px; 
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover { transform: scale(1.02); background: #7c3aed; }
+        .btn:active { transform: scale(0.96); animation: pop 0.2s ease; }
+        
+        .btn-cancel { 
+            background: var(--cancel-bg); 
+            color: var(--cancel-text); 
+            border: none; 
+            padding: 10px 16px; 
+            border-radius: 30px; 
+            font-weight: 500; 
+            font-size: 14px; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 6px; 
+            transition: all 0.2s ease;
+        }
+        .btn-cancel:hover { transform: scale(1.02); background: #f8d7e0; }
+        .btn-cancel:active { transform: scale(0.96); }
+        
+        .btn-outline { 
+            background: transparent; 
+            color: var(--text-main); 
+            border: 1px solid var(--border-light); 
+            transition: all 0.2s ease;
+        }
+        .btn-outline:hover { transform: scale(1.02); background: var(--primary-light); border-color: var(--primary-dark); }
+        .btn-outline:active { transform: scale(0.96); }
+        
+        .btn-small { padding: 6px 12px; font-size: 13px; }
+        .btn-danger { background: var(--danger); color: var(--text-main); }
+        
+        /* 统一的数据按钮样式 */
+        .data-btn {
+            background: var(--primary-dark);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .data-btn:hover { transform: scale(1.02); background: #7c3aed; }
+        .data-btn:active { transform: scale(0.96); }
+        
+        /* 弹窗动画 */
+        .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 1000; display: none; align-items: center; justify-content: center; }
+        .modal.show { display: flex; animation: fadeIn 0.2s ease; }
+        .modal-content { 
+            background: var(--card-bg); 
+            border-radius: 24px; 
+            padding: 20px; 
+            width: 90%; 
+            max-width: 380px; 
+            max-height: 80vh; 
+            overflow-y: auto; 
+            animation: slideUp 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+        }
+        
+        /* 按钮组 */
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .modal-buttons button {
+            flex: 1;
+        }
+        
+        /* 导航栏动画 */
+        .nav-item { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 2px; 
+            font-size: 11px; 
+            color: var(--text-sub); 
+            background: none; 
+            border: none; 
+            cursor: pointer; 
+            padding: 6px 14px; 
+            border-radius: 30px; 
+            transition: all 0.2s ease;
+        }
+        .nav-item:active { transform: scale(0.95); }
+        .nav-item.active { background: var(--primary-light); color: var(--primary-dark); font-weight: 500; }
+        
+        /* 宠物卡片动画 */
+        .pet-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 10px 0; 
+            border-bottom: 1px solid var(--border-light); 
+            cursor: pointer; 
+            transition: all 0.2s ease;
+        }
+        .pet-item:active { transform: scale(0.98); background: var(--primary-light); border-radius: 12px; padding: 10px; margin: 0 -10px; }
+        
+        /* 记录卡片动画 */
+        .record-card { 
+            background: var(--card-bg); 
+            border-radius: 14px; 
+            padding: 12px; 
+            margin: 8px 0; 
+            border: 1px solid var(--border-light); 
+            transition: all 0.2s ease;
+        }
+        .record-card:active { transform: scale(0.98); background: var(--primary-light); }
+        
+        /* 分类卡片动画 */
+        .category-card { 
+            flex: 0 0 100px; 
+            background: var(--card-bg); 
+            border-radius: 20px; 
+            padding: 14px 8px; 
+            border: 1px solid var(--border-light); 
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.2s ease;
+        }
+        .category-card:active { transform: scale(0.95); }
+        .category-card.active { border: 2px solid var(--primary-dark); background: var(--primary-light); }
+        
+        /* 输入框动效 */
+        input, select, textarea { 
+            width: 100%; 
+            padding: 10px 12px; 
+            border: 1px solid var(--border-light); 
+            border-radius: 14px; 
+            background: var(--card-bg); 
+            font-size: 15px; 
+            font-family: inherit; 
+            transition: all 0.2s ease;
+        }
+        input:focus, select:focus, textarea:focus { 
+            outline: none; 
+            border-color: var(--primary-dark); 
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        
+        /* 按钮涟漪效果 */
+        .btn, .data-btn, .btn-cancel, .btn-outline, .nav-item, .category-card, .pet-item, .record-card {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::after, .data-btn::after, .btn-cancel::after, .btn-outline::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.4s, height 0.4s;
+        }
+        
+        .btn:active::after, .data-btn:active::after, .btn-cancel:active::after, .btn-outline:active::after {
+            width: 200px;
+            height: 200px;
+        }
+        
+        /* ========== 原有样式 ========== */
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         h1 { font-size: 24px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
         h2 { font-size: 20px; font-weight: 600; }
-        .card { background: var(--card-bg); border-radius: var(--radius-card); padding: 16px 14px; box-shadow: var(--shadow); border: 1px solid var(--border-light); margin-bottom: 14px; }
-        .btn { background: var(--primary-dark); color: white; border: none; padding: 10px 16px; border-radius: 30px; font-weight: 500; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-        .btn-cancel { background: var(--cancel-bg); color: var(--cancel-text); border: none; padding: 10px 16px; border-radius: 30px; font-weight: 500; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-        .btn-outline { background: transparent; color: var(--text-main); border: 1px solid var(--border-light); }
-        .btn-small { padding: 6px 12px; font-size: 13px; }
-        .btn-danger { background: var(--danger); color: var(--text-main); }
-        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border-light); border-radius: 14px; background: var(--card-bg); font-size: 15px; font-family: inherit; }
-        .form-row { margin-bottom: 12px; }
-        label { font-size: 13px; font-weight: 500; color: var(--text-sub); display: block; margin-bottom: 4px; }
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); display: flex; justify-content: space-around; padding: 8px 12px 16px; border-top: 1px solid var(--border-light); max-width: 480px; margin: 0 auto; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; color: var(--text-sub); background: none; border: none; cursor: pointer; padding: 6px 14px; border-radius: 30px; }
-        .nav-item.active { background: var(--primary-light); color: var(--primary-dark); font-weight: 500; }
+        
         .category-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 12px; -webkit-overflow-scrolling: touch; }
         .category-scroll::-webkit-scrollbar { display: none; }
-        .category-card { flex: 0 0 100px; background: var(--card-bg); border-radius: 20px; padding: 14px 8px; border: 1px solid var(--border-light); text-align: center; cursor: pointer; }
-        .category-card.active { border: 2px solid var(--primary-dark); background: var(--primary-light); }
+        
         .reminder-item { background: var(--warning); border-radius: 14px; padding: 10px 14px; margin: 8px 0; display: flex; align-items: center; gap: 10px; }
         .reminder-item.danger { background: var(--danger); }
-        .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 1000; display: none; align-items: center; justify-content: center; }
-        .modal.show { display: flex; }
-        .modal-content { background: var(--card-bg); border-radius: 24px; padding: 20px; width: 90%; max-width: 380px; max-height: 80vh; overflow-y: auto; }
+        
         .avatar { width: 48px; height: 48px; border-radius: 24px; background: var(--primary-light); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .pet-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-light); cursor: pointer; }
-        .pet-item.longpress { background: var(--primary-light); }
+        
         .tabs { display: flex; gap: 4px; margin-bottom: 14px; }
-        .tab { flex: 1; padding: 8px; border: none; background: transparent; border-radius: 20px; font-weight: 500; cursor: pointer; }
+        .tab { flex: 1; padding: 8px; border: none; background: transparent; border-radius: 20px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; }
+        .tab:active { transform: scale(0.96); }
         .tab.active { background: var(--primary-dark); color: white; }
+        
         .view-switch { display: flex; gap: 8px; margin-bottom: 14px; }
-        .view-switch button { flex: 1; padding: 8px; border-radius: 20px; border: 1px solid var(--border-light); background: transparent; }
+        .view-switch button { flex: 1; padding: 8px; border-radius: 20px; border: 1px solid var(--border-light); background: transparent; transition: all 0.2s ease; }
+        .view-switch button:active { transform: scale(0.96); }
         .view-switch button.active { background: var(--primary-dark); color: white; }
-        .record-card { background: var(--card-bg); border-radius: 14px; padding: 12px; margin: 8px 0; border: 1px solid var(--border-light); }
-        .context-menu { position: fixed; background: white; border-radius: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); z-index: 2000; padding: 6px; display: none; }
+        
+        .context-menu { position: fixed; background: white; border-radius: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); z-index: 2000; padding: 6px; display: none; animation: fadeIn 0.15s ease; }
         .context-menu.show { display: block; }
-        .context-menu-item { padding: 10px 18px; cursor: pointer; border-radius: 10px; display: flex; align-items: center; gap: 8px; }
+        .context-menu-item { padding: 10px 18px; cursor: pointer; border-radius: 10px; display: flex; align-items: center; gap: 8px; transition: background 0.15s; }
+        .context-menu-item:active { background: var(--primary-light); }
         .context-menu-item.delete { color: #dc2626; }
         
         /* 消费分析左右布局 */
@@ -99,10 +320,9 @@
             padding: 8px 0;
             border-bottom: 1px solid var(--border-light);
             cursor: pointer;
+            transition: background 0.15s;
         }
-        .pie-detail-item:hover {
-            background: var(--primary-light);
-        }
+        .pie-detail-item:active { background: var(--primary-light); }
         .pie-detail-color {
             width: 12px;
             height: 12px;
@@ -126,7 +346,9 @@
             font-size: 13px;
             cursor: pointer;
             white-space: nowrap;
+            transition: all 0.2s ease;
         }
+        .pet-chip:active { transform: scale(0.95); }
         .pet-chip.active {
             background: var(--primary-dark);
             color: white;
@@ -140,13 +362,50 @@
             background: var(--primary-light);
             border-radius: 14px;
             margin-bottom: 8px;
+            transition: all 0.2s ease;
         }
+        .compare-card:active { transform: scale(0.98); }
         .compare-change {
             font-size: 14px;
             font-weight: 500;
         }
         .compare-change.up { color: #dc2626; }
         .compare-change.down { color: #10b981; }
+        
+        /* 宠生大事样式 */
+        .life-event-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-light);
+            transition: background 0.15s;
+        }
+        .life-event-item:active { background: var(--primary-light); border-radius: 12px; padding: 12px; margin: 0 -6px; }
+        .life-event-content { flex: 1; }
+        .life-event-date { font-size: 12px; color: var(--text-sub); margin-bottom: 4px; }
+        .life-event-title { font-weight: 500; }
+        .life-event-note { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+        .delete-event-btn { background: none; border: none; color: var(--text-sub); cursor: pointer; padding: 4px 8px; transition: all 0.2s; }
+        .delete-event-btn:active { transform: scale(0.9); color: #dc2626; }
+        
+        /* 事项记录样式 */
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-light);
+            transition: background 0.15s;
+        }
+        .task-item:active { background: var(--primary-light); border-radius: 12px; padding: 12px; margin: 0 -6px; }
+        .task-badge {
+            background: var(--primary-light);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: var(--primary-dark);
+        }
         
         .file-input-label {
             display: inline-block;
@@ -155,12 +414,12 @@
             padding: 8px 16px;
             border-radius: 30px;
             font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
-            margin-right: 8px;
+            transition: all 0.2s ease;
         }
-        .file-input-label input {
-            display: none;
-        }
+        .file-input-label:active { transform: scale(0.96); }
+        .file-input-label input { display: none; }
         
         /* 宠物详情弹窗样式 */
         .pet-detail-header {
@@ -171,7 +430,9 @@
             width: 80px;
             height: 80px;
             margin: 0 auto 12px;
+            transition: transform 0.2s;
         }
+        .pet-detail-avatar:active { transform: scale(0.95); }
         .pet-detail-name {
             font-size: 20px;
             font-weight: 600;
@@ -198,62 +459,27 @@
             color: var(--primary-dark);
         }
         
-        /* 宠生大事样式 */
-        .life-event-item {
+        /* 事件类型选择器 */
+        .event-type-selector {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-light);
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
         }
-        .life-event-content {
-            flex: 1;
-        }
-        .life-event-date {
-            font-size: 12px;
-            color: var(--text-sub);
-            margin-bottom: 4px;
-        }
-        .life-event-title {
-            font-weight: 500;
-        }
-        .life-event-note {
-            font-size: 12px;
-            color: var(--text-sub);
-            margin-top: 2px;
-        }
-        .delete-event-btn {
-            background: none;
-            border: none;
-            color: var(--text-sub);
+        .event-type-btn {
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            font-size: 13px;
             cursor: pointer;
-            padding: 4px 8px;
+            transition: all 0.2s ease;
         }
-        
-        /* 事项记录样式 */
-        .task-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-light);
-        }
-        .task-badge {
-            background: var(--primary-light);
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            color: var(--primary-dark);
-        }
-        
-        /* 弹窗按钮组 */
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 16px;
-        }
-        .modal-buttons button {
-            flex: 1;
+        .event-type-btn:active { transform: scale(0.95); }
+        .event-type-btn.active {
+            background: var(--primary-dark);
+            color: white;
+            border-color: var(--primary-dark);
         }
         
         @media (max-width: 400px) {
@@ -317,7 +543,7 @@
     </div>
 </div>
 
-<!-- 记录页（记账+体重） -->
+<!-- 记录页 -->
 <div id="pageRecord" class="page">
     <div class="header"><h2>记录</h2></div>
     <div class="tabs">
@@ -474,12 +700,12 @@
     <div class="card">
         <h3>数据</h3>
         <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-            <button class="btn-outline btn-small" onclick="app.exportData()"><i data-lucide="download"></i> 导出数据</button>
-            <label class="file-input-label">
+            <button class="data-btn" onclick="app.exportData()"><i data-lucide="download"></i> 导出数据</button>
+            <label class="data-btn" style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
                 <i data-lucide="upload"></i> 导入数据
-                <input type="file" id="importFileInput" accept=".json" onchange="app.importData(this)">
+                <input type="file" id="importFileInput" accept=".json" onchange="app.importData(this)" style="display: none;">
             </label>
-            <button class="btn-danger btn-small" onclick="app.resetAllData()"><i data-lucide="alert-triangle"></i> 重置</button>
+            <button class="data-btn" onclick="app.resetAllData()" style="background: #dc2626;"><i data-lucide="alert-triangle"></i> 重置</button>
         </div>
     </div>
     <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v2.5 · 正式版</div>
@@ -594,8 +820,8 @@
         weightRecords: [],
         recurringRecords: [],
         monthlyBudget: null,
-        lifeEvents: [],     // 宠生大事：绝育、生病、搬家等
-        taskRecords: []     // 事项记录：驱虫、疫苗、洗澡等
+        lifeEvents: [],
+        taskRecords: []
     };
     
     let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
@@ -615,14 +841,9 @@
                     if (parsed.weightRecords && (!appData.weightRecords.length)) appData.weightRecords = parsed.weightRecords;
                     if (parsed.recurringRecords && (!appData.recurringRecords.length)) appData.recurringRecords = parsed.recurringRecords;
                     if (parsed.monthlyBudget && (!appData.monthlyBudget)) appData.monthlyBudget = parsed.monthlyBudget;
-                    
-                    // 迁移旧的生命事件
                     if (parsed.lifeEvents && (!appData.lifeEvents.length)) appData.lifeEvents = parsed.lifeEvents;
-                    
-                    // 迁移旧的任务记录
                     if (parsed.taskRecords && (!appData.taskRecords.length)) appData.taskRecords = parsed.taskRecords;
                     
-                    // 从旧的 taskTemplates 和 pets.tasks 迁移
                     if (parsed.taskTemplates && parsed.pets) {
                         parsed.pets.forEach(pet => {
                             if (pet.tasks && pet.tasks.length) {
@@ -688,7 +909,7 @@
 
     function showToast(msg, ok=true) {
         const toast = document.createElement('div');
-        toast.style.cssText = `position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:${ok?'#1e1e2f':'#fca5a5'}; color:white; padding:10px 20px; border-radius:30px; z-index:9999;`;
+        toast.style.cssText = `position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:${ok?'#1e1e2f':'#fca5a5'}; color:white; padding:10px 20px; border-radius:30px; z-index:9999; animation: fadeIn 0.2s ease;`;
         toast.innerText = msg;
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 1800);
@@ -759,7 +980,6 @@
         appData.taskRecords.forEach(task => {
             const taskDate = new Date(task.date);
             const daysDiff = Math.floor((today - taskDate) / 86400000);
-            // 驱虫90天、疫苗365天、洗澡30天提醒
             let threshold = 90;
             if (task.type === '疫苗') threshold = 365;
             if (task.type === '洗澡') threshold = 30;
@@ -865,7 +1085,6 @@
         saveData(); closeEditModal(); renderHome(); showToast('已更新');
     }
 
-    // 快速添加事项记录
     function quickAddTask(petId, taskType) {
         document.getElementById('taskRecordPetSelect').value = petId;
         document.getElementById('taskTypeSelect').value = taskType;
@@ -1060,10 +1279,7 @@
         const category = appData.categories.find(c => c.id === pet.categoryId);
         const petSpending = appData.records.filter(r => r.petId === petId).reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
         
-        // 宠生大事
         const lifeEvents = appData.lifeEvents.filter(e => e.petId === petId).sort((a,b) => (b.date||'').localeCompare(a.date||''));
-        
-        // 事项记录（驱虫、疫苗等）
         const taskRecords = appData.taskRecords.filter(t => t.petId === petId).sort((a,b) => (b.date||'').localeCompare(a.date||''));
         
         let eventsHtml = '';
