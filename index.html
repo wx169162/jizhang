@@ -115,6 +115,27 @@
         }
         .data-btn:active { transform: scale(0.96); }
         
+        /* 悬浮按钮 */
+        .fab {
+            position: fixed;
+            bottom: 85px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
+            background: var(--primary-dark);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 99;
+            transition: all 0.2s ease;
+        }
+        .fab:active { transform: scale(0.92); }
+        
         .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 1000; display: none; align-items: center; justify-content: center; }
         .modal.show { display: flex; animation: fadeIn 0.2s ease; }
         .modal-content { 
@@ -226,11 +247,6 @@
         .tab:active { transform: scale(0.96); }
         .tab.active { background: var(--primary-dark); color: white; }
         
-        .view-switch { display: flex; gap: 8px; margin-bottom: 14px; }
-        .view-switch button { flex: 1; padding: 8px; border-radius: 20px; border: 1px solid var(--border-light); background: transparent; }
-        .view-switch button:active { transform: scale(0.96); }
-        .view-switch button.active { background: var(--primary-dark); color: white; }
-        
         .record-card { 
             background: var(--card-bg); 
             border-radius: 14px; 
@@ -304,6 +320,38 @@
         .wish-status-bought { color: #10b981; }
         .wish-status-pending { color: var(--text-sub); }
         
+        /* 总支出卡片内的时间选择器 */
+        .period-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .period-display {
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 20px;
+            transition: background 0.2s;
+        }
+        .period-display:active { background: var(--primary-light); }
+        .nav-arrows {
+            display: flex;
+            gap: 8px;
+        }
+        .nav-arrows button {
+            background: var(--primary-light);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .nav-arrows button:active { transform: scale(0.92); }
+        
         @media (max-width: 400px) {
             .analysis-layout { flex-direction: column; }
             .detail-container { border-left: none; border-top: 1px solid var(--border-light); padding-left: 0; padding-top: 12px; }
@@ -318,25 +366,23 @@
         <h1><i data-lucide="paw-print"></i> 小账本</h1>
         <button class="btn-outline btn-small" onclick="app.showPage('settings')"><i data-lucide="settings"></i></button>
     </div>
-    <div class="view-switch">
-        <button class="active" data-view="month" onclick="app.setViewMode('month')">月</button>
-        <button data-view="year" onclick="app.setViewMode('year')">年</button>
-    </div>
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
-        <span id="currentPeriodDisplay">2026.04</span>
-        <div style="display: flex; gap: 8px;">
-            <button onclick="app.prevPeriod()"><i data-lucide="chevron-left"></i></button>
-            <button onclick="app.nextPeriod()"><i data-lucide="chevron-right"></i></button>
-        </div>
-    </div>
+    
+    <!-- 总支出卡片（内嵌时间选择） -->
     <div class="card">
-        <div style="display: flex; justify-content: space-between;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <span style="color: var(--text-sub);">总支出</span>
-            <span style="font-size: 26px; font-weight: 700; color: var(--primary-dark);" id="periodTotalAmount">¥0.00</span>
+            <div class="period-selector">
+                <div class="period-display" id="periodDisplay" onclick="app.toggleViewMode()">2026.04</div>
+                <div class="nav-arrows">
+                    <button onclick="app.prevPeriod()"><i data-lucide="chevron-left" style="width: 16px;"></i></button>
+                    <button onclick="app.nextPeriod()"><i data-lucide="chevron-right" style="width: 16px;"></i></button>
+                </div>
+            </div>
         </div>
+        <div style="font-size: 32px; font-weight: 700; color: var(--primary-dark);" id="periodTotalAmount">¥0.00</div>
     </div>
     
-    <!-- 健康提醒卡片（始终显示） -->
+    <!-- 健康提醒卡片 -->
     <div class="card" id="healthReminderCard">
         <h3 style="font-size: 16px; margin-bottom: 8px;"><i data-lucide="heart-pulse"></i> 健康提醒</h3>
         <div id="healthReminderList"></div>
@@ -346,7 +392,7 @@
     <div class="card" id="wishlistCard">
         <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
             <h3 style="font-size: 16px;"><i data-lucide="gift"></i> 愿望清单</h3>
-            <button class="btn-outline btn-small" onclick="app.openWishlistModal()"><i data-lucide="plus"></i> 新建愿望</button>
+            <button class="btn-outline btn-small" onclick="app.openWishlistModal()"><i data-lucide="plus"></i> 新建</button>
         </div>
         <div id="wishlistPreview"></div>
     </div>
@@ -367,6 +413,9 @@
         <div id="recordsContainer"></div>
     </div>
 </div>
+
+<!-- 悬浮记账按钮 -->
+<button class="fab" onclick="app.openRecordPage()"><i data-lucide="plus"></i></button>
 
 <!-- 记录页 -->
 <div id="pageRecord" class="page">
@@ -534,7 +583,7 @@
             <button class="data-btn" onclick="app.resetAllData()" style="background: #dc2626;"><i data-lucide="alert-triangle"></i> 重置</button>
         </div>
     </div>
-    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v2.7 · 正式版</div>
+    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v2.8 · 正式版</div>
 </div>
 
 <!-- 底部导航 -->
@@ -545,110 +594,15 @@
     <button class="nav-item" data-page="stats" onclick="app.showPage('stats')"><i data-lucide="chart-pie"></i>统计</button>
 </div>
 
-<!-- 弹窗 -->
-<div class="modal" id="addCategoryModal">
-    <div class="modal-content">
-        <h3>新建家族</h3>
-        <div class="form-row"><input type="text" id="newCategoryName" placeholder="名称"></div>
-        <div class="form-row"><input type="text" id="newCategoryIcon" placeholder="图标 (cat/fish/dog)" value="cat"></div>
-        <div class="modal-buttons">
-            <button class="btn-cancel" onclick="app.closeAddCategory()">取消</button>
-            <button class="btn" onclick="app.saveCategory()">创建</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal" id="petEditModal">
-    <div class="modal-content">
-        <h3 id="petEditTitle">添加宠物</h3>
-        <input type="hidden" id="editPetId">
-        <input type="hidden" id="editPetCategoryId">
-        <div style="display: flex; justify-content: center; margin-bottom: 16px;">
-            <div class="avatar" id="petAvatarPreview" onclick="app.selectAvatar()">
-                <i data-lucide="camera"></i>
-            </div>
-            <input type="file" id="petAvatarInput" accept="image/*" style="display: none;" onchange="app.previewAvatar()">
-        </div>
-        <div class="form-row"><label>名字</label><input type="text" id="petNameInput"></div>
-        <div class="form-row"><label>生日</label><input type="date" id="petBirthdayInput"></div>
-        <div class="modal-buttons">
-            <button class="btn-cancel" onclick="app.closePetEdit()">取消</button>
-            <button class="btn" onclick="app.savePet()">保存</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal" id="petDetailModal">
-    <div class="modal-content" id="petDetailContent"></div>
-</div>
-
-<div class="modal" id="lifeEventModal">
-    <div class="modal-content">
-        <h3>📖 记录宠生大事</h3>
-        <div class="form-row"><label>宠物</label><select id="eventPetSelect"></select></div>
-        <div class="form-row"><label>事件名称</label><input type="text" id="eventTitle" placeholder="如：绝育、生病、搬家..."></div>
-        <div class="form-row"><label>日期</label><input type="date" id="eventDate"></div>
-        <div class="form-row"><label>备注</label><input type="text" id="eventNote" placeholder="可选"></div>
-        <div class="modal-buttons">
-            <button class="btn-cancel" onclick="app.closeLifeEventModal()">取消</button>
-            <button class="btn" onclick="app.saveLifeEvent()">保存</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal" id="editRecordModal">
-    <div class="modal-content">
-        <h3>编辑记录</h3>
-        <input type="hidden" id="editRecordId">
-        <div class="form-row"><label>金额</label><input type="number" id="editAmountInput" step="0.01"></div>
-        <div class="form-row"><label>日期</label><input type="date" id="editDateInput"></div>
-        <div class="form-row"><label>所属宠物</label><select id="editPetSelect"></select></div>
-        <div class="form-row"><label>家族</label><select id="editCategorySelect"></select></div>
-        <div class="form-row"><label>类别</label><select id="editExpenseCategorySelect"></select></div>
-        <div class="form-row"><label>支付</label><select id="editPaymentSelect"><option>微信</option><option>支付宝</option><option>现金</option></select></div>
-        <div class="form-row"><label>备注</label><textarea id="editNoteInput" rows="2"></textarea></div>
-        <div class="modal-buttons">
-            <button class="btn-cancel" onclick="app.closeEditModal()">取消</button>
-            <button class="btn" onclick="app.saveEditRecord()">保存</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal" id="deletePetModal">
-    <div class="modal-content">
-        <h3>删除宠物</h3>
-        <p style="margin-bottom: 16px;">请选择处理方式：</p>
-        <button class="btn" style="margin-bottom: 8px; background: #dc2626;" onclick="app.confirmDeletePet('both')">删除宠物及其所有账单</button>
-        <button class="btn-cancel" onclick="app.confirmDeletePet('keep')">保留账单，仅解除关联</button>
-        <div class="modal-buttons" style="margin-top: 12px;">
-            <button class="btn-cancel" onclick="app.closeDeletePetModal()">取消</button>
-        </div>
-    </div>
-</div>
-
-<!-- 愿望清单弹窗 -->
-<div class="modal" id="wishlistModal">
-    <div class="modal-content">
-        <h3 id="wishlistModalTitle">🎁 新建愿望清单</h3>
-        <input type="hidden" id="editWishlistId">
-        <div class="form-row"><label>清单名称</label><input type="text" id="wishlistName" placeholder="如：养猫预备金"></div>
-        <div class="form-row"><label>关联宠物（可选）</label><select id="wishlistPetSelect"><option value="">无</option></select></div>
-        <div style="margin: 12px 0;">
-            <label style="font-weight: 500;">愿望项目</label>
-            <div id="wishItemsContainer"></div>
-            <button class="btn-outline btn-small" style="margin-top: 8px;" onclick="app.addWishItemField()"><i data-lucide="plus"></i> 添加项目</button>
-        </div>
-        <div class="modal-buttons">
-            <button class="btn-cancel" onclick="app.closeWishlistModal()">取消</button>
-            <button class="btn" onclick="app.saveWishlist()">保存</button>
-        </div>
-    </div>
-</div>
-
-<div class="context-menu" id="contextMenu">
-    <div class="context-menu-item" onclick="app.contextEdit()"><i data-lucide="edit"></i> 编辑</div>
-    <div class="context-menu-item delete" onclick="app.contextDelete()"><i data-lucide="trash-2"></i> 删除</div>
-</div>
+<!-- 弹窗（省略重复内容，保持原有） -->
+<div class="modal" id="addCategoryModal"><div class="modal-content"><h3>新建家族</h3><div class="form-row"><input type="text" id="newCategoryName" placeholder="名称"></div><div class="form-row"><input type="text" id="newCategoryIcon" placeholder="图标 (cat/fish/dog)" value="cat"></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeAddCategory()">取消</button><button class="btn" onclick="app.saveCategory()">创建</button></div></div></div>
+<div class="modal" id="petEditModal"><div class="modal-content"><h3 id="petEditTitle">添加宠物</h3><input type="hidden" id="editPetId"><input type="hidden" id="editPetCategoryId"><div style="display: flex; justify-content: center; margin-bottom: 16px;"><div class="avatar" id="petAvatarPreview" onclick="app.selectAvatar()"><i data-lucide="camera"></i></div><input type="file" id="petAvatarInput" accept="image/*" style="display: none;" onchange="app.previewAvatar()"></div><div class="form-row"><label>名字</label><input type="text" id="petNameInput"></div><div class="form-row"><label>生日</label><input type="date" id="petBirthdayInput"></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closePetEdit()">取消</button><button class="btn" onclick="app.savePet()">保存</button></div></div></div>
+<div class="modal" id="petDetailModal"><div class="modal-content" id="petDetailContent"></div></div>
+<div class="modal" id="lifeEventModal"><div class="modal-content"><h3>📖 记录宠生大事</h3><div class="form-row"><label>宠物</label><select id="eventPetSelect"></select></div><div class="form-row"><label>事件名称</label><input type="text" id="eventTitle" placeholder="如：绝育、生病、搬家..."></div><div class="form-row"><label>日期</label><input type="date" id="eventDate"></div><div class="form-row"><label>备注</label><input type="text" id="eventNote" placeholder="可选"></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeLifeEventModal()">取消</button><button class="btn" onclick="app.saveLifeEvent()">保存</button></div></div></div>
+<div class="modal" id="editRecordModal"><div class="modal-content"><h3>编辑记录</h3><input type="hidden" id="editRecordId"><div class="form-row"><label>金额</label><input type="number" id="editAmountInput" step="0.01"></div><div class="form-row"><label>日期</label><input type="date" id="editDateInput"></div><div class="form-row"><label>所属宠物</label><select id="editPetSelect"></select></div><div class="form-row"><label>家族</label><select id="editCategorySelect"></select></div><div class="form-row"><label>类别</label><select id="editExpenseCategorySelect"></select></div><div class="form-row"><label>支付</label><select id="editPaymentSelect"><option>微信</option><option>支付宝</option><option>现金</option></select></div><div class="form-row"><label>备注</label><textarea id="editNoteInput" rows="2"></textarea></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeEditModal()">取消</button><button class="btn" onclick="app.saveEditRecord()">保存</button></div></div></div>
+<div class="modal" id="deletePetModal"><div class="modal-content"><h3>删除宠物</h3><p style="margin-bottom: 16px;">请选择处理方式：</p><button class="btn" style="margin-bottom: 8px; background: #dc2626;" onclick="app.confirmDeletePet('both')">删除宠物及其所有账单</button><button class="btn-cancel" onclick="app.confirmDeletePet('keep')">保留账单，仅解除关联</button><div class="modal-buttons" style="margin-top: 12px;"><button class="btn-cancel" onclick="app.closeDeletePetModal()">取消</button></div></div></div>
+<div class="modal" id="wishlistModal"><div class="modal-content"><h3 id="wishlistModalTitle">🎁 新建愿望清单</h3><input type="hidden" id="editWishlistId"><div class="form-row"><label>清单名称</label><input type="text" id="wishlistName" placeholder="如：养猫预备金"></div><div class="form-row"><label>关联宠物（可选）</label><select id="wishlistPetSelect"><option value="">无</option></select></div><div style="margin: 12px 0;"><label style="font-weight: 500;">愿望项目</label><div id="wishItemsContainer"></div><button class="btn-outline btn-small" style="margin-top: 8px;" onclick="app.addWishItemField()"><i data-lucide="plus"></i> 添加项目</button></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeWishlistModal()">取消</button><button class="btn" onclick="app.saveWishlist()">保存</button></div></div></div>
+<div class="context-menu" id="contextMenu"><div class="context-menu-item" onclick="app.contextEdit()"><i data-lucide="edit"></i> 编辑</div><div class="context-menu-item delete" onclick="app.contextDelete()"><i data-lucide="trash-2"></i> 删除</div></div>
 
 <script>
 (function(){
@@ -658,18 +612,18 @@
         categories: [],
         pets: [],
         records: [],
-        expenseCategories: [{ name: '食品' }, { name: '医疗' }, { name: '玩具' }, { name: '美容' }, { name: '日用' }],
+        expenseCategories: [],
         weightRecords: [],
         recurringRecords: [],
         monthlyBudget: null,
         lifeEvents: [],
         taskRecords: [],
-        wishlists: []  // 新增：愿望清单
+        wishlists: []
     };
     
     let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    const STORAGE_KEY = 'pet_v27_full';
-    const OLD_STORAGE_KEYS = ['pet_v26_full', 'pet_v25_full'];
+    const STORAGE_KEY = 'pet_v28_full';
+    const OLD_STORAGE_KEYS = ['pet_v27_full', 'pet_v26_full', 'pet_v25_full'];
 
     function migrateOldData() {
         for (let oldKey of OLD_STORAGE_KEYS) {
@@ -680,7 +634,7 @@
                     if (parsed.categories && (!appData.categories.length)) appData.categories = parsed.categories;
                     if (parsed.pets && (!appData.pets.length)) appData.pets = parsed.pets;
                     if (parsed.records && (!appData.records.length)) appData.records = parsed.records;
-                    if (parsed.expenseCategories && (!appData.expenseCategories.length)) appData.expenseCategories = parsed.expenseCategories;
+                    if (parsed.expenseCategories && parsed.expenseCategories.length) appData.expenseCategories = parsed.expenseCategories;
                     if (parsed.weightRecords && (!appData.weightRecords.length)) appData.weightRecords = parsed.weightRecords;
                     if (parsed.recurringRecords && (!appData.recurringRecords.length)) appData.recurringRecords = parsed.recurringRecords;
                     if (parsed.monthlyBudget && (!appData.monthlyBudget)) appData.monthlyBudget = parsed.monthlyBudget;
@@ -692,6 +646,10 @@
                 }
             } catch(e) { console.log(`迁移失败`, e); }
         }
+        // 确保 expenseCategories 不为空
+        if (!appData.expenseCategories.length) {
+            appData.expenseCategories = [{ name: '食品' }, { name: '医疗' }, { name: '玩具' }, { name: '美容' }, { name: '日用' }];
+        }
     }
     
     function loadData() {
@@ -702,7 +660,7 @@
                 appData.categories = parsed.categories || [];
                 appData.pets = parsed.pets || [];
                 appData.records = parsed.records || [];
-                appData.expenseCategories = parsed.expenseCategories || DEFAULT_DATA.expenseCategories;
+                appData.expenseCategories = parsed.expenseCategories || [];
                 appData.weightRecords = parsed.weightRecords || [];
                 appData.recurringRecords = parsed.recurringRecords || [];
                 appData.monthlyBudget = parsed.monthlyBudget || null;
@@ -715,6 +673,7 @@
         } catch(e) { 
             console.log('加载失败，使用默认数据', e);
             appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+            appData.expenseCategories = [{ name: '食品' }, { name: '医疗' }, { name: '玩具' }, { name: '美容' }, { name: '日用' }];
         }
     }
     
@@ -748,39 +707,35 @@
         else return '小于1个月';
     }
 
-    // ========== 健康提醒（优化版） ==========
+    // ========== 健康提醒 ==========
     function getHealthReminders() {
-        const upcoming = [];  // 即将到来（≤7天）
-        const overdue = [];   // 已过期
-        
+        const upcoming = [];
+        const overdue = [];
         appData.taskRecords.forEach(task => {
             const taskDate = new Date(task.date);
             const today = new Date();
             const daysSince = Math.floor((today - taskDate) / 86400000);
-            let interval = 90; // 默认驱虫
+            let interval = 90;
             if (task.type === '疫苗') interval = 365;
             if (task.type === '洗澡') interval = 30;
             if (task.type === '体检') interval = 180;
             if (task.type === '其他') interval = 30;
-            
             const daysUntilNext = interval - daysSince;
             const pet = appData.pets.find(p => p.id === task.petId);
             if (!pet) return;
-            
             if (daysSince >= interval) {
                 overdue.push({ pet: pet.name, petId: pet.id, task: task.type, daysOver: daysSince - interval });
             } else if (daysUntilNext <= 7 && daysUntilNext >= 0) {
                 upcoming.push({ pet: pet.name, petId: pet.id, task: task.type, daysLeft: daysUntilNext });
             }
         });
-        
         return { upcoming, overdue };
     }
     
     function renderHealthReminders() {
         const { upcoming, overdue } = getHealthReminders();
         const container = document.getElementById('healthReminderList');
-        
+        if (!container) return;
         if (upcoming.length === 0 && overdue.length === 0) {
             container.innerHTML = '<div style="padding: 8px 0; text-align: center; color: var(--text-sub);"><i data-lucide="check-circle"></i> 暂无待办，所有事项都在计划中</div>';
         } else {
@@ -788,21 +743,13 @@
             if (upcoming.length) {
                 html += '<div style="margin-bottom: 8px;"><small style="color: var(--text-sub);">📅 即将到来</small></div>';
                 upcoming.forEach(r => {
-                    html += `<div class="reminder-item upcoming">
-                        <i data-lucide="clock"></i>
-                        <div style="flex:1;"><b>${r.pet}</b> ${r.task} · ${r.daysLeft}天后需进行</div>
-                        <button class="btn-small btn-outline" onclick="app.quickAddTask('${r.petId}','${r.task}')">记录</button>
-                    </div>`;
+                    html += `<div class="reminder-item upcoming"><i data-lucide="clock"></i><div style="flex:1;"><b>${r.pet}</b> ${r.task} · ${r.daysLeft}天后需进行</div><button class="btn-small btn-outline" onclick="app.quickAddTask('${r.petId}','${r.task}')">记录</button></div>`;
                 });
             }
             if (overdue.length) {
                 html += '<div style="margin: 8px 0 4px;"><small style="color: var(--text-sub);">⚠️ 已过期</small></div>';
                 overdue.forEach(r => {
-                    html += `<div class="reminder-item danger">
-                        <i data-lucide="alert-circle"></i>
-                        <div style="flex:1;"><b>${r.pet}</b> ${r.task} · 已超期${r.daysOver}天</div>
-                        <button class="btn-small btn-outline" onclick="app.quickAddTask('${r.petId}','${r.task}')">记录</button>
-                    </div>`;
+                    html += `<div class="reminder-item danger"><i data-lucide="alert-circle"></i><div style="flex:1;"><b>${r.pet}</b> ${r.task} · 已超期${r.daysOver}天</div><button class="btn-small btn-outline" onclick="app.quickAddTask('${r.petId}','${r.task}')">记录</button></div>`;
                 });
             }
             container.innerHTML = html;
@@ -810,31 +757,23 @@
         lucide.createIcons();
     }
 
-    // ========== 愿望清单功能 ==========
+    // ========== 愿望清单 ==========
     function renderWishlistPreview() {
         const container = document.getElementById('wishlistPreview');
+        if (!container) return;
         if (!appData.wishlists.length) {
             container.innerHTML = '<div style="padding: 12px; text-align: center; color: var(--text-sub);">暂无愿望清单，点击上方按钮创建～</div>';
             return;
         }
-        
         let html = '';
         appData.wishlists.forEach(wish => {
             const totalEstimate = wish.items.reduce((sum, item) => sum + (item.estimate || 0), 0);
             const totalActual = wish.items.reduce((sum, item) => sum + (item.actual || 0), 0);
             const percent = totalEstimate > 0 ? (totalActual / totalEstimate * 100) : 0;
-            const remaining = totalEstimate - totalActual;
-            
             html += `<div style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light);" onclick="app.openWishlistDetail('${wish.id}')">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                    <span style="font-weight: 500;">🎁 ${wish.name}</span>
-                    <span style="font-size: 13px; color: var(--text-sub);">¥${totalActual} / ¥${totalEstimate}</span>
-                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span style="font-weight: 500;">🎁 ${wish.name}</span><span style="font-size: 13px; color: var(--text-sub);">¥${totalActual} / ¥${totalEstimate}</span></div>
                 <div class="wish-progress"><div class="wish-progress-fill" style="width: ${percent}%;"></div></div>
-                <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 12px;">
-                    <span>剩余 ¥${remaining.toFixed(2)}</span>
-                    ${wish.petId ? `<span>🐾 ${appData.pets.find(p => p.id === wish.petId)?.name || ''}</span>` : ''}
-                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 12px;"><span>剩余 ¥${(totalEstimate - totalActual).toFixed(2)}</span>${wish.petId ? `<span>🐾 ${appData.pets.find(p => p.id === wish.petId)?.name || ''}</span>` : ''}</div>
             </div>`;
         });
         container.innerHTML = html;
@@ -846,10 +785,7 @@
         const idField = document.getElementById('editWishlistId');
         const nameField = document.getElementById('wishlistName');
         const petSelect = document.getElementById('wishlistPetSelect');
-        
-        // 填充宠物下拉框
         petSelect.innerHTML = '<option value="">无</option>' + appData.pets.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-        
         if (wishId) {
             const wish = appData.wishlists.find(w => w.id === wishId);
             if (wish) {
@@ -862,7 +798,6 @@
                 return;
             }
         }
-        
         title.innerText = '🎁 新建愿望清单';
         idField.value = '';
         nameField.value = '';
@@ -873,11 +808,11 @@
     
     function renderWishItems(items = []) {
         const container = document.getElementById('wishItemsContainer');
+        if (!container) return;
         if (items.length === 0) {
             container.innerHTML = '<div style="padding: 12px; text-align: center; color: var(--text-sub);">暂无项目，点击下方按钮添加</div>';
             return;
         }
-        
         let html = '';
         items.forEach((item, idx) => {
             html += `<div style="margin-bottom: 12px; padding: 8px; background: var(--primary-light); border-radius: 12px;">
@@ -887,9 +822,7 @@
                 </div>
                 <div style="display: flex; gap: 8px;">
                     <input type="number" placeholder="实际 ¥" value="${item.actual || ''}" data-wish-item-actual="${idx}" style="flex: 1;">
-                    <label style="display: flex; align-items: center; gap: 4px;">
-                        <input type="checkbox" data-wish-item-bought="${idx}" ${item.bought ? 'checked' : ''}> 已买
-                    </label>
+                    <label style="display: flex; align-items: center; gap: 4px;"><input type="checkbox" data-wish-item-bought="${idx}" ${item.bought ? 'checked' : ''}> 已买</label>
                     <button class="btn-outline btn-small" onclick="app.removeWishItem(${idx})">删除</button>
                 </div>
             </div>`;
@@ -909,9 +842,7 @@
             </div>
             <div style="display: flex; gap: 8px;">
                 <input type="number" placeholder="实际 ¥" data-wish-item-actual="${idx}" style="flex: 1;">
-                <label style="display: flex; align-items: center; gap: 4px;">
-                    <input type="checkbox" data-wish-item-bought="${idx}"> 已买
-                </label>
+                <label style="display: flex; align-items: center; gap: 4px;"><input type="checkbox" data-wish-item-bought="${idx}"> 已买</label>
                 <button class="btn-outline btn-small" onclick="app.removeWishItem(${idx})">删除</button>
             </div>
         </div>`;
@@ -920,7 +851,7 @@
     
     function removeWishItem(idx) {
         const container = document.getElementById('wishItemsContainer');
-        const items = container.querySelectorAll(`div[style*="margin-bottom: 12px;"]`);
+        const items = container.querySelectorAll('div[style*="margin-bottom: 12px;"]');
         for (let item of items) {
             if (item.innerHTML.includes(`data-wish-item-name="${idx}"`) || item.innerHTML.includes(`removeWishItem(${idx})`)) {
                 item.remove();
@@ -933,21 +864,14 @@
         const items = [];
         const container = document.getElementById('wishItemsContainer');
         const itemDivs = container.querySelectorAll('div[style*="margin-bottom: 12px;"]');
-        
         itemDivs.forEach(div => {
             const nameInput = div.querySelector('input[placeholder="项目名称"]');
             const estimateInput = div.querySelector('input[placeholder="预估 ¥"]');
             const actualInput = div.querySelector('input[placeholder="实际 ¥"]');
             const boughtCheck = div.querySelector('input[type="checkbox"]');
-            
             const name = nameInput?.value.trim();
             if (name) {
-                items.push({
-                    name: name,
-                    estimate: parseFloat(estimateInput?.value) || 0,
-                    actual: parseFloat(actualInput?.value) || 0,
-                    bought: boughtCheck?.checked || false
-                });
+                items.push({ name: name, estimate: parseFloat(estimateInput?.value) || 0, actual: parseFloat(actualInput?.value) || 0, bought: boughtCheck?.checked || false });
             }
         });
         return items;
@@ -958,27 +882,13 @@
         const name = document.getElementById('wishlistName').value.trim();
         const petId = document.getElementById('wishlistPetSelect').value;
         const items = collectWishItems();
-        
-        if (!name) {
-            showToast('请输入清单名称', false);
-            return;
-        }
-        
+        if (!name) { showToast('请输入清单名称', false); return; }
         if (id) {
             const index = appData.wishlists.findIndex(w => w.id === id);
-            if (index !== -1) {
-                appData.wishlists[index] = { ...appData.wishlists[index], name, petId: petId || null, items };
-            }
+            if (index !== -1) { appData.wishlists[index] = { ...appData.wishlists[index], name, petId: petId || null, items }; }
         } else {
-            appData.wishlists.push({
-                id: Date.now() + Math.random() + '',
-                name: name,
-                petId: petId || null,
-                items: items,
-                createdAt: getToday()
-            });
+            appData.wishlists.push({ id: Date.now() + Math.random() + '', name, petId: petId || null, items, createdAt: getToday() });
         }
-        
         saveData();
         closeWishlistModal();
         renderWishlistPreview();
@@ -988,39 +898,14 @@
     function openWishlistDetail(wishId) {
         const wish = appData.wishlists.find(w => w.id === wishId);
         if (!wish) return;
-        
         const totalEstimate = wish.items.reduce((sum, i) => sum + (i.estimate || 0), 0);
         const totalActual = wish.items.reduce((sum, i) => sum + (i.actual || 0), 0);
         const percent = totalEstimate > 0 ? (totalActual / totalEstimate * 100) : 0;
-        
         let itemsHtml = '';
         wish.items.forEach(item => {
-            itemsHtml += `<div class="wish-item">
-                <div class="wish-content">
-                    <div style="font-weight: 500;">${item.name}</div>
-                    <div style="font-size: 13px;">预估 ¥${item.estimate.toFixed(2)} · 实际 ¥${item.actual.toFixed(2)}</div>
-                </div>
-                <span class="${item.bought ? 'wish-status-bought' : 'wish-status-pending'}">${item.bought ? '✅ 已买' : '⏳ 待买'}</span>
-            </div>`;
+            itemsHtml += `<div class="wish-item"><div class="wish-content"><div style="font-weight: 500;">${item.name}</div><div style="font-size: 13px;">预估 ¥${item.estimate.toFixed(2)} · 实际 ¥${item.actual.toFixed(2)}</div></div><span class="${item.bought ? 'wish-status-bought' : 'wish-status-pending'}">${item.bought ? '✅ 已买' : '⏳ 待买'}</span></div>`;
         });
-        
-        const html = `
-            <div style="cursor: pointer; text-align: right; margin-bottom: 8px;" onclick="app.closeWishlistDetail()">✕</div>
-            <h3 style="margin-bottom: 12px;">🎁 ${wish.name}</h3>
-            <div class="wish-progress" style="margin: 12px 0;"><div class="wish-progress-fill" style="width: ${percent}%;"></div></div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
-                <span>预估总价: ¥${totalEstimate.toFixed(2)}</span>
-                <span>已花: ¥${totalActual.toFixed(2)}</span>
-                <span>剩余: ¥${(totalEstimate - totalActual).toFixed(2)}</span>
-            </div>
-            <h4 style="margin: 12px 0;">📋 项目清单</h4>
-            ${itemsHtml || '<div style="text-align:center; padding:12px;">暂无项目</div>'}
-            <div class="modal-buttons" style="margin-top: 16px;">
-                <button class="btn-outline" onclick="app.openWishlistModal('${wish.id}')"><i data-lucide="edit"></i> 编辑</button>
-                <button class="btn-cancel" onclick="app.deleteWishlist('${wish.id}')"><i data-lucide="trash-2"></i> 删除</button>
-            </div>
-        `;
-        
+        const html = `<div style="cursor: pointer; text-align: right; margin-bottom: 8px;" onclick="app.closeWishlistDetail()">✕</div><h3 style="margin-bottom: 12px;">🎁 ${wish.name}</h3><div class="wish-progress" style="margin: 12px 0;"><div class="wish-progress-fill" style="width: ${percent}%;"></div></div><div style="display: flex; justify-content: space-between; margin-bottom: 16px;"><span>预估总价: ¥${totalEstimate.toFixed(2)}</span><span>已花: ¥${totalActual.toFixed(2)}</span><span>剩余: ¥${(totalEstimate - totalActual).toFixed(2)}</span></div><h4 style="margin: 12px 0;">📋 项目清单</h4>${itemsHtml || '<div style="text-align:center; padding:12px;">暂无项目</div>'}<div class="modal-buttons" style="margin-top: 16px;"><button class="btn-outline" onclick="app.openWishlistModal('${wish.id}')"><i data-lucide="edit"></i> 编辑</button><button class="btn-cancel" onclick="app.deleteWishlist('${wish.id}')"><i data-lucide="trash-2"></i> 删除</button></div></div>`;
         const modal = document.createElement('div');
         modal.className = 'modal show';
         modal.id = 'wishlistDetailModal';
@@ -1030,32 +915,29 @@
         lucide.createIcons();
     }
     
-    function closeWishlistDetail() {
-        document.getElementById('wishlistDetailModal')?.remove();
-    }
-    
-    function deleteWishlist(wishId) {
-        if (confirm('确定删除这个愿望清单吗？')) {
-            appData.wishlists = appData.wishlists.filter(w => w.id !== wishId);
-            saveData();
-            renderWishlistPreview();
-            closeWishlistDetail();
-            showToast('已删除');
-        }
-    }
-    
-    function closeWishlistModal() {
-        document.getElementById('wishlistModal').classList.remove('show');
-    }
-    
-    function refreshWishSelect() {
-        const select = document.getElementById('wishSelect');
-        if (select) {
-            select.innerHTML = '<option value="">无</option>' + appData.wishlists.map(w => `<option value="${w.id}">${w.name}</option>`).join('');
-        }
-    }
+    function closeWishlistDetail() { document.getElementById('wishlistDetailModal')?.remove(); }
+    function deleteWishlist(wishId) { if (confirm('确定删除这个愿望清单吗？')) { appData.wishlists = appData.wishlists.filter(w => w.id !== wishId); saveData(); renderWishlistPreview(); closeWishlistDetail(); showToast('已删除'); } }
+    function closeWishlistModal() { document.getElementById('wishlistModal').classList.remove('show'); }
+    function refreshWishSelect() { const select = document.getElementById('wishSelect'); if (select) { select.innerHTML = '<option value="">无</option>' + appData.wishlists.map(w => `<option value="${w.id}">${w.name}</option>`).join(''); } }
 
-    // ========== 原有功能保持 ==========
+    // ========== 核心功能 ==========
+    let viewMode = 'month', currentYear = new Date().getFullYear(), currentMonth = new Date().getMonth()+1, filterCategoryId = null;
+    let statPeriod = 'month', statYear = new Date().getFullYear(), statMonth = new Date().getMonth()+1, statDay = new Date().getDate();
+    let pieChart=null, trendChart=null, weightTrendChart=null;
+    let statTab = 'expense', recordTab = 'expense';
+    let tempAvatar = null;
+    let contextRecordId = null;
+    let pendingDeletePetId = null;
+
+    function toggleViewMode() { viewMode = viewMode === 'month' ? 'year' : 'month'; updatePeriodDisplay(); renderHome(); }
+    function updatePeriodDisplay() { document.getElementById('periodDisplay').innerText = viewMode === 'month' ? `${currentYear}.${String(currentMonth).padStart(2,'0')}` : `${currentYear}`; }
+    function prevPeriod() { if(viewMode==='month'){ currentMonth--; if(currentMonth<1){ currentMonth=12; currentYear--; } } else { currentYear--; } updatePeriodDisplay(); renderHome(); }
+    function nextPeriod() { if(viewMode==='month'){ currentMonth++; if(currentMonth>12){ currentMonth=1; currentYear++; } } else { currentYear++; } updatePeriodDisplay(); renderHome(); }
+    
+    function getPeriodFilter() { return (r) => { if(!r.date) return false; const d = new Date(r.date); let match = viewMode==='month' ? d.getFullYear()===currentYear && d.getMonth()+1===currentMonth : d.getFullYear()===currentYear; if(match && filterCategoryId) match = r.categoryId === filterCategoryId; return match; }; }
+    function filterByCategory(id) { filterCategoryId = id; renderHome(); }
+    function clearFilter() { filterCategoryId = null; renderHome(); }
+
     function showPage(pageId) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById('page' + pageId.charAt(0).toUpperCase() + pageId.slice(1)).classList.add('active');
@@ -1068,47 +950,23 @@
         else if (pageId === 'settings') renderSettings();
         setTimeout(() => lucide.createIcons(), 10);
     }
-
-    let viewMode = 'month', currentYear = new Date().getFullYear(), currentMonth = new Date().getMonth()+1, filterCategoryId = null;
-    let statPeriod = 'month', statYear = new Date().getFullYear(), statMonth = new Date().getMonth()+1, statDay = new Date().getDate();
-    let pieChart=null, trendChart=null, weightChart=null, weightTrendChart=null;
-    let statTab = 'expense', recordTab = 'expense';
-    let tempAvatar = null;
-    let contextRecordId = null;
-    let pendingDeletePetId = null;
-
-    function setViewMode(m) { viewMode = m; document.querySelectorAll('.view-switch button').forEach(b=>b.classList.remove('active')); document.querySelector(`.view-switch button[data-view="${m}"]`).classList.add('active'); renderHome(); }
-    function prevPeriod() { if(viewMode==='month'){ currentMonth--; if(currentMonth<1){ currentMonth=12; currentYear--; } } else { currentYear--; } renderHome(); }
-    function nextPeriod() { if(viewMode==='month'){ currentMonth++; if(currentMonth>12){ currentMonth=1; currentYear++; } } else { currentYear++; } renderHome(); }
-    function getPeriodFilter() { return (r) => { if(!r.date) return false; const d = new Date(r.date); let match = viewMode==='month' ? d.getFullYear()===currentYear && d.getMonth()+1===currentMonth : d.getFullYear()===currentYear; if(match && filterCategoryId) match = r.categoryId === filterCategoryId; return match; }; }
-    function filterByCategory(id) { filterCategoryId = id; renderHome(); }
-    function clearFilter() { filterCategoryId = null; renderHome(); }
+    
+    function openRecordPage() { showPage('record'); document.querySelector('#pageRecord .tab[onclick*="expense"]').click(); }
 
     function renderHome() {
-        document.getElementById('currentPeriodDisplay').innerText = viewMode==='month' ? `${currentYear}.${String(currentMonth).padStart(2,'0')}` : `${currentYear}`;
+        updatePeriodDisplay();
         const filtered = appData.records.filter(getPeriodFilter());
         const total = filtered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
         document.getElementById('periodTotalAmount').innerText = `¥${total.toFixed(2)}`;
-
         const scroll = document.getElementById('categoryScroll');
         if(appData.categories.length) {
             scroll.innerHTML = appData.categories.map(cat => {
                 const catTotal = appData.records.filter(r => r.categoryId === cat.id && (viewMode==='month' ? new Date(r.date).getFullYear()===currentYear && new Date(r.date).getMonth()+1===currentMonth : new Date(r.date).getFullYear()===currentYear)).reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
-                return `<div class="category-card ${filterCategoryId===cat.id?'active':''}" onclick="app.filterByCategory('${cat.id}')">
-                    <div><i data-lucide="${cat.icon||'cat'}"></i></div>
-                    <div style="font-weight:600;">${cat.name}</div>
-                    <div style="color:var(--primary-dark);">¥${catTotal.toFixed(0)}</div>
-                </div>`;
+                return `<div class="category-card ${filterCategoryId===cat.id?'active':''}" onclick="app.filterByCategory('${cat.id}')"><div><i data-lucide="${cat.icon||'cat'}"></i></div><div style="font-weight:600;">${cat.name}</div><div style="color:var(--primary-dark);">¥${catTotal.toFixed(0)}</div></div>`;
             }).join('');
         } else { scroll.innerHTML = '<div style="padding:16px;">点击"家族"添加</div>'; }
-
         const badge = document.getElementById('filterBadge');
-        if(filterCategoryId) {
-            const cat = appData.categories.find(c=>c.id===filterCategoryId);
-            document.getElementById('filterText').innerHTML = `<i data-lucide="${cat?.icon||'cat'}"></i> 只看${cat?.name}`;
-            badge.style.display = 'inline-flex';
-        } else { badge.style.display = 'none'; }
-
+        if(filterCategoryId) { const cat = appData.categories.find(c=>c.id===filterCategoryId); document.getElementById('filterText').innerHTML = `<i data-lucide="${cat?.icon||'cat'}"></i> 只看${cat?.name}`; badge.style.display = 'inline-flex'; } else { badge.style.display = 'none'; }
         const container = document.getElementById('recordsContainer');
         if(viewMode==='month') {
             const byDay = {};
@@ -1120,11 +978,7 @@
                 byDay[date].forEach(r => {
                     const cat = appData.categories.find(c=>c.id===r.categoryId);
                     const pet = appData.pets.find(p=>p.id===r.petId);
-                    html += `<div class="record-card" data-record-id="${r.id}" oncontextmenu="app.showContextMenu(event,'${r.id}');return false;">
-                        <div style="display:flex; justify-content:space-between;"><span>${r.expenseCategory} ${pet ? '· '+pet.name : ''}</span><span>¥${parseFloat(r.amount).toFixed(2)}</span></div>
-                        <div style="border-top:1px dashed var(--border-light); margin:8px 0;"></div>
-                        <div style="display:flex; justify-content:space-between; color:var(--text-sub);"><span>${r.note||''}</span><span>${cat?.name||''}</span></div>
-                    </div>`;
+                    html += `<div class="record-card" data-record-id="${r.id}" oncontextmenu="app.showContextMenu(event,'${r.id}');return false;"><div style="display:flex; justify-content:space-between;"><span>${r.expenseCategory} ${pet ? '· '+pet.name : ''}</span><span>¥${parseFloat(r.amount).toFixed(2)}</span></div><div style="border-top:1px dashed var(--border-light); margin:8px 0;"></div><div style="display:flex; justify-content:space-between; color:var(--text-sub);"><span>${r.note||''}</span><span>${cat?.name||''}</span></div></div>`;
                 });
                 html += '</div>';
             });
@@ -1134,580 +988,94 @@
     }
 
     function showContextMenu(e, id) { e.preventDefault(); contextRecordId = id; const menu = document.getElementById('contextMenu'); menu.style.left = (e.touches?.[0]?.clientX || e.clientX) + 'px'; menu.style.top = (e.touches?.[0]?.clientY || e.clientY) + 'px'; menu.classList.add('show'); setTimeout(() => document.addEventListener('click', ()=> menu.classList.remove('show'), {once:true}), 50); }
-    function contextEdit() {
-        const r = appData.records.find(r=> r.id == contextRecordId); if (!r) return;
-        document.getElementById('editRecordId').value = r.id;
-        document.getElementById('editAmountInput').value = r.amount;
-        document.getElementById('editDateInput').value = r.date;
-        document.getElementById('editNoteInput').value = r.note||'';
-        document.getElementById('editPetSelect').innerHTML = '<option value="">无</option>' + appData.pets.map(p=>`<option value="${p.id}" ${p.id===r.petId?'selected':''}>${p.name}</option>`).join('');
-        document.getElementById('editCategorySelect').innerHTML = appData.categories.map(c=>`<option value="${c.id}" ${c.id===r.categoryId?'selected':''}>${c.name}</option>`).join('');
-        document.getElementById('editExpenseCategorySelect').innerHTML = appData.expenseCategories.map(ec=>`<option ${ec.name===r.expenseCategory?'selected':''}>${ec.name}</option>`).join('');
-        document.getElementById('editPaymentSelect').value = r.payment;
-        document.getElementById('editRecordModal').classList.add('show');
-    }
+    function contextEdit() { const r = appData.records.find(r=> r.id == contextRecordId); if (!r) return; document.getElementById('editRecordId').value = r.id; document.getElementById('editAmountInput').value = r.amount; document.getElementById('editDateInput').value = r.date; document.getElementById('editNoteInput').value = r.note||''; document.getElementById('editPetSelect').innerHTML = '<option value="">无</option>' + appData.pets.map(p=>`<option value="${p.id}" ${p.id===r.petId?'selected':''}>${p.name}</option>`).join(''); document.getElementById('editCategorySelect').innerHTML = appData.categories.map(c=>`<option value="${c.id}" ${c.id===r.categoryId?'selected':''}>${c.name}</option>`).join(''); document.getElementById('editExpenseCategorySelect').innerHTML = appData.expenseCategories.map(ec=>`<option ${ec.name===r.expenseCategory?'selected':''}>${ec.name}</option>`).join(''); document.getElementById('editPaymentSelect').value = r.payment; document.getElementById('editRecordModal').classList.add('show'); }
     function contextDelete() { if (!confirm('删除？')) return; appData.records = appData.records.filter(r=> r.id != contextRecordId); saveData(); renderHome(); showToast('已删除'); }
     function closeEditModal() { document.getElementById('editRecordModal').classList.remove('show'); }
-    function saveEditRecord() {
-        const r = appData.records.find(r=> r.id == document.getElementById('editRecordId').value); if (!r) return;
-        r.amount = parseFloat(document.getElementById('editAmountInput').value);
-        r.date = document.getElementById('editDateInput').value;
-        r.petId = document.getElementById('editPetSelect').value;
-        r.categoryId = document.getElementById('editCategorySelect').value;
-        r.expenseCategory = document.getElementById('editExpenseCategorySelect').value;
-        r.payment = document.getElementById('editPaymentSelect').value;
-        r.note = document.getElementById('editNoteInput').value;
-        saveData(); closeEditModal(); renderHome(); showToast('已更新');
-    }
+    function saveEditRecord() { const r = appData.records.find(r=> r.id == document.getElementById('editRecordId').value); if (!r) return; r.amount = parseFloat(document.getElementById('editAmountInput').value); r.date = document.getElementById('editDateInput').value; r.petId = document.getElementById('editPetSelect').value; r.categoryId = document.getElementById('editCategorySelect').value; r.expenseCategory = document.getElementById('editExpenseCategorySelect').value; r.payment = document.getElementById('editPaymentSelect').value; r.note = document.getElementById('editNoteInput').value; saveData(); closeEditModal(); renderHome(); showToast('已更新'); }
 
-    function quickAddTask(petId, taskType) {
-        document.getElementById('taskRecordPetSelect').value = petId;
-        document.getElementById('taskTypeSelect').value = taskType;
-        document.getElementById('taskRecordDateInput').value = getToday();
-        document.getElementById('taskRecordNoteInput').value = '';
-        document.getElementById('taskRecordContent').style.display = 'block';
-        document.querySelector('#pageRecord .tab.active').classList.remove('active');
-        document.querySelector('#pageRecord .tab:nth-child(3)').classList.add('active');
-        document.getElementById('expenseRecordContent').style.display = 'none';
-        document.getElementById('weightRecordContent').style.display = 'none';
-        document.getElementById('taskRecordContent').style.display = 'block';
-        showPage('record');
-    }
+    function quickAddTask(petId, taskType) { document.getElementById('taskRecordPetSelect').value = petId; document.getElementById('taskTypeSelect').value = taskType; document.getElementById('taskRecordDateInput').value = getToday(); document.getElementById('taskRecordNoteInput').value = ''; document.getElementById('taskRecordContent').style.display = 'block'; document.querySelector('#pageRecord .tab.active').classList.remove('active'); document.querySelector('#pageRecord .tab:nth-child(3)').classList.add('active'); document.getElementById('expenseRecordContent').style.display = 'none'; document.getElementById('weightRecordContent').style.display = 'none'; document.getElementById('taskRecordContent').style.display = 'block'; showPage('record'); }
     
-    function addTaskRecord() {
-        const petId = document.getElementById('taskRecordPetSelect').value;
-        if (!petId) return showToast('请选择宠物', false);
-        const type = document.getElementById('taskTypeSelect').value;
-        const date = document.getElementById('taskRecordDateInput').value;
-        if (!date) return showToast('请选择日期', false);
-        const note = document.getElementById('taskRecordNoteInput').value;
-        appData.taskRecords.push({ id: Date.now() + Math.random(), petId, type, date, note });
-        saveData();
-        showToast('事项已记录');
-        document.getElementById('taskRecordNoteInput').value = '';
-        renderRecentTasks();
-        renderHealthReminders();
-        if (document.getElementById('pageHome').classList.contains('active')) renderHome();
-    }
+    function addTaskRecord() { const petId = document.getElementById('taskRecordPetSelect').value; if (!petId) return showToast('请选择宠物', false); const type = document.getElementById('taskTypeSelect').value; const date = document.getElementById('taskRecordDateInput').value; if (!date) return showToast('请选择日期', false); const note = document.getElementById('taskRecordNoteInput').value; appData.taskRecords.push({ id: Date.now() + Math.random(), petId, type, date, note }); saveData(); showToast('事项已记录'); document.getElementById('taskRecordNoteInput').value = ''; renderRecentTasks(); renderHealthReminders(); if (document.getElementById('pageHome').classList.contains('active')) renderHome(); }
     
-    function renderRecentTasks() {
-        const recentTasks = [...appData.taskRecords].sort((a,b) => (b.date||'').localeCompare(a.date||'')).slice(0, 10);
-        const container = document.getElementById('recentTaskList');
-        if (!container) return;
-        if (recentTasks.length === 0) { container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-sub);">暂无事项记录</div>'; return; }
-        container.innerHTML = recentTasks.map(task => {
-            const pet = appData.pets.find(p => p.id === task.petId);
-            return `<div class="task-item"><div><div class="task-badge">${task.type}</div><div style="font-size: 13px; margin-top: 4px;">${pet ? pet.name : '未知宠物'} · ${formatYMD(task.date)}</div>${task.note ? `<div style="font-size: 12px; color: var(--text-sub); margin-top: 2px;">${task.note}</div>` : ''}</div><button class="delete-event-btn" onclick="app.deleteTaskRecord('${task.id}')"><i data-lucide="trash-2" style="width: 16px;"></i></button></div>`;
-        }).join('');
-        lucide.createIcons();
-    }
+    function renderRecentTasks() { const recentTasks = [...appData.taskRecords].sort((a,b) => (b.date||'').localeCompare(a.date||'')).slice(0, 10); const container = document.getElementById('recentTaskList'); if (!container) return; if (recentTasks.length === 0) { container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-sub);">暂无事项记录</div>'; return; } container.innerHTML = recentTasks.map(task => { const pet = appData.pets.find(p => p.id === task.petId); return `<div class="task-item"><div><div class="task-badge">${task.type}</div><div style="font-size: 13px; margin-top: 4px;">${pet ? pet.name : '未知宠物'} · ${formatYMD(task.date)}</div>${task.note ? `<div style="font-size: 12px; color: var(--text-sub); margin-top: 2px;">${task.note}</div>` : ''}</div><button class="delete-event-btn" onclick="app.deleteTaskRecord('${task.id}')"><i data-lucide="trash-2" style="width: 16px;"></i></button></div>`; }).join(''); lucide.createIcons(); }
     
-    function deleteTaskRecord(id) {
-        if (confirm('删除这条记录？')) {
-            appData.taskRecords = appData.taskRecords.filter(t => t.id != id);
-            saveData();
-            renderRecentTasks();
-            renderHealthReminders();
-            if (document.getElementById('pageHome').classList.contains('active')) renderHome();
-            showToast('已删除');
-        }
-    }
+    function deleteTaskRecord(id) { if (confirm('删除这条记录？')) { appData.taskRecords = appData.taskRecords.filter(t => t.id != id); saveData(); renderRecentTasks(); renderHealthReminders(); if (document.getElementById('pageHome').classList.contains('active')) renderHome(); showToast('已删除'); } }
 
-    function renderRecordForm() {
-        document.getElementById('dateInput').value = getToday();
-        document.getElementById('petSelect').innerHTML = '<option value="">无</option>' + appData.pets.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
-        document.getElementById('categoryTypeSelect').innerHTML = appData.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
-        document.getElementById('expenseCategorySelect').innerHTML = appData.expenseCategories.map(ec=>`<option>${ec.name}</option>`).join('');
-        document.getElementById('weightRecordPetSelect').innerHTML = appData.pets.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
-        document.getElementById('weightRecordDate').value = getToday();
-        document.getElementById('taskRecordPetSelect').innerHTML = appData.pets.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
-        document.getElementById('taskRecordDateInput').value = getToday();
-        const chk = document.getElementById('isRecurring');
-        const periodSelect = document.getElementById('recurringPeriod');
-        if (chk) chk.onchange = () => { periodSelect.style.display = chk.checked ? 'inline-block' : 'none'; };
-    }
+    function renderRecordForm() { document.getElementById('dateInput').value = getToday(); document.getElementById('petSelect').innerHTML = '<option value="">无</option>' + appData.pets.map(p=>`<option value="${p.id}">${p.name}</option>`).join(''); document.getElementById('categoryTypeSelect').innerHTML = appData.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join(''); document.getElementById('expenseCategorySelect').innerHTML = appData.expenseCategories.map(ec=>`<option>${ec.name}</option>`).join(''); document.getElementById('weightRecordPetSelect').innerHTML = appData.pets.map(p=>`<option value="${p.id}">${p.name}</option>`).join(''); document.getElementById('weightRecordDate').value = getToday(); document.getElementById('taskRecordPetSelect').innerHTML = appData.pets.map(p=>`<option value="${p.id}">${p.name}</option>`).join(''); document.getElementById('taskRecordDateInput').value = getToday(); const chk = document.getElementById('isRecurring'); const periodSelect = document.getElementById('recurringPeriod'); if (chk) chk.onchange = () => { periodSelect.style.display = chk.checked ? 'inline-block' : 'none'; }; }
     
-    function addRecord() {
-        const amt = parseFloat(document.getElementById('amountInput').value);
-        if(!amt) return showToast('金额无效', false);
-        if(!appData.categories.length) return showToast('请先创建家族', false);
-        const newRecord = {
-            id: Date.now()+Math.random(), amount: amt, date: document.getElementById('dateInput').value,
-            petId: document.getElementById('petSelect').value, categoryId: document.getElementById('categoryTypeSelect').value,
-            expenseCategory: document.getElementById('expenseCategorySelect').value, payment: document.getElementById('paymentSelect').value,
-            note: document.getElementById('noteInput').value, wishlistId: document.getElementById('wishSelect').value || null
-        };
-        appData.records.push(newRecord);
-        
-        // 如果关联了愿望清单，更新项目实际支出
-        if (newRecord.wishlistId) {
-            const wish = appData.wishlists.find(w => w.id === newRecord.wishlistId);
-            if (wish) {
-                const matchingItem = wish.items.find(item => item.name === newRecord.expenseCategory);
-                if (matchingItem) {
-                    matchingItem.actual = (matchingItem.actual || 0) + amt;
-                    matchingItem.bought = true;
-                } else {
-                    wish.items.push({ name: newRecord.expenseCategory, estimate: 0, actual: amt, bought: true });
-                }
-                saveData();
-            }
-        }
-        
-        if(document.getElementById('isRecurring') && document.getElementById('isRecurring').checked) {
-            const period = document.getElementById('recurringPeriod').value;
-            appData.recurringRecords.push({ id: Date.now()+Math.random(), record: newRecord, period: period, lastDate: newRecord.date });
-            showToast('已保存并设为定期记账');
-        } else { showToast('已保存'); }
-        saveData(); showPage('home');
-    }
+    function addRecord() { const amt = parseFloat(document.getElementById('amountInput').value); if(!amt) return showToast('金额无效', false); if(!appData.categories.length) return showToast('请先创建家族', false); const newRecord = { id: Date.now()+Math.random(), amount: amt, date: document.getElementById('dateInput').value, petId: document.getElementById('petSelect').value, categoryId: document.getElementById('categoryTypeSelect').value, expenseCategory: document.getElementById('expenseCategorySelect').value, payment: document.getElementById('paymentSelect').value, note: document.getElementById('noteInput').value, wishlistId: document.getElementById('wishSelect').value || null }; appData.records.push(newRecord); if (newRecord.wishlistId) { const wish = appData.wishlists.find(w => w.id === newRecord.wishlistId); if (wish) { const matchingItem = wish.items.find(item => item.name === newRecord.expenseCategory); if (matchingItem) { matchingItem.actual = (matchingItem.actual || 0) + amt; matchingItem.bought = true; } else { wish.items.push({ name: newRecord.expenseCategory, estimate: 0, actual: amt, bought: true }); } saveData(); } } if(document.getElementById('isRecurring') && document.getElementById('isRecurring').checked) { const period = document.getElementById('recurringPeriod').value; appData.recurringRecords.push({ id: Date.now()+Math.random(), record: newRecord, period: period, lastDate: newRecord.date }); showToast('已保存并设为定期记账'); } else { showToast('已保存'); } saveData(); showPage('home'); }
     
-    function addWeightRecord() {
-        const petId = document.getElementById('weightRecordPetSelect').value;
-        if (!petId) return showToast('请选择宠物', false);
-        const weight = parseFloat(document.getElementById('weightRecordValue').value);
-        if (!weight) return showToast('请输入体重', false);
-        appData.weightRecords.push({ id: Date.now()+Math.random(), petId, date: document.getElementById('weightRecordDate').value, weight, note: document.getElementById('weightRecordNote').value || '' });
-        saveData();
-        showToast('体重已记录');
-        document.getElementById('weightRecordValue').value = '';
-        document.getElementById('weightRecordNote').value = '';
-        renderWeightTrendChart();
-    }
+    function addWeightRecord() { const petId = document.getElementById('weightRecordPetSelect').value; if (!petId) return showToast('请选择宠物', false); const weight = parseFloat(document.getElementById('weightRecordValue').value); if (!weight) return showToast('请输入体重', false); appData.weightRecords.push({ id: Date.now()+Math.random(), petId, date: document.getElementById('weightRecordDate').value, weight, note: document.getElementById('weightRecordNote').value || '' }); saveData(); showToast('体重已记录'); document.getElementById('weightRecordValue').value = ''; document.getElementById('weightRecordNote').value = ''; renderWeightTrendChart(); }
     
-    function renderWeightTrendChart() {
-        const petId = document.getElementById('weightRecordPetSelect').value;
-        if (!petId) return;
-        const records = appData.weightRecords.filter(w => w.petId === petId).sort((a,b) => (a.date||'').localeCompare(b.date||''));
-        const ctx = document.getElementById('weightTrendChart').getContext('2d');
-        if (weightTrendChart) weightTrendChart.destroy();
-        weightTrendChart = new Chart(ctx, { type: 'line', data: { labels: records.map(r=>r.date), datasets: [{ label: '体重(kg)', data: records.map(r=>r.weight), borderColor: '#8b5cf6', tension: 0.2, fill: false }] } });
-        document.getElementById('weightRecordPetSelect').onchange = renderWeightTrendChart;
-    }
+    function renderWeightTrendChart() { const petId = document.getElementById('weightRecordPetSelect').value; if (!petId) return; const records = appData.weightRecords.filter(w => w.petId === petId).sort((a,b) => (a.date||'').localeCompare(b.date||'')); const ctx = document.getElementById('weightTrendChart').getContext('2d'); if (weightTrendChart) weightTrendChart.destroy(); weightTrendChart = new Chart(ctx, { type: 'line', data: { labels: records.map(r=>r.date), datasets: [{ label: '体重(kg)', data: records.map(r=>r.weight), borderColor: '#8b5cf6', tension: 0.2, fill: false }] } }); document.getElementById('weightRecordPetSelect').onchange = renderWeightTrendChart; }
     
-    function setRecordTab(tab) {
-        recordTab = tab;
-        document.querySelectorAll('#pageRecord .tab').forEach(t=>t.classList.remove('active'));
-        event.target.classList.add('active');
-        document.getElementById('expenseRecordContent').style.display = tab==='expense' ? 'block' : 'none';
-        document.getElementById('weightRecordContent').style.display = tab==='weight' ? 'block' : 'none';
-        document.getElementById('taskRecordContent').style.display = tab==='task' ? 'block' : 'none';
-        if (tab === 'weight') renderWeightTrendChart();
-        if (tab === 'task') renderRecentTasks();
-    }
+    function setRecordTab(tab) { recordTab = tab; document.querySelectorAll('#pageRecord .tab').forEach(t=>t.classList.remove('active')); event.target.classList.add('active'); document.getElementById('expenseRecordContent').style.display = tab==='expense' ? 'block' : 'none'; document.getElementById('weightRecordContent').style.display = tab==='weight' ? 'block' : 'none'; document.getElementById('taskRecordContent').style.display = tab==='task' ? 'block' : 'none'; if (tab === 'weight') renderWeightTrendChart(); if (tab === 'task') renderRecentTasks(); }
 
-    function renderPetsPage() {
-        const container = document.getElementById('categoryListContainer');
-        if(!appData.categories.length) { container.innerHTML = '<div class="card">暂无家族，点击"家族"创建</div>'; return; }
-        let html = '';
-        appData.categories.forEach(cat => {
-            html += `<div class="card"><div style="display:flex; justify-content:space-between; margin-bottom: 12px;"><h3><i data-lucide="${cat.icon||'cat'}"></i> ${cat.name}</h3><button class="btn-outline btn-small" onclick="app.deleteCategory('${cat.id}')"><i data-lucide="trash-2"></i></button></div>`;
-            const pets = appData.pets.filter(p=>p.categoryId===cat.id);
-            if(pets.length) {
-                pets.forEach(p => {
-                    html += `<div class="pet-item" data-pet-id="${p.id}" onclick="app.showPetDetail('${p.id}')" oncontextmenu="app.showPetContextMenu(event,'${p.id}');return false;">
-                        <div class="avatar">${p.avatar?`<img src="${p.avatar}">`:`<i data-lucide="${cat.icon||'cat'}"></i>`}</div>
-                        <div class="pet-info" style="flex:1;"><b>${p.name}</b><br><small>${p.birthday||'未设置生日'}</small></div>
-                    </div>`;
-                });
-            } else { html += '<div style="padding:16px;text-align:center;color:var(--text-sub);">暂无宠物，点击"+"添加</div>'; }
-            html += `<div style="margin-top: 12px;"><button class="btn-outline btn-small" onclick="app.showAddPet('${cat.id}')"><i data-lucide="plus"></i> 添加宠物</button></div></div>`;
-        });
-        container.innerHTML = html;
-        lucide.createIcons();
-    }
+    function renderPetsPage() { const container = document.getElementById('categoryListContainer'); if(!appData.categories.length) { container.innerHTML = '<div class="card">暂无家族，点击"家族"创建</div>'; return; } let html = ''; appData.categories.forEach(cat => { html += `<div class="card"><div style="display:flex; justify-content:space-between; margin-bottom: 12px;"><h3><i data-lucide="${cat.icon||'cat'}"></i> ${cat.name}</h3><button class="btn-outline btn-small" onclick="app.deleteCategory('${cat.id}')"><i data-lucide="trash-2"></i></button></div>`; const pets = appData.pets.filter(p=>p.categoryId===cat.id); if(pets.length) { pets.forEach(p => { html += `<div class="pet-item" data-pet-id="${p.id}" onclick="app.showPetDetail('${p.id}')" oncontextmenu="app.showPetContextMenu(event,'${p.id}');return false;"><div class="avatar">${p.avatar?`<img src="${p.avatar}">`:`<i data-lucide="${cat.icon||'cat'}"></i>`}</div><div class="pet-info" style="flex:1;"><b>${p.name}</b><br><small>${p.birthday||'未设置生日'}</small></div></div>`; }); } else { html += '<div style="padding:16px;text-align:center;color:var(--text-sub);">暂无宠物，点击"+"添加</div>'; } html += `<div style="margin-top: 12px;"><button class="btn-outline btn-small" onclick="app.showAddPet('${cat.id}')"><i data-lucide="plus"></i> 添加宠物</button></div></div>`; }); container.innerHTML = html; lucide.createIcons(); }
     
-    function showPetDetail(petId) {
-        const pet = appData.pets.find(p => p.id === petId);
-        if (!pet) return;
-        const category = appData.categories.find(c => c.id === pet.categoryId);
-        const petSpending = appData.records.filter(r => r.petId === petId).reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
-        const lifeEvents = appData.lifeEvents.filter(e => e.petId === petId).sort((a,b) => (b.date||'').localeCompare(a.date||''));
-        const taskRecords = appData.taskRecords.filter(t => t.petId === petId).sort((a,b) => (b.date||'').localeCompare(a.date||''));
-        
-        let eventsHtml = '';
-        if (lifeEvents.length) {
-            lifeEvents.forEach(event => { eventsHtml += `<div class="life-event-item"><div class="life-event-content"><div class="life-event-date">${formatYMD(event.date)}</div><div class="life-event-title">📌 ${event.title}</div>${event.note ? `<div class="life-event-note">${event.note}</div>` : ''}</div><button class="delete-event-btn" onclick="app.deleteLifeEvent('${event.id}')"><i data-lucide="trash-2" style="width: 16px;"></i></button></div>`; });
-        } else { eventsHtml = '<div style="text-align:center; padding:12px; color:var(--text-sub);">暂无记录</div>'; }
-        
-        let tasksHtml = '';
-        if (taskRecords.length) {
-            taskRecords.forEach(task => { tasksHtml += `<div class="life-event-item"><div class="life-event-content"><div class="life-event-date">${formatYMD(task.date)}</div><div class="life-event-title"><span class="task-badge">${task.type}</span></div>${task.note ? `<div class="life-event-note">${task.note}</div>` : ''}</div><button class="delete-event-btn" onclick="app.deleteTaskRecord('${task.id}')"><i data-lucide="trash-2" style="width: 16px;"></i></button></div>`; });
-        } else { tasksHtml = '<div style="text-align:center; padding:12px; color:var(--text-sub);">暂无记录</div>'; }
-        
-        const html = `
-            <div style="cursor: pointer; text-align: right; margin-bottom: 8px;" onclick="app.closePetDetail()">✕</div>
-            <div class="pet-detail-header"><div class="avatar pet-detail-avatar">${pet.avatar?`<img src="${pet.avatar}">`:`<i data-lucide="${category?.icon||'cat'}"></i>`}</div><div class="pet-detail-name">${pet.name}</div></div>
-            <div class="pet-detail-info"><div class="pet-detail-info-item"><div class="pet-detail-info-label">生日</div><div class="pet-detail-info-value">${pet.birthday || '未设置'}</div></div><div class="pet-detail-info-item"><div class="pet-detail-info-label">年龄</div><div class="pet-detail-info-value">${calculateAge(pet.birthday)}</div></div><div class="pet-detail-info-item"><div class="pet-detail-info-label">身价</div><div class="pet-detail-info-value">¥${petSpending.toFixed(2)}</div></div><div class="pet-detail-info-item"><div class="pet-detail-info-label">家族</div><div class="pet-detail-info-value">${category?.name || '未知'}</div></div></div>
-            <h4 style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;"><i data-lucide="heart"></i> 📖 宠生大事<button class="btn-outline btn-small" style="margin-left: auto;" onclick="app.openLifeEventModal('${pet.id}')"><i data-lucide="plus"></i> 记录</button></h4>
-            <div style="max-height: 200px; overflow-y: auto; margin-bottom: 16px;">${eventsHtml}</div>
-            <h4 style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;"><i data-lucide="clipboard-list"></i> 📋 事项记录<button class="btn-outline btn-small" style="margin-left: auto;" onclick="app.quickAddTaskFromPet('${pet.id}')"><i data-lucide="plus"></i> 记录</button></h4>
-            <div style="max-height: 200px; overflow-y: auto; margin-bottom: 16px;">${tasksHtml}</div>
-            <div class="modal-buttons" style="margin-top: 8px;"><button class="btn-outline btn-small" onclick="app.closePetDetail();app.editPet('${pet.id}')"><i data-lucide="edit"></i> 编辑资料</button><button class="btn-outline btn-small" onclick="app.closePetDetail();app.showDeletePetOptions('${pet.id}')" style="color: #dc2626;"><i data-lucide="trash-2"></i> 删除宠物</button></div>
-        `;
-        const contentDiv = document.getElementById('petDetailContent');
-        contentDiv.setAttribute('data-current-pet', petId);
-        contentDiv.innerHTML = html;
-        document.getElementById('petDetailModal').classList.add('show');
-        lucide.createIcons();
-    }
+    function showPetDetail(petId) { const pet = appData.pets.find(p => p.id === petId); if (!pet) return; const category = appData.categories.find(c => c.id === pet.categoryId); const petSpending = appData.records.filter(r => r.petId === petId).reduce((s,r) => s + (parseFloat(r.amount)||0), 0); const lifeEvents = appData.lifeEvents.filter(e => e.petId === petId).sort((a,b) => (b.date||'').localeCompare(a.date||'')); const taskRecords = appData.taskRecords.filter(t => t.petId === petId).sort((a,b) => (b.date||'').localeCompare(a.date||'')); let eventsHtml = ''; if (lifeEvents.length) { lifeEvents.forEach(event => { eventsHtml += `<div class="life-event-item"><div class="life-event-content"><div class="life-event-date">${formatYMD(event.date)}</div><div class="life-event-title">📌 ${event.title}</div>${event.note ? `<div class="life-event-note">${event.note}</div>` : ''}</div><button class="delete-event-btn" onclick="app.deleteLifeEvent('${event.id}')"><i data-lucide="trash-2" style="width: 16px;"></i></button></div>`; }); } else { eventsHtml = '<div style="text-align:center; padding:12px; color:var(--text-sub);">暂无记录</div>'; } let tasksHtml = ''; if (taskRecords.length) { taskRecords.forEach(task => { tasksHtml += `<div class="life-event-item"><div class="life-event-content"><div class="life-event-date">${formatYMD(task.date)}</div><div class="life-event-title"><span class="task-badge">${task.type}</span></div>${task.note ? `<div class="life-event-note">${task.note}</div>` : ''}</div><button class="delete-event-btn" onclick="app.deleteTaskRecord('${task.id}')"><i data-lucide="trash-2" style="width: 16px;"></i></button></div>`; }); } else { tasksHtml = '<div style="text-align:center; padding:12px; color:var(--text-sub);">暂无记录</div>'; } const html = `<div style="cursor: pointer; text-align: right; margin-bottom: 8px;" onclick="app.closePetDetail()">✕</div><div class="pet-detail-header"><div class="avatar pet-detail-avatar">${pet.avatar?`<img src="${pet.avatar}">`:`<i data-lucide="${category?.icon||'cat'}"></i>`}</div><div class="pet-detail-name">${pet.name}</div></div><div class="pet-detail-info"><div class="pet-detail-info-item"><div class="pet-detail-info-label">生日</div><div class="pet-detail-info-value">${pet.birthday || '未设置'}</div></div><div class="pet-detail-info-item"><div class="pet-detail-info-label">年龄</div><div class="pet-detail-info-value">${calculateAge(pet.birthday)}</div></div><div class="pet-detail-info-item"><div class="pet-detail-info-label">身价</div><div class="pet-detail-info-value">¥${petSpending.toFixed(2)}</div></div><div class="pet-detail-info-item"><div class="pet-detail-info-label">家族</div><div class="pet-detail-info-value">${category?.name || '未知'}</div></div></div><h4 style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;"><i data-lucide="heart"></i> 📖 宠生大事<button class="btn-outline btn-small" style="margin-left: auto;" onclick="app.openLifeEventModal('${pet.id}')"><i data-lucide="plus"></i> 记录</button></h4><div style="max-height: 200px; overflow-y: auto; margin-bottom: 16px;">${eventsHtml}</div><h4 style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;"><i data-lucide="clipboard-list"></i> 📋 事项记录<button class="btn-outline btn-small" style="margin-left: auto;" onclick="app.quickAddTaskFromPet('${pet.id}')"><i data-lucide="plus"></i> 记录</button></h4><div style="max-height: 200px; overflow-y: auto; margin-bottom: 16px;">${tasksHtml}</div><div class="modal-buttons" style="margin-top: 8px;"><button class="btn-outline btn-small" onclick="app.closePetDetail();app.editPet('${pet.id}')"><i data-lucide="edit"></i> 编辑资料</button><button class="btn-outline btn-small" onclick="app.closePetDetail();app.showDeletePetOptions('${pet.id}')" style="color: #dc2626;"><i data-lucide="trash-2"></i> 删除宠物</button></div>`; const contentDiv = document.getElementById('petDetailContent'); contentDiv.setAttribute('data-current-pet', petId); contentDiv.innerHTML = html; document.getElementById('petDetailModal').classList.add('show'); lucide.createIcons(); }
     
-    function quickAddTaskFromPet(petId) {
-        document.getElementById('taskRecordPetSelect').value = petId;
-        document.getElementById('taskTypeSelect').value = '驱虫';
-        document.getElementById('taskRecordDateInput').value = getToday();
-        document.getElementById('taskRecordNoteInput').value = '';
-        document.getElementById('taskRecordContent').style.display = 'block';
-        document.querySelector('#pageRecord .tab.active')?.classList.remove('active');
-        document.querySelector('#pageRecord .tab:nth-child(3)').classList.add('active');
-        document.getElementById('expenseRecordContent').style.display = 'none';
-        document.getElementById('weightRecordContent').style.display = 'none';
-        document.getElementById('taskRecordContent').style.display = 'block';
-        showPage('record');
-        closePetDetail();
-    }
+    function quickAddTaskFromPet(petId) { document.getElementById('taskRecordPetSelect').value = petId; document.getElementById('taskTypeSelect').value = '驱虫'; document.getElementById('taskRecordDateInput').value = getToday(); document.getElementById('taskRecordNoteInput').value = ''; document.getElementById('taskRecordContent').style.display = 'block'; document.querySelector('#pageRecord .tab.active')?.classList.remove('active'); document.querySelector('#pageRecord .tab:nth-child(3)').classList.add('active'); document.getElementById('expenseRecordContent').style.display = 'none'; document.getElementById('weightRecordContent').style.display = 'none'; document.getElementById('taskRecordContent').style.display = 'block'; showPage('record'); closePetDetail(); }
     
-    function openLifeEventModal(petId) {
-        const select = document.getElementById('eventPetSelect');
-        select.innerHTML = appData.pets.map(p => `<option value="${p.id}" ${p.id === petId ? 'selected' : ''}>${p.name}</option>`).join('');
-        document.getElementById('eventTitle').value = '';
-        document.getElementById('eventDate').value = getToday();
-        document.getElementById('eventNote').value = '';
-        document.getElementById('lifeEventModal').classList.add('show');
-    }
-    
+    function openLifeEventModal(petId) { const select = document.getElementById('eventPetSelect'); select.innerHTML = appData.pets.map(p => `<option value="${p.id}" ${p.id === petId ? 'selected' : ''}>${p.name}</option>`).join(''); document.getElementById('eventTitle').value = ''; document.getElementById('eventDate').value = getToday(); document.getElementById('eventNote').value = ''; document.getElementById('lifeEventModal').classList.add('show'); }
     function closeLifeEventModal() { document.getElementById('lifeEventModal').classList.remove('show'); }
-    
-    function saveLifeEvent() {
-        const petId = document.getElementById('eventPetSelect').value;
-        if (!petId) return showToast('请选择宠物', false);
-        const title = document.getElementById('eventTitle').value.trim();
-        if (!title) return showToast('请输入事件名称', false);
-        const date = document.getElementById('eventDate').value;
-        if (!date) return showToast('请选择日期', false);
-        const note = document.getElementById('eventNote').value;
-        appData.lifeEvents.push({ id: Date.now() + Math.random(), petId, title, date, note });
-        saveData();
-        closeLifeEventModal();
-        showToast('已记录宠生大事');
-        const openPetId = document.getElementById('petDetailContent').getAttribute('data-current-pet');
-        if (openPetId) showPetDetail(openPetId);
-    }
-    
-    function deleteLifeEvent(eventId) {
-        if (confirm('删除这条记录？')) {
-            appData.lifeEvents = appData.lifeEvents.filter(e => e.id != eventId);
-            saveData();
-            const openPetId = document.getElementById('petDetailContent').getAttribute('data-current-pet');
-            if (openPetId) showPetDetail(openPetId);
-            showToast('已删除');
-        }
-    }
-    
+    function saveLifeEvent() { const petId = document.getElementById('eventPetSelect').value; if (!petId) return showToast('请选择宠物', false); const title = document.getElementById('eventTitle').value.trim(); if (!title) return showToast('请输入事件名称', false); const date = document.getElementById('eventDate').value; if (!date) return showToast('请选择日期', false); const note = document.getElementById('eventNote').value; appData.lifeEvents.push({ id: Date.now() + Math.random(), petId, title, date, note }); saveData(); closeLifeEventModal(); showToast('已记录宠生大事'); const openPetId = document.getElementById('petDetailContent').getAttribute('data-current-pet'); if (openPetId) showPetDetail(openPetId); }
+    function deleteLifeEvent(eventId) { if (confirm('删除这条记录？')) { appData.lifeEvents = appData.lifeEvents.filter(e => e.id != eventId); saveData(); const openPetId = document.getElementById('petDetailContent').getAttribute('data-current-pet'); if (openPetId) showPetDetail(openPetId); showToast('已删除'); } }
     function closePetDetail() { document.getElementById('petDetailModal').classList.remove('show'); }
     
     let petContextMenuId = null;
-    function showPetContextMenu(e, petId) {
-        e.preventDefault();
-        petContextMenuId = petId;
-        const menu = document.getElementById('petContextMenu');
-        if (!menu) {
-            const newMenu = document.createElement('div');
-            newMenu.id = 'petContextMenu';
-            newMenu.className = 'context-menu';
-            newMenu.innerHTML = `<div class="context-menu-item" onclick="app.editPetFromContext()"><i data-lucide="edit"></i> 编辑</div><div class="context-menu-item delete" onclick="app.deletePetFromContext()"><i data-lucide="trash-2"></i> 删除</div>`;
-            document.body.appendChild(newMenu);
-        }
-        const menuEl = document.getElementById('petContextMenu');
-        menuEl.style.left = (e.touches?.[0]?.clientX || e.clientX) + 'px';
-        menuEl.style.top = (e.touches?.[0]?.clientY || e.clientY) + 'px';
-        menuEl.classList.add('show');
-        setTimeout(() => document.addEventListener('click', ()=> menuEl.classList.remove('show'), {once:true}), 50);
-    }
+    function showPetContextMenu(e, petId) { e.preventDefault(); petContextMenuId = petId; const menu = document.getElementById('petContextMenu'); if (!menu) { const newMenu = document.createElement('div'); newMenu.id = 'petContextMenu'; newMenu.className = 'context-menu'; newMenu.innerHTML = `<div class="context-menu-item" onclick="app.editPetFromContext()"><i data-lucide="edit"></i> 编辑</div><div class="context-menu-item delete" onclick="app.deletePetFromContext()"><i data-lucide="trash-2"></i> 删除</div>`; document.body.appendChild(newMenu); } const menuEl = document.getElementById('petContextMenu'); menuEl.style.left = (e.touches?.[0]?.clientX || e.clientX) + 'px'; menuEl.style.top = (e.touches?.[0]?.clientY || e.clientY) + 'px'; menuEl.classList.add('show'); setTimeout(() => document.addEventListener('click', ()=> menuEl.classList.remove('show'), {once:true}), 50); }
     function editPetFromContext() { if (petContextMenuId) { editPet(petContextMenuId); petContextMenuId = null; } }
     function deletePetFromContext() { if (petContextMenuId) { showDeletePetOptions(petContextMenuId); petContextMenuId = null; } }
     
     function showDeletePetOptions(petId) { pendingDeletePetId = petId; document.getElementById('deletePetModal').classList.add('show'); }
     function closeDeletePetModal() { pendingDeletePetId = null; document.getElementById('deletePetModal').classList.remove('show'); }
-    function confirmDeletePet(action) {
-        if (!pendingDeletePetId) return;
-        if (action === 'both') {
-            appData.records = appData.records.filter(r => r.petId !== pendingDeletePetId);
-            appData.weightRecords = appData.weightRecords.filter(w => w.petId !== pendingDeletePetId);
-            appData.lifeEvents = appData.lifeEvents.filter(e => e.petId !== pendingDeletePetId);
-            appData.taskRecords = appData.taskRecords.filter(t => t.petId !== pendingDeletePetId);
-            appData.pets = appData.pets.filter(p => p.id !== pendingDeletePetId);
-            showToast('已删除宠物及其所有记录');
-        } else if (action === 'keep') {
-            appData.records.forEach(r => { if (r.petId === pendingDeletePetId) r.petId = ''; });
-            appData.weightRecords = appData.weightRecords.filter(w => w.petId !== pendingDeletePetId);
-            appData.lifeEvents = appData.lifeEvents.filter(e => e.petId !== pendingDeletePetId);
-            appData.taskRecords = appData.taskRecords.filter(t => t.petId !== pendingDeletePetId);
-            appData.pets = appData.pets.filter(p => p.id !== pendingDeletePetId);
-            showToast('已删除宠物，其他记录已保留');
-        }
-        saveData();
-        closeDeletePetModal();
-        renderPetsPage();
-        if (document.getElementById('pageHome').classList.contains('active')) renderHome();
-    }
+    function confirmDeletePet(action) { if (!pendingDeletePetId) return; if (action === 'both') { appData.records = appData.records.filter(r => r.petId !== pendingDeletePetId); appData.weightRecords = appData.weightRecords.filter(w => w.petId !== pendingDeletePetId); appData.lifeEvents = appData.lifeEvents.filter(e => e.petId !== pendingDeletePetId); appData.taskRecords = appData.taskRecords.filter(t => t.petId !== pendingDeletePetId); appData.pets = appData.pets.filter(p => p.id !== pendingDeletePetId); showToast('已删除宠物及其所有记录'); } else if (action === 'keep') { appData.records.forEach(r => { if (r.petId === pendingDeletePetId) r.petId = ''; }); appData.weightRecords = appData.weightRecords.filter(w => w.petId !== pendingDeletePetId); appData.lifeEvents = appData.lifeEvents.filter(e => e.petId !== pendingDeletePetId); appData.taskRecords = appData.taskRecords.filter(t => t.petId !== pendingDeletePetId); appData.pets = appData.pets.filter(p => p.id !== pendingDeletePetId); showToast('已删除宠物，其他记录已保留'); } saveData(); closeDeletePetModal(); renderPetsPage(); if (document.getElementById('pageHome').classList.contains('active')) renderHome(); }
 
-    function deleteCategory(id) { if(!confirm('删除家族？相关宠物也会被删除。')) return; 
-        const petsToDelete = appData.pets.filter(p=>p.categoryId===id);
-        petsToDelete.forEach(pet => {
-            appData.records = appData.records.filter(r => r.petId !== pet.id);
-            appData.weightRecords = appData.weightRecords.filter(w => w.petId !== pet.id);
-            appData.lifeEvents = appData.lifeEvents.filter(e => e.petId !== pet.id);
-            appData.taskRecords = appData.taskRecords.filter(t => t.petId !== pet.id);
-        });
-        appData.categories = appData.categories.filter(c=>c.id!==id); 
-        appData.pets = appData.pets.filter(p=>p.categoryId!==id); 
-        saveData(); renderPetsPage(); showToast('已删除'); 
-    }
+    function deleteCategory(id) { if(!confirm('删除家族？相关宠物也会被删除。')) return; const petsToDelete = appData.pets.filter(p=>p.categoryId===id); petsToDelete.forEach(pet => { appData.records = appData.records.filter(r => r.petId !== pet.id); appData.weightRecords = appData.weightRecords.filter(w => w.petId !== pet.id); appData.lifeEvents = appData.lifeEvents.filter(e => e.petId !== pet.id); appData.taskRecords = appData.taskRecords.filter(t => t.petId !== pet.id); }); appData.categories = appData.categories.filter(c=>c.id!==id); appData.pets = appData.pets.filter(p=>p.categoryId!==id); saveData(); renderPetsPage(); showToast('已删除'); }
     
     function showAddCategory() { document.getElementById('addCategoryModal').classList.add('show'); }
     function closeAddCategory() { document.getElementById('addCategoryModal').classList.remove('show'); }
-    function saveCategory() {
-        const name = document.getElementById('newCategoryName').value.trim();
-        if(!name) return showToast('请输入名称', false);
-        appData.categories.push({ id: Date.now()+'', name, icon: document.getElementById('newCategoryIcon').value.trim()||'cat' });
-        saveData(); closeAddCategory(); renderPetsPage(); showToast('已创建');
-        document.getElementById('newCategoryName').value = '';
-    }
+    function saveCategory() { const name = document.getElementById('newCategoryName').value.trim(); if(!name) return showToast('请输入名称', false); appData.categories.push({ id: Date.now()+'', name, icon: document.getElementById('newCategoryIcon').value.trim()||'cat' }); saveData(); closeAddCategory(); renderPetsPage(); showToast('已创建'); document.getElementById('newCategoryName').value = ''; }
 
-    function showAddPet(catId) {
-        document.getElementById('petEditTitle').innerText = '添加宠物';
-        document.getElementById('editPetId').value = '';
-        document.getElementById('editPetCategoryId').value = catId;
-        document.getElementById('petNameInput').value = '';
-        document.getElementById('petBirthdayInput').value = '';
-        tempAvatar = null;
-        document.getElementById('petAvatarPreview').innerHTML = '<i data-lucide="camera"></i>';
-        document.getElementById('petEditModal').classList.add('show');
-        lucide.createIcons();
-    }
-    function editPet(petId) {
-        const p = appData.pets.find(p=>p.id===petId); if(!p) return;
-        document.getElementById('petEditTitle').innerText = '编辑宠物';
-        document.getElementById('editPetId').value = petId;
-        document.getElementById('editPetCategoryId').value = p.categoryId;
-        document.getElementById('petNameInput').value = p.name;
-        document.getElementById('petBirthdayInput').value = p.birthday||'';
-        tempAvatar = p.avatar || null;
-        const preview = document.getElementById('petAvatarPreview');
-        preview.innerHTML = p.avatar ? `<img src="${p.avatar}">` : '<i data-lucide="camera"></i>';
-        document.getElementById('petEditModal').classList.add('show');
-        lucide.createIcons();
-        closePetDetail();
-    }
+    function showAddPet(catId) { document.getElementById('petEditTitle').innerText = '添加宠物'; document.getElementById('editPetId').value = ''; document.getElementById('editPetCategoryId').value = catId; document.getElementById('petNameInput').value = ''; document.getElementById('petBirthdayInput').value = ''; tempAvatar = null; document.getElementById('petAvatarPreview').innerHTML = '<i data-lucide="camera"></i>'; document.getElementById('petEditModal').classList.add('show'); lucide.createIcons(); }
+    function editPet(petId) { const p = appData.pets.find(p=>p.id===petId); if(!p) return; document.getElementById('petEditTitle').innerText = '编辑宠物'; document.getElementById('editPetId').value = petId; document.getElementById('editPetCategoryId').value = p.categoryId; document.getElementById('petNameInput').value = p.name; document.getElementById('petBirthdayInput').value = p.birthday||''; tempAvatar = p.avatar || null; const preview = document.getElementById('petAvatarPreview'); preview.innerHTML = p.avatar ? `<img src="${p.avatar}">` : '<i data-lucide="camera"></i>'; document.getElementById('petEditModal').classList.add('show'); lucide.createIcons(); closePetDetail(); }
     function closePetEdit() { document.getElementById('petEditModal').classList.remove('show'); }
     function selectAvatar() { document.getElementById('petAvatarInput').click(); }
-    function previewAvatar() {
-        const file = document.getElementById('petAvatarInput').files[0];
-        if(file) {
-            const reader = new FileReader();
-            reader.onload = e => { tempAvatar = e.target.result; document.getElementById('petAvatarPreview').innerHTML = `<img src="${tempAvatar}">`; };
-            reader.readAsDataURL(file);
-        }
-    }
-    function savePet() {
-        const id = document.getElementById('editPetId').value;
-        const categoryId = document.getElementById('editPetCategoryId').value;
-        const name = document.getElementById('petNameInput').value.trim();
-        if(!name) return showToast('请输入名字', false);
-        if(id) {
-            const p = appData.pets.find(p=>p.id===id);
-            p.name=name; p.birthday=document.getElementById('petBirthdayInput').value;
-            if(tempAvatar !== null) p.avatar = tempAvatar;
-        } else {
-            appData.pets.push({ id: Date.now()+'', categoryId, name, birthday: document.getElementById('petBirthdayInput').value, avatar: tempAvatar||'' });
-        }
-        saveData(); closePetEdit(); renderPetsPage(); showToast('已保存');
-    }
+    function previewAvatar() { const file = document.getElementById('petAvatarInput').files[0]; if(file) { const reader = new FileReader(); reader.onload = e => { tempAvatar = e.target.result; document.getElementById('petAvatarPreview').innerHTML = `<img src="${tempAvatar}">`; }; reader.readAsDataURL(file); } }
+    function savePet() { const id = document.getElementById('editPetId').value; const categoryId = document.getElementById('editPetCategoryId').value; const name = document.getElementById('petNameInput').value.trim(); if(!name) return showToast('请输入名字', false); if(id) { const p = appData.pets.find(p=>p.id===id); p.name=name; p.birthday=document.getElementById('petBirthdayInput').value; if(tempAvatar !== null) p.avatar = tempAvatar; } else { appData.pets.push({ id: Date.now()+'', categoryId, name, birthday: document.getElementById('petBirthdayInput').value, avatar: tempAvatar||'' }); } saveData(); closePetEdit(); renderPetsPage(); showToast('已保存'); }
 
-    function setStatTab(tab) {
-        statTab = tab;
-        document.querySelectorAll('#pageStats .tab').forEach(t=>t.classList.remove('active'));
-        event.target.classList.add('active');
-        document.getElementById('expenseStatContent').style.display = tab==='expense' ? 'block' : 'none';
-        document.getElementById('petStatsContent').style.display = tab==='petStats' ? 'block' : 'none';
-        if(tab==='expense') renderStatsPage();
-        if(tab==='petStats') renderPetStatsPage();
-    }
+    function setStatTab(tab) { statTab = tab; document.querySelectorAll('#pageStats .tab').forEach(t=>t.classList.remove('active')); event.target.classList.add('active'); document.getElementById('expenseStatContent').style.display = tab==='expense' ? 'block' : 'none'; document.getElementById('petStatsContent').style.display = tab==='petStats' ? 'block' : 'none'; if(tab==='expense') renderStatsPage(); if(tab==='petStats') renderPetStatsPage(); }
     function setStatPeriod(p) { statPeriod = p; renderStatsPage(); }
 
-    function renderStatsPage() {
-        const picker = document.getElementById('statDatePicker');
-        picker.value = `${statYear}-${String(statMonth).padStart(2,'0')}-${String(statDay).padStart(2,'0')}`;
-        picker.onchange = () => { const d=new Date(picker.value); statYear=d.getFullYear(); statMonth=d.getMonth()+1; statDay=d.getDate(); renderStatsPage(); };
-        const filtered = appData.records.filter(r=>{ if(!r.date) return false; const d=new Date(r.date); if(statPeriod==='day') return d.getFullYear()===statYear && d.getMonth()+1===statMonth && d.getDate()===statDay; if(statPeriod==='month') return d.getFullYear()===statYear && d.getMonth()+1===statMonth; return d.getFullYear()===statYear; });
-        const total = filtered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
-        document.getElementById('statTotalAmount').innerText = `¥${total.toFixed(2)}`;
-        let compareText = '';
-        if(statPeriod === 'month') {
-            const prevMonth = new Date(statYear, statMonth-2, 1);
-            const prevFiltered = appData.records.filter(r=>{ if(!r.date) return false; const d=new Date(r.date); return d.getFullYear()===prevMonth.getFullYear() && d.getMonth()===prevMonth.getMonth(); });
-            const prevTotal = prevFiltered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
-            if(prevTotal > 0) { const change = ((total - prevTotal) / prevTotal * 100).toFixed(1); compareText = `环比上月: ${change > 0 ? '↑' : '↓'} ${Math.abs(change)}%`; }
-        } else if(statPeriod === 'year') {
-            const prevYear = statYear - 1;
-            const prevFiltered = appData.records.filter(r=>{ if(!r.date) return false; const d=new Date(r.date); return d.getFullYear()===prevYear; });
-            const prevTotal = prevFiltered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
-            if(prevTotal > 0) { const change = ((total - prevTotal) / prevTotal * 100).toFixed(1); compareText = `同比去年: ${change > 0 ? '↑' : '↓'} ${Math.abs(change)}%`; }
-        }
-        document.getElementById('compareInfo').innerHTML = compareText;
-        const catTotals = {}; appData.categories.forEach(c=> { catTotals[c.id]={ name: c.name, amount: 0, icon: c.icon || 'cat' }; });
-        filtered.forEach(r=> { if(catTotals[r.categoryId]) catTotals[r.categoryId].amount += parseFloat(r.amount)||0; });
-        const colors = ['#c4b5fd','#fde68a','#bae6fd','#a7f3d0','#fbcfe8','#fed7aa','#fecaca','#d9f99d'];
-        const labels = [], amounts = [], bgColors = [], categoryIds = [];
-        let idx = 0;
-        for(let catId in catTotals) { if(catTotals[catId].amount > 0) { labels.push(catTotals[catId].name); amounts.push(catTotals[catId].amount); bgColors.push(colors[idx % colors.length]); categoryIds.push(catId); idx++; } }
-        const ctx = document.getElementById('pieChart').getContext('2d');
-        if(pieChart) pieChart.destroy();
-        pieChart = new Chart(ctx, { type:'pie', data:{ labels: labels, datasets:[{ data: amounts, backgroundColor: bgColors }] }, options: { onClick: (e, activeEls) => { if(activeEls.length) { const index = activeEls[0].index; const catId = categoryIds[index]; const category = appData.categories.find(c => c.id === catId); if(category) { renderPieDetail(category, filtered, bgColors[index]); } } } } });
-        function renderPieDetail(category, filteredRecords, color) {
-            const detailContainer = document.getElementById('pieDetailContainer');
-            if(!detailContainer) return;
-            const catRecords = filteredRecords.filter(r => r.categoryId === category.id);
-            const expenseTotals = {};
-            catRecords.forEach(r => { if(!expenseTotals[r.expenseCategory]) expenseTotals[r.expenseCategory] = 0; expenseTotals[r.expenseCategory] += parseFloat(r.amount) || 0; });
-            const sortedExpenses = Object.entries(expenseTotals).sort((a, b) => b[1] - a[1]);
-            let html = `<div style="margin-bottom: 12px; font-weight: 500; display: flex; align-items: center; gap: 8px;"><i data-lucide="${category.icon || 'cat'}" style="width: 20px; height: 20px;"></i><span>${category.name} 详细支出</span></div>`;
-            for(let [expName, expAmount] of sortedExpenses) { html += `<div class="pie-detail-item"><span><span class="pie-detail-color" style="background: ${color}"></span>${expName}</span><span>¥${expAmount.toFixed(2)}</span></div>`; }
-            if(Object.keys(expenseTotals).length === 0) html += '<div style="text-align:center; padding:12px; color:var(--text-sub);">暂无支出记录</div>';
-            detailContainer.innerHTML = html;
-            lucide.createIcons();
-        }
-        if(categoryIds.length > 0) { const firstCat = appData.categories.find(c => c.id === categoryIds[0]); if(firstCat) renderPieDetail(firstCat, filtered, bgColors[0]); }
-        else { document.getElementById('pieDetailContainer').innerHTML = '<div style="text-align:center; padding:20px 0; color:var(--text-sub);">点击饼图查看详情</div>'; }
-        const months=[], totalsTrend=[];
-        for(let i=5; i>=0; i--) { const d=new Date(new Date().getFullYear(), new Date().getMonth()-i, 1); months.push(`${d.getMonth()+1}月`); totalsTrend.push(appData.records.filter(r=>{ if(!r.date) return false; const rd=new Date(r.date); return rd.getFullYear()===d.getFullYear() && rd.getMonth()===d.getMonth(); }).reduce((s,r)=> s+(parseFloat(r.amount)||0),0)); }
-        const tCtx = document.getElementById('trendChart').getContext('2d');
-        if(trendChart) trendChart.destroy();
-        trendChart = new Chart(tCtx, { type:'bar', data:{ labels:months, datasets:[{ data:totalsTrend, backgroundColor:'#c4b5fd' }] }, options:{ plugins:{ legend:{ display:false } } } });
-    }
+    function renderStatsPage() { const picker = document.getElementById('statDatePicker'); picker.value = `${statYear}-${String(statMonth).padStart(2,'0')}-${String(statDay).padStart(2,'0')}`; picker.onchange = () => { const d=new Date(picker.value); statYear=d.getFullYear(); statMonth=d.getMonth()+1; statDay=d.getDate(); renderStatsPage(); }; const filtered = appData.records.filter(r=>{ if(!r.date) return false; const d=new Date(r.date); if(statPeriod==='day') return d.getFullYear()===statYear && d.getMonth()+1===statMonth && d.getDate()===statDay; if(statPeriod==='month') return d.getFullYear()===statYear && d.getMonth()+1===statMonth; return d.getFullYear()===statYear; }); const total = filtered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0); document.getElementById('statTotalAmount').innerText = `¥${total.toFixed(2)}`; let compareText = ''; if(statPeriod === 'month') { const prevMonth = new Date(statYear, statMonth-2, 1); const prevFiltered = appData.records.filter(r=>{ if(!r.date) return false; const d=new Date(r.date); return d.getFullYear()===prevMonth.getFullYear() && d.getMonth()===prevMonth.getMonth(); }); const prevTotal = prevFiltered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0); if(prevTotal > 0) { const change = ((total - prevTotal) / prevTotal * 100).toFixed(1); compareText = `环比上月: ${change > 0 ? '↑' : '↓'} ${Math.abs(change)}%`; } } else if(statPeriod === 'year') { const prevYear = statYear - 1; const prevFiltered = appData.records.filter(r=>{ if(!r.date) return false; const d=new Date(r.date); return d.getFullYear()===prevYear; }); const prevTotal = prevFiltered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0); if(prevTotal > 0) { const change = ((total - prevTotal) / prevTotal * 100).toFixed(1); compareText = `同比去年: ${change > 0 ? '↑' : '↓'} ${Math.abs(change)}%`; } } document.getElementById('compareInfo').innerHTML = compareText; const catTotals = {}; appData.categories.forEach(c=> { catTotals[c.id]={ name: c.name, amount: 0, icon: c.icon || 'cat' }; }); filtered.forEach(r=> { if(catTotals[r.categoryId]) catTotals[r.categoryId].amount += parseFloat(r.amount)||0; }); const colors = ['#c4b5fd','#fde68a','#bae6fd','#a7f3d0','#fbcfe8','#fed7aa','#fecaca','#d9f99d']; const labels = [], amounts = [], bgColors = [], categoryIds = []; let idx = 0; for(let catId in catTotals) { if(catTotals[catId].amount > 0) { labels.push(catTotals[catId].name); amounts.push(catTotals[catId].amount); bgColors.push(colors[idx % colors.length]); categoryIds.push(catId); idx++; } } const ctx = document.getElementById('pieChart').getContext('2d'); if(pieChart) pieChart.destroy(); pieChart = new Chart(ctx, { type:'pie', data:{ labels: labels, datasets:[{ data: amounts, backgroundColor: bgColors }] }, options: { onClick: (e, activeEls) => { if(activeEls.length) { const index = activeEls[0].index; const catId = categoryIds[index]; const category = appData.categories.find(c => c.id === catId); if(category) { renderPieDetail(category, filtered, bgColors[index]); } } } } }); function renderPieDetail(category, filteredRecords, color) { const detailContainer = document.getElementById('pieDetailContainer'); if(!detailContainer) return; const catRecords = filteredRecords.filter(r => r.categoryId === category.id); const expenseTotals = {}; catRecords.forEach(r => { if(!expenseTotals[r.expenseCategory]) expenseTotals[r.expenseCategory] = 0; expenseTotals[r.expenseCategory] += parseFloat(r.amount) || 0; }); const sortedExpenses = Object.entries(expenseTotals).sort((a, b) => b[1] - a[1]); let html = `<div style="margin-bottom: 12px; font-weight: 500; display: flex; align-items: center; gap: 8px;"><i data-lucide="${category.icon || 'cat'}" style="width: 20px; height: 20px;"></i><span>${category.name} 详细支出</span></div>`; for(let [expName, expAmount] of sortedExpenses) { html += `<div class="pie-detail-item"><span><span class="pie-detail-color" style="background: ${color}"></span>${expName}</span><span>¥${expAmount.toFixed(2)}</span></div>`; } if(Object.keys(expenseTotals).length === 0) html += '<div style="text-align:center; padding:12px; color:var(--text-sub);">暂无支出记录</div>'; detailContainer.innerHTML = html; lucide.createIcons(); } if(categoryIds.length > 0) { const firstCat = appData.categories.find(c => c.id === categoryIds[0]); if(firstCat) renderPieDetail(firstCat, filtered, bgColors[0]); } else { document.getElementById('pieDetailContainer').innerHTML = '<div style="text-align:center; padding:20px 0; color:var(--text-sub);">点击饼图查看详情</div>'; } const months=[], totalsTrend=[]; for(let i=5; i>=0; i--) { const d=new Date(new Date().getFullYear(), new Date().getMonth()-i, 1); months.push(`${d.getMonth()+1}月`); totalsTrend.push(appData.records.filter(r=>{ if(!r.date) return false; const rd=new Date(r.date); return rd.getFullYear()===d.getFullYear() && rd.getMonth()===d.getMonth(); }).reduce((s,r)=> s+(parseFloat(r.amount)||0),0)); } const tCtx = document.getElementById('trendChart').getContext('2d'); if(trendChart) trendChart.destroy(); trendChart = new Chart(tCtx, { type:'bar', data:{ labels:months, datasets:[{ data:totalsTrend, backgroundColor:'#c4b5fd' }] }, options:{ plugins:{ legend:{ display:false } } } }); }
     
-    function renderPetStatsPage() {
-        const selector = document.getElementById('petBillSelector');
-        selector.innerHTML = appData.pets.map(p => `<div class="pet-chip" onclick="app.showPetBill('${p.id}')">${p.name}</div>`).join('');
-        const yearSelect = document.getElementById('compareYearSelect');
-        const years = [...new Set(appData.records.map(r => new Date(r.date).getFullYear()).filter(y => y))];
-        yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}年</option>`).join('');
-        if(years.length) yearSelect.onchange = () => renderYearCompare(yearSelect.value);
-        if(years.length) renderYearCompare(years[0]);
-    }
+    function renderPetStatsPage() { const selector = document.getElementById('petBillSelector'); selector.innerHTML = appData.pets.map(p => `<div class="pet-chip" onclick="app.showPetBill('${p.id}')">${p.name}</div>`).join(''); const yearSelect = document.getElementById('compareYearSelect'); const years = [...new Set(appData.records.map(r => new Date(r.date).getFullYear()).filter(y => y))]; yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}年</option>`).join(''); if(years.length) yearSelect.onchange = () => renderYearCompare(yearSelect.value); if(years.length) renderYearCompare(years[0]); }
     
-    function showPetBill(petId) {
-        const pet = appData.pets.find(p => p.id === petId);
-        const records = appData.records.filter(r => r.petId === petId).sort((a,b) => (b.date||'').localeCompare(a.date||''));
-        const total = records.reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
-        let html = `<div style="margin-bottom: 12px;"><strong>${pet.name}</strong> 总消费: ¥${total.toFixed(2)}</div>`;
-        const byMonth = {};
-        records.forEach(r => { const month = new Date(r.date).getMonth() + 1; if(!byMonth[month]) byMonth[month] = 0; byMonth[month] += parseFloat(r.amount) || 0; });
-        html += '<div style="margin-top: 12px;">月度分布:</div>';
-        for(let m = 1; m <= 12; m++) { if(byMonth[m]) { html += `<div style="display: flex; justify-content: space-between; padding: 4px 0;"><span>${m}月</span><span>¥${byMonth[m].toFixed(2)}</span></div>`; } }
-        html += '<div style="margin-top: 12px;">账单明细:</div>';
-        records.forEach(r => { const cat = appData.categories.find(c => c.id === r.categoryId); html += `<div style="padding: 8px 0; border-bottom: 1px solid var(--border-light);"><div>${r.date} | ${r.expenseCategory} | ¥${parseFloat(r.amount).toFixed(2)}</div><div style="font-size: 12px; color: var(--text-sub);">${cat?.name || ''} ${r.note ? '· ' + r.note : ''}</div></div>`; });
-        document.getElementById('petBillList').innerHTML = html || '<div>暂无账单</div>';
-        lucide.createIcons();
-    }
+    function showPetBill(petId) { const pet = appData.pets.find(p => p.id === petId); const records = appData.records.filter(r => r.petId === petId).sort((a,b) => (b.date||'').localeCompare(a.date||'')); const total = records.reduce((s,r) => s + (parseFloat(r.amount)||0), 0); let html = `<div style="margin-bottom: 12px;"><strong>${pet.name}</strong> 总消费: ¥${total.toFixed(2)}</div>`; const byMonth = {}; records.forEach(r => { const month = new Date(r.date).getMonth() + 1; if(!byMonth[month]) byMonth[month] = 0; byMonth[month] += parseFloat(r.amount) || 0; }); html += '<div style="margin-top: 12px;">月度分布:</div>'; for(let m = 1; m <= 12; m++) { if(byMonth[m]) { html += `<div style="display: flex; justify-content: space-between; padding: 4px 0;"><span>${m}月</span><span>¥${byMonth[m].toFixed(2)}</span></div>`; } } html += '<div style="margin-top: 12px;">账单明细:</div>'; records.forEach(r => { const cat = appData.categories.find(c => c.id === r.categoryId); html += `<div style="padding: 8px 0; border-bottom: 1px solid var(--border-light);"><div>${r.date} | ${r.expenseCategory} | ¥${parseFloat(r.amount).toFixed(2)}</div><div style="font-size: 12px; color: var(--text-sub);">${cat?.name || ''} ${r.note ? '· ' + r.note : ''}</div></div>`; }); document.getElementById('petBillList').innerHTML = html || '<div>暂无账单</div>'; lucide.createIcons(); }
     
-    function renderYearCompare(year) {
-        const thisYear = appData.records.filter(r => new Date(r.date).getFullYear() == year);
-        const lastYear = appData.records.filter(r => new Date(r.date).getFullYear() == year - 1);
-        const thisTotal = thisYear.reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
-        const lastTotal = lastYear.reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
-        const change = lastTotal ? ((thisTotal - lastTotal) / lastTotal * 100).toFixed(1) : 0;
-        let html = `<div class="compare-card"><div>${year}年总支出</div><div><strong>¥${thisTotal.toFixed(2)}</strong></div></div>`;
-        if(lastTotal > 0) { html += `<div class="compare-card"><div>相比${year-1}年</div><div class="compare-change ${change > 0 ? 'up' : 'down'}">${change > 0 ? '↑' : '↓'} ${Math.abs(change)}%</div></div>`; }
-        html += `<div style="margin-top: 12px;"><strong>各宠物支出对比</strong></div>`;
-        appData.pets.forEach(pet => {
-            const petThis = thisYear.filter(r => r.petId === pet.id).reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
-            const petLast = lastYear.filter(r => r.petId === pet.id).reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
-            if(petThis > 0 || petLast > 0) {
-                const petChange = petLast ? ((petThis - petLast) / petLast * 100).toFixed(1) : 100;
-                html += `<div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-light);"><span>${pet.name}</span><span>¥${petThis.toFixed(2)}</span>${petLast > 0 ? `<span class="compare-change ${petChange > 0 ? 'up' : 'down'}" style="font-size: 12px;">${petChange > 0 ? '↑' : '↓'} ${Math.abs(petChange)}%</span>` : '<span style="font-size: 12px; color: var(--text-sub);">新增</span>'}</div>`;
-            }
-        });
-        document.getElementById('yearCompareContainer').innerHTML = html;
-    }
+    function renderYearCompare(year) { const thisYear = appData.records.filter(r => new Date(r.date).getFullYear() == year); const lastYear = appData.records.filter(r => new Date(r.date).getFullYear() == year - 1); const thisTotal = thisYear.reduce((s,r) => s + (parseFloat(r.amount)||0), 0); const lastTotal = lastYear.reduce((s,r) => s + (parseFloat(r.amount)||0), 0); const change = lastTotal ? ((thisTotal - lastTotal) / lastTotal * 100).toFixed(1) : 0; let html = `<div class="compare-card"><div>${year}年总支出</div><div><strong>¥${thisTotal.toFixed(2)}</strong></div></div>`; if(lastTotal > 0) { html += `<div class="compare-card"><div>相比${year-1}年</div><div class="compare-change ${change > 0 ? 'up' : 'down'}">${change > 0 ? '↑' : '↓'} ${Math.abs(change)}%</div></div>`; } html += `<div style="margin-top: 12px;"><strong>各宠物支出对比</strong></div>`; appData.pets.forEach(pet => { const petThis = thisYear.filter(r => r.petId === pet.id).reduce((s,r) => s + (parseFloat(r.amount)||0), 0); const petLast = lastYear.filter(r => r.petId === pet.id).reduce((s,r) => s + (parseFloat(r.amount)||0), 0); if(petThis > 0 || petLast > 0) { const petChange = petLast ? ((petThis - petLast) / petLast * 100).toFixed(1) : 100; html += `<div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-light);"><span>${pet.name}</span><span>¥${petThis.toFixed(2)}</span>${petLast > 0 ? `<span class="compare-change ${petChange > 0 ? 'up' : 'down'}" style="font-size: 12px;">${petChange > 0 ? '↑' : '↓'} ${Math.abs(petChange)}%</span>` : '<span style="font-size: 12px; color: var(--text-sub);">新增</span>'}</div>`; } }); document.getElementById('yearCompareContainer').innerHTML = html; }
 
-    function renderBudget() {
-        const budget = appData.monthlyBudget || 0;
-        document.getElementById('monthlyBudget').value = budget;
-        const currentMonth = new Date().getMonth() + 1;
-        const currentYear = new Date().getFullYear();
-        const monthSpending = appData.records.filter(r => { if(!r.date) return false; const d = new Date(r.date); return d.getFullYear() === currentYear && d.getMonth() + 1 === currentMonth; }).reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
-        let html = `<div>本月预算: ¥${budget.toFixed(2)}</div><div>本月已用: ¥${monthSpending.toFixed(2)}</div>`;
-        if(budget > 0) {
-            const percent = (monthSpending / budget * 100).toFixed(1);
-            html += `<div>预算使用: ${percent}%</div>`;
-            if(monthSpending > budget) { html += `<div style="color: #dc2626; margin-top: 8px;">⚠️ 已超预算 ¥${(monthSpending - budget).toFixed(2)}</div>`; } 
-            else { html += `<div style="color: #10b981; margin-top: 8px;">✅ 剩余预算 ¥${(budget - monthSpending).toFixed(2)}</div>`; }
-        }
-        document.getElementById('budgetDisplay').innerHTML = html;
-    }
+    function renderBudget() { const budget = appData.monthlyBudget || 0; document.getElementById('monthlyBudget').value = budget; const currentMonth = new Date().getMonth() + 1; const currentYear = new Date().getFullYear(); const monthSpending = appData.records.filter(r => { if(!r.date) return false; const d = new Date(r.date); return d.getFullYear() === currentYear && d.getMonth() + 1 === currentMonth; }).reduce((s,r) => s + (parseFloat(r.amount)||0), 0); let html = `<div>本月预算: ¥${budget.toFixed(2)}</div><div>本月已用: ¥${monthSpending.toFixed(2)}</div>`; if(budget > 0) { const percent = (monthSpending / budget * 100).toFixed(1); html += `<div>预算使用: ${percent}%</div>`; if(monthSpending > budget) { html += `<div style="color: #dc2626; margin-top: 8px;">⚠️ 已超预算 ¥${(monthSpending - budget).toFixed(2)}</div>`; } else { html += `<div style="color: #10b981; margin-top: 8px;">✅ 剩余预算 ¥${(budget - monthSpending).toFixed(2)}</div>`; } } document.getElementById('budgetDisplay').innerHTML = html; }
     
-    function saveBudget() {
-        const budget = parseFloat(document.getElementById('monthlyBudget').value);
-        appData.monthlyBudget = budget;
-        saveData();
-        renderBudget();
-        showToast('预算已保存');
-    }
+    function saveBudget() { const budget = parseFloat(document.getElementById('monthlyBudget').value); appData.monthlyBudget = budget; saveData(); renderBudget(); showToast('预算已保存'); }
 
-    function renderSettings() {
-        document.getElementById('expenseCategoryList').innerHTML = appData.expenseCategories.map((ec,i)=>`<div style="display:flex; justify-content:space-between; padding:6px 0;"><span>${ec.name}</span><button class="btn-outline btn-small" onclick="app.removeExpenseCategory(${i})"><i data-lucide="trash-2"></i></button></div>`).join('');
-        const recurringHtml = appData.recurringRecords.map((r,i) => `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-light);"><div>${r.record.expenseCategory} - ¥${r.record.amount}<br><small>${r.period} | 上次: ${r.lastDate}</small></div><button class="btn-outline btn-small" onclick="app.deleteRecurring(${i})"><i data-lucide="trash-2"></i></button></div>`).join('');
-        document.getElementById('recurringList').innerHTML = recurringHtml || '<div>暂无定期记账</div>';
-        renderBudget();
-        lucide.createIcons();
-    }
+    function renderSettings() { document.getElementById('expenseCategoryList').innerHTML = appData.expenseCategories.map((ec,i)=>`<div style="display:flex; justify-content:space-between; padding:6px 0;"><span>${ec.name}</span><button class="btn-outline btn-small" onclick="app.removeExpenseCategory(${i})"><i data-lucide="trash-2"></i></button></div>`).join(''); const recurringHtml = appData.recurringRecords.map((r,i) => `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-light);"><div>${r.record.expenseCategory} - ¥${r.record.amount}<br><small>${r.period} | 上次: ${r.lastDate}</small></div><button class="btn-outline btn-small" onclick="app.deleteRecurring(${i})"><i data-lucide="trash-2"></i></button></div>`).join(''); document.getElementById('recurringList').innerHTML = recurringHtml || '<div>暂无定期记账</div>'; renderBudget(); lucide.createIcons(); }
     
     function deleteRecurring(index) { appData.recurringRecords.splice(index, 1); saveData(); renderSettings(); showToast('已删除'); }
     
-    function exportData() {
-        const dataStr = JSON.stringify(appData, null, 2);
-        const blob = new Blob([dataStr], {type: 'application/json'});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `xiaozhangben_backup_${new Date().toISOString().slice(0,10)}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-        showToast('导出成功');
-    }
+    function exportData() { const dataStr = JSON.stringify(appData, null, 2); const blob = new Blob([dataStr], {type: 'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `xiaozhangben_backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url); showToast('导出成功'); }
     
-    function importData(input) {
-        const file = input.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const imported = JSON.parse(e.target.result);
-                if (imported.categories && imported.pets && imported.records) {
-                    appData = imported;
-                    if (!appData.lifeEvents) appData.lifeEvents = [];
-                    if (!appData.taskRecords) appData.taskRecords = [];
-                    if (!appData.wishlists) appData.wishlists = [];
-                    saveData();
-                    showToast('导入成功！刷新页面查看');
-                    setTimeout(() => location.reload(), 1500);
-                } else { showToast('文件格式错误', false); }
-            } catch(err) { showToast('解析失败', false); }
-        };
-        reader.readAsText(file);
-        input.value = '';
-    }
+    function importData(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const imported = JSON.parse(e.target.result); if (imported.categories && imported.pets && imported.records) { appData = imported; if (!appData.lifeEvents) appData.lifeEvents = []; if (!appData.taskRecords) appData.taskRecords = []; if (!appData.wishlists) appData.wishlists = []; if (!appData.expenseCategories || !appData.expenseCategories.length) appData.expenseCategories = [{ name: '食品' }, { name: '医疗' }, { name: '玩具' }, { name: '美容' }, { name: '日用' }]; saveData(); showToast('导入成功！刷新页面查看'); setTimeout(() => location.reload(), 1500); } else { showToast('文件格式错误', false); } } catch(err) { showToast('解析失败', false); } }; reader.readAsText(file); input.value = ''; }
     
     function addExpenseCategory() { const n=document.getElementById('newExpenseCatName').value.trim(); if(!n) return; appData.expenseCategories.push({ name:n }); saveData(); renderSettings(); document.getElementById('newExpenseCatName').value=''; showToast('已添加'); }
     function removeExpenseCategory(i) { appData.expenseCategories.splice(i,1); saveData(); renderSettings(); }
-    function resetAllData() { if(confirm('重置所有数据？不可恢复！')) { appData = JSON.parse(JSON.stringify(DEFAULT_DATA)); saveData(); showPage('home'); showToast('已重置'); } }
+    function resetAllData() { if(confirm('重置所有数据？不可恢复！')) { appData = JSON.parse(JSON.stringify(DEFAULT_DATA)); appData.expenseCategories = [{ name: '食品' }, { name: '医疗' }, { name: '玩具' }, { name: '美容' }, { name: '日用' }]; saveData(); showPage('home'); showToast('已重置'); } }
 
     document.addEventListener('click', function(e) { if (e.target.classList && e.target.classList.contains('modal')) { e.target.classList.remove('show'); } });
 
     window.app = {
-        showPage, setViewMode, prevPeriod, nextPeriod, filterByCategory, clearFilter,
+        showPage, toggleViewMode, prevPeriod, nextPeriod, filterByCategory, clearFilter, openRecordPage,
         addRecord, addWeightRecord, setRecordTab,
         showContextMenu, contextEdit, contextDelete, closeEditModal, saveEditRecord,
         showAddCategory, closeAddCategory, saveCategory, deleteCategory,
@@ -1720,17 +1088,9 @@
         showDeletePetOptions, closeDeletePetModal, confirmDeletePet,
         openLifeEventModal, closeLifeEventModal, saveLifeEvent, deleteLifeEvent,
         addTaskRecord, deleteTaskRecord, quickAddTask, quickAddTaskFromPet, renderRecentTasks,
-        // 愿望清单
         openWishlistModal, closeWishlistModal, saveWishlist, addWishItemField, removeWishItem,
         openWishlistDetail, closeWishlistDetail, deleteWishlist
     };
-
-    if ('serviceWorker' in navigator) {
-        const swCode = `const CACHE_NAME = 'pet-ledger-v1'; self.addEventListener('install', event => { event.waitUntil(self.skipWaiting()); }); self.addEventListener('fetch', event => { event.respondWith(fetch(event.request)); }); self.addEventListener('activate', event => { event.waitUntil(self.clients.claim()); });`;
-        const blob = new Blob([swCode], {type: 'application/javascript'});
-        const swUrl = URL.createObjectURL(blob);
-        navigator.serviceWorker.register(swUrl).catch(err => console.log('SW failed:', err));
-    }
 
     loadData();
     showPage('home');
