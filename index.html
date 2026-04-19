@@ -14,7 +14,6 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
-        /* 你的原有样式保持不变 */
         :root {
             --bg-page: #faf8f5;
             --card-bg: #ffffff;
@@ -71,7 +70,6 @@
         .context-menu-item { padding: 10px 18px; cursor: pointer; border-radius: 10px; display: flex; align-items: center; gap: 8px; }
         .context-menu-item.delete { color: #dc2626; }
         
-        /* 新增：饼图详情列表样式 */
         .pie-detail-list {
             margin-top: 16px;
             border-top: 1px solid var(--border-light);
@@ -95,7 +93,6 @@
             margin-right: 8px;
         }
         
-        /* 宠物选择器样式 */
         .pet-selector {
             display: flex;
             gap: 8px;
@@ -118,7 +115,6 @@
             border-color: var(--primary-dark);
         }
         
-        /* 年度对比卡片 */
         .compare-card {
             display: flex;
             justify-content: space-between;
@@ -133,11 +129,24 @@
         }
         .compare-change.up { color: #dc2626; }
         .compare-change.down { color: #10b981; }
+        
+        .file-input-label {
+            display: inline-block;
+            background: var(--primary-dark);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+        .file-input-label input {
+            display: none;
+        }
     </style>
 </head>
 <body>
 
-<!-- 首页 -->
 <div id="pageHome" class="page active">
     <div class="header">
         <h1><i data-lucide="paw-print"></i> 小账本</h1>
@@ -181,7 +190,6 @@
     </div>
 </div>
 
-<!-- 记账页 -->
 <div id="pageAdd" class="page">
     <div class="header"><h2>记账</h2></div>
     <div class="card">
@@ -206,7 +214,6 @@
     </div>
 </div>
 
-<!-- 档案页 -->
 <div id="pagePets" class="page">
     <div class="header">
         <h2>宠物档案</h2>
@@ -241,7 +248,6 @@
     </div>
 </div>
 
-<!-- 统计页 -->
 <div id="pageStats" class="page">
     <div class="header"><h2>统计</h2></div>
     <div class="tabs">
@@ -292,7 +298,6 @@
     </div>
 </div>
 
-<!-- 设置页 -->
 <div id="pageSettings" class="page">
     <div class="header"><h2>设置</h2></div>
     <div class="card">
@@ -318,13 +323,18 @@
     </div>
     <div class="card">
         <h3>数据</h3>
-        <button class="btn-outline btn-small" onclick="app.exportData()"><i data-lucide="download"></i> 导出数据</button>
-        <button class="btn-danger" onclick="app.resetAllData()"><i data-lucide="alert-triangle"></i> 重置</button>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <button class="btn-outline btn-small" onclick="app.exportData()"><i data-lucide="download"></i> 导出数据</button>
+            <label class="file-input-label">
+                <i data-lucide="upload"></i> 导入数据
+                <input type="file" id="importFileInput" accept=".json" onchange="app.importData(this)">
+            </label>
+            <button class="btn-danger btn-small" onclick="app.resetAllData()"><i data-lucide="alert-triangle"></i> 重置</button>
+        </div>
     </div>
-    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 2.2 · 正式版</div>
+    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v2.3 · 正式版</div>
 </div>
 
-<!-- 底部导航 -->
 <div class="nav-bar">
     <button class="nav-item active" data-page="home" onclick="app.showPage('home')"><i data-lucide="home"></i>首页</button>
     <button class="nav-item" data-page="add" onclick="app.showPage('add')"><i data-lucide="plus-circle"></i>记账</button>
@@ -332,7 +342,6 @@
     <button class="nav-item" data-page="stats" onclick="app.showPage('stats')"><i data-lucide="chart-pie"></i>统计</button>
 </div>
 
-<!-- 弹窗 -->
 <div class="modal" id="addCategoryModal">
     <div class="modal-content">
         <h3>新建大类</h3>
@@ -434,14 +443,33 @@
     
     let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
     const STORAGE_KEY = 'pet_v23_full';
+    const OLD_STORAGE_KEYS = ['pet_v22_full', 'pet_v21_full']; // 旧版本key，用于迁移
 
-    let viewMode = 'month', currentYear = new Date().getFullYear(), currentMonth = new Date().getMonth()+1, filterCategoryId = null;
-    let statPeriod = 'month', statYear = new Date().getFullYear(), statMonth = new Date().getMonth()+1, statDay = new Date().getDate();
-    let pieChart=null, trendChart=null, weightChart=null;
-    let petTab = 'pets', statTab = 'expense';
-    let tempAvatar = null;
-    let contextRecordId = null;
-
+    function migrateOldData() {
+        // 尝试从旧版本迁移数据
+        for (let oldKey of OLD_STORAGE_KEYS) {
+            try {
+                const oldData = localStorage.getItem(oldKey);
+                if (oldData) {
+                    const parsed = JSON.parse(oldData);
+                    // 合并数据，新数据优先
+                    if (parsed.categories && (!appData.categories.length)) appData.categories = parsed.categories;
+                    if (parsed.pets && (!appData.pets.length)) appData.pets = parsed.pets;
+                    if (parsed.records && (!appData.records.length)) appData.records = parsed.records;
+                    if (parsed.expenseCategories && (!appData.expenseCategories.length)) appData.expenseCategories = parsed.expenseCategories;
+                    if (parsed.taskTemplates && (!appData.taskTemplates.length)) appData.taskTemplates = parsed.taskTemplates;
+                    if (parsed.weightRecords && (!appData.weightRecords.length)) appData.weightRecords = parsed.weightRecords;
+                    if (parsed.recurringRecords && (!appData.recurringRecords.length)) appData.recurringRecords = parsed.recurringRecords;
+                    if (parsed.monthlyBudget && (!appData.monthlyBudget)) appData.monthlyBudget = parsed.monthlyBudget;
+                    
+                    // 迁移完成后删除旧数据
+                    localStorage.removeItem(oldKey);
+                    console.log(`已从 ${oldKey} 迁移数据`);
+                }
+            } catch(e) { console.log(`迁移 ${oldKey} 失败:`, e); }
+        }
+    }
+    
     function loadData() {
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
@@ -455,13 +483,27 @@
                 appData.weightRecords = parsed.weightRecords || [];
                 appData.recurringRecords = parsed.recurringRecords || [];
                 appData.monthlyBudget = parsed.monthlyBudget || null;
-                
-                // 为旧数据添加petId字段
-                appData.records.forEach(r => { if (!r.petId) r.petId = ''; });
             }
-        } catch(e) { appData = JSON.parse(JSON.stringify(DEFAULT_DATA)); }
+            
+            // 从旧版本迁移数据
+            migrateOldData();
+            
+            // 为旧数据添加 petId 字段（如果不存在）
+            appData.records.forEach(r => { if (r.petId === undefined) r.petId = ''; });
+            
+            // 保存合并后的数据
+            saveData();
+        } catch(e) { 
+            console.log('加载失败，使用默认数据', e);
+            appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        }
     }
-    function saveData() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch(e){} }
+    
+    function saveData() { 
+        try { 
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); 
+        } catch(e){ console.log('保存失败', e); }
+    }
 
     function showToast(msg, ok=true) {
         const toast = document.createElement('div');
@@ -487,6 +529,13 @@
         else if (pageId === 'settings') renderSettings();
         setTimeout(() => lucide.createIcons(), 10);
     }
+
+    let viewMode = 'month', currentYear = new Date().getFullYear(), currentMonth = new Date().getMonth()+1, filterCategoryId = null;
+    let statPeriod = 'month', statYear = new Date().getFullYear(), statMonth = new Date().getMonth()+1, statDay = new Date().getDate();
+    let pieChart=null, trendChart=null, weightChart=null;
+    let petTab = 'pets', statTab = 'expense';
+    let tempAvatar = null;
+    let contextRecordId = null;
 
     function setViewMode(m) { viewMode = m; document.querySelectorAll('.view-switch button').forEach(b=>b.classList.remove('active')); document.querySelector(`.view-switch button[data-view="${m}"]`).classList.add('active'); renderHome(); }
     function prevPeriod() { if(viewMode==='month'){ currentMonth--; if(currentMonth<1){ currentMonth=12; currentYear--; } } else { currentYear--; } renderHome(); }
@@ -637,7 +686,6 @@
         document.getElementById('categoryTypeSelect').innerHTML = appData.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
         document.getElementById('expenseCategorySelect').innerHTML = appData.expenseCategories.map(ec=>`<option>${ec.name}</option>`).join('');
         
-        // 定期记账复选框事件
         const chk = document.getElementById('isRecurring');
         const periodSelect = document.getElementById('recurringPeriod');
         chk.onchange = () => { periodSelect.style.display = chk.checked ? 'inline-block' : 'none'; };
@@ -658,7 +706,6 @@
         };
         appData.records.push(newRecord);
         
-        // 处理定期记账
         if(document.getElementById('isRecurring').checked) {
             const period = document.getElementById('recurringPeriod').value;
             appData.recurringRecords.push({
@@ -832,13 +879,10 @@
     }
     function deleteWeight(id) { appData.weightRecords = appData.weightRecords.filter(w=>w.id!==id); saveData(); renderWeightList(); }
 
-    // 新增：宠物统计功能
     function renderPetStats() {
-        // 按宠物查看账单
         const selector = document.getElementById('petBillSelector');
         selector.innerHTML = appData.pets.map(p => `<div class="pet-chip" onclick="app.showPetBill('${p.id}')">${p.name}</div>`).join('');
         
-        // 年度对比报表
         const yearSelect = document.getElementById('compareYearSelect');
         const years = [...new Set(appData.records.map(r => new Date(r.date).getFullYear()).filter(y => y))];
         yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}年</option>`).join('');
@@ -897,7 +941,6 @@
             </div>`;
         }
         
-        // 按宠物对比
         html += `<div style="margin-top: 12px;"><strong>各宠物支出对比</strong></div>`;
         appData.pets.forEach(pet => {
             const petThis = thisYear.filter(r => r.petId === pet.id).reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
@@ -936,7 +979,6 @@
         const total = filtered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
         document.getElementById('statTotalAmount').innerText = `¥${total.toFixed(2)}`;
         
-        // 环比/同比分析
         let compareText = '';
         if(statPeriod === 'month') {
             const prevMonth = new Date(statYear, statMonth-2, 1);
@@ -957,7 +999,6 @@
         }
         document.getElementById('compareInfo').innerHTML = compareText;
         
-        // 消费分析 - 饼图 + 详情列表
         const catTotals = {}; 
         appData.categories.forEach(c=> catTotals[c.id]={ name: c.name, amount: 0, color: '' });
         filtered.forEach(r=> { if(catTotals[r.categoryId]) catTotals[r.categoryId].amount += parseFloat(r.amount)||0; });
@@ -992,7 +1033,6 @@
             }
         });
         
-        // 显示饼图详情列表
         function renderPieDetail(clickedCategory, filteredRecords) {
             const detailDiv = document.getElementById('pieDetailList');
             const category = appData.categories.find(c => c.name === clickedCategory);
@@ -1016,14 +1056,12 @@
             lucide.createIcons();
         }
         
-        // 默认显示第一个有支出的类别详情
         if(labels.length > 0) {
             renderPieDetail(labels[0], filtered);
         } else {
             document.getElementById('pieDetailList').innerHTML = '<div style="text-align:center; padding:12px; color:var(--text-sub);">暂无支出记录</div>';
         }
 
-        // 近6个月趋势
         const months=[], totals=[];
         for(let i=5; i>=0; i--) { const d=new Date(new Date().getFullYear(), new Date().getMonth()-i, 1); months.push(`${d.getMonth()+1}月`); totals.push(appData.records.filter(r=>{ if(!r.date) return false; const rd=new Date(r.date); return rd.getFullYear()===d.getFullYear() && rd.getMonth()===d.getMonth(); }).reduce((s,r)=> s+(parseFloat(r.amount)||0),0)); }
         const tCtx = document.getElementById('trendChart').getContext('2d');
@@ -1038,7 +1076,6 @@
     
     function filterByExpenseCategory(catName) {
         showToast(`筛选: ${catName}`);
-        // 这里可以添加跳转到首页并筛选该类别的功能
     }
 
     function renderWeightChart() {
@@ -1091,7 +1128,6 @@
         document.getElementById('expenseCategoryList').innerHTML = appData.expenseCategories.map((ec,i)=>`<div style="display:flex; justify-content:space-between; padding:6px 0;"><span>${ec.name}</span><button class="btn-outline btn-small" onclick="app.removeExpenseCategory(${i})"><i data-lucide="trash-2"></i></button></div>`).join('');
         document.getElementById('taskTemplateList').innerHTML = appData.taskTemplates.map((t,i)=>`<div style="display:flex; justify-content:space-between; padding:6px 0;"><span>${t.name} ${t.thresholdDays?t.thresholdDays+'天':''}</span><button class="btn-outline btn-small" onclick="app.removeTaskTemplate(${i})"><i data-lucide="trash-2"></i></button></div>`).join('');
         
-        // 定期记账列表
         const recurringHtml = appData.recurringRecords.map((r,i) => {
             const cat = appData.categories.find(c => c.id === r.record.categoryId);
             return `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-light);">
@@ -1123,6 +1159,31 @@
         showToast('导出成功');
     }
     
+    function importData(input) {
+        const file = input.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const imported = JSON.parse(e.target.result);
+                // 验证数据结构
+                if (imported.categories && imported.pets && imported.records) {
+                    appData = imported;
+                    saveData();
+                    showToast('导入成功！刷新页面查看');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast('文件格式错误', false);
+                }
+            } catch(err) {
+                showToast('解析失败', false);
+            }
+        };
+        reader.readAsText(file);
+        input.value = '';
+    }
+    
     function addExpenseCategory() { const n=document.getElementById('newExpenseCatName').value.trim(); if(!n) return; appData.expenseCategories.push({ name:n }); saveData(); renderSettings(); document.getElementById('newExpenseCatName').value=''; showToast('已添加'); }
     function removeExpenseCategory(i) { appData.expenseCategories.splice(i,1); saveData(); renderSettings(); }
     function addTaskTemplate() {
@@ -1145,11 +1206,10 @@
         setStatTab, setStatPeriod, renderStatsPage,
         addExpenseCategory, removeExpenseCategory, addTaskTemplate, removeTaskTemplate,
         quickRecordTask, closeTaskModal, saveTaskRecord,
-        resetAllData, exportData, deleteRecurring,
+        resetAllData, exportData, importData, deleteRecurring,
         showPetBill, filterByExpenseCategory, saveBudget
     };
 
-    // Service Worker
     if ('serviceWorker' in navigator) {
         const swCode = `
             const CACHE_NAME = 'pet-ledger-v1';
@@ -1168,7 +1228,6 @@
         navigator.serviceWorker.register(swUrl).catch(err => console.log('SW failed:', err));
     }
 
-    // Manifest
     const manifestObj = {
         name: "小账本",
         short_name: "小账本",
