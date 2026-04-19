@@ -70,13 +70,27 @@
         .context-menu-item { padding: 10px 18px; cursor: pointer; border-radius: 10px; display: flex; align-items: center; gap: 8px; }
         .context-menu-item.delete { color: #dc2626; }
         
-        .pie-detail-list {
-            margin-top: 16px;
-            border-top: 1px solid var(--border-light);
-            padding-top: 12px;
+        /* 消费分析左右布局 */
+        .analysis-layout {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .pie-container {
+            flex: 1;
+            min-width: 150px;
+        }
+        .detail-container {
+            flex: 1;
+            min-width: 150px;
+            max-height: 180px;
+            overflow-y: auto;
+            padding-left: 12px;
+            border-left: 1px solid var(--border-light);
         }
         .pie-detail-item {
             display: flex;
+            align-items: center;
             justify-content: space-between;
             padding: 8px 0;
             border-bottom: 1px solid var(--border-light);
@@ -90,6 +104,13 @@
             height: 12px;
             border-radius: 12px;
             display: inline-block;
+            margin-right: 8px;
+        }
+        .detail-icon {
+            width: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             margin-right: 8px;
         }
         
@@ -142,6 +163,20 @@
         }
         .file-input-label input {
             display: none;
+        }
+        
+        @media (max-width: 400px) {
+            .analysis-layout {
+                flex-direction: column;
+            }
+            .detail-container {
+                border-left: none;
+                border-top: 1px solid var(--border-light);
+                padding-left: 0;
+                padding-top: 12px;
+                margin-top: 8px;
+                max-height: 200px;
+            }
         }
     </style>
 </head>
@@ -271,8 +306,14 @@
         </div>
         <div class="card">
             <h3>消费分析</h3>
-            <div style="height:180px;"><canvas id="pieChart"></canvas></div>
-            <div id="pieDetailList" class="pie-detail-list"></div>
+            <div class="analysis-layout">
+                <div class="pie-container">
+                    <div style="height:160px;"><canvas id="pieChart"></canvas></div>
+                </div>
+                <div class="detail-container" id="pieDetailContainer">
+                    <div style="text-align: center; color: var(--text-sub); padding: 20px 0;">点击饼图查看详情</div>
+                </div>
+            </div>
         </div>
         <div class="card">
             <h3>近6个月趋势</h3>
@@ -443,16 +484,14 @@
     
     let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
     const STORAGE_KEY = 'pet_v23_full';
-    const OLD_STORAGE_KEYS = ['pet_v22_full', 'pet_v21_full']; // 旧版本key，用于迁移
+    const OLD_STORAGE_KEYS = ['pet_v22_full', 'pet_v21_full'];
 
     function migrateOldData() {
-        // 尝试从旧版本迁移数据
         for (let oldKey of OLD_STORAGE_KEYS) {
             try {
                 const oldData = localStorage.getItem(oldKey);
                 if (oldData) {
                     const parsed = JSON.parse(oldData);
-                    // 合并数据，新数据优先
                     if (parsed.categories && (!appData.categories.length)) appData.categories = parsed.categories;
                     if (parsed.pets && (!appData.pets.length)) appData.pets = parsed.pets;
                     if (parsed.records && (!appData.records.length)) appData.records = parsed.records;
@@ -462,7 +501,6 @@
                     if (parsed.recurringRecords && (!appData.recurringRecords.length)) appData.recurringRecords = parsed.recurringRecords;
                     if (parsed.monthlyBudget && (!appData.monthlyBudget)) appData.monthlyBudget = parsed.monthlyBudget;
                     
-                    // 迁移完成后删除旧数据
                     localStorage.removeItem(oldKey);
                     console.log(`已从 ${oldKey} 迁移数据`);
                 }
@@ -485,13 +523,10 @@
                 appData.monthlyBudget = parsed.monthlyBudget || null;
             }
             
-            // 从旧版本迁移数据
             migrateOldData();
             
-            // 为旧数据添加 petId 字段（如果不存在）
             appData.records.forEach(r => { if (r.petId === undefined) r.petId = ''; });
             
-            // 保存合并后的数据
             saveData();
         } catch(e) { 
             console.log('加载失败，使用默认数据', e);
@@ -999,24 +1034,29 @@
         }
         document.getElementById('compareInfo').innerHTML = compareText;
         
+        // 准备饼图数据
         const catTotals = {}; 
-        appData.categories.forEach(c=> catTotals[c.id]={ name: c.name, amount: 0, color: '' });
+        const catIcons = {};
+        appData.categories.forEach(c=> { 
+            catTotals[c.id]={ name: c.name, amount: 0, icon: c.icon || 'cat' }; 
+            catIcons[c.id] = c.icon || 'cat';
+        });
         filtered.forEach(r=> { if(catTotals[r.categoryId]) catTotals[r.categoryId].amount += parseFloat(r.amount)||0; });
         
         const colors = ['#c4b5fd','#fde68a','#bae6fd','#a7f3d0','#fbcfe8','#fed7aa','#fecaca','#d9f99d'];
-        const labels = [], amounts = [], bgColors = [];
+        const labels = [], amounts = [], bgColors = [], categoryIds = [];
         let idx = 0;
         for(let catId in catTotals) {
             if(catTotals[catId].amount > 0) {
                 labels.push(catTotals[catId].name);
                 amounts.push(catTotals[catId].amount);
-                const color = colors[idx % colors.length];
-                bgColors.push(color);
-                catTotals[catId].color = color;
+                bgColors.push(colors[idx % colors.length]);
+                categoryIds.push(catId);
                 idx++;
             }
         }
         
+        // 渲染饼图
         const ctx = document.getElementById('pieChart').getContext('2d');
         if(pieChart) pieChart.destroy();
         pieChart = new Chart(ctx, { 
@@ -1026,17 +1066,20 @@
                 onClick: (e, activeEls) => {
                     if(activeEls.length) {
                         const index = activeEls[0].index;
-                        const categoryName = labels[index];
-                        renderPieDetail(categoryName, filtered);
+                        const catId = categoryIds[index];
+                        const category = appData.categories.find(c => c.id === catId);
+                        if(category) {
+                            renderPieDetail(category, filtered, bgColors[index]);
+                        }
                     }
                 }
             }
         });
         
-        function renderPieDetail(clickedCategory, filteredRecords) {
-            const detailDiv = document.getElementById('pieDetailList');
-            const category = appData.categories.find(c => c.name === clickedCategory);
-            if(!category) return;
+        // 渲染右侧详情（默认显示第一个有支出的类别）
+        function renderPieDetail(category, filteredRecords, color) {
+            const detailContainer = document.getElementById('pieDetailContainer');
+            if(!detailContainer) return;
             
             const catRecords = filteredRecords.filter(r => r.categoryId === category.id);
             const expenseTotals = {};
@@ -1045,28 +1088,41 @@
                 expenseTotals[r.expenseCategory] += parseFloat(r.amount) || 0;
             });
             
-            let html = `<div style="margin-bottom: 8px; font-weight: 500;">📊 ${clickedCategory} 详细支出</div>`;
+            let html = `<div style="margin-bottom: 12px; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="${category.icon || 'cat'}" style="width: 20px; height: 20px;"></i>
+                <span>${category.name} 详细支出</span>
+            </div>`;
+            
             for(let exp in expenseTotals) {
                 html += `<div class="pie-detail-item" onclick="app.filterByExpenseCategory('${exp}')">
-                    <span><span class="pie-detail-color" style="background: ${bgColors[labels.indexOf(clickedCategory)]}"></span>${exp}</span>
+                    <span><span class="pie-detail-color" style="background: ${color}"></span>${exp}</span>
                     <span>¥${expenseTotals[exp].toFixed(2)}</span>
                 </div>`;
             }
-            detailDiv.innerHTML = html;
+            
+            if(Object.keys(expenseTotals).length === 0) {
+                html += '<div style="text-align:center; padding:12px; color:var(--text-sub);">暂无支出记录</div>';
+            }
+            
+            detailContainer.innerHTML = html;
             lucide.createIcons();
         }
         
-        if(labels.length > 0) {
-            renderPieDetail(labels[0], filtered);
+        if(categoryIds.length > 0) {
+            const firstCat = appData.categories.find(c => c.id === categoryIds[0]);
+            if(firstCat) {
+                renderPieDetail(firstCat, filtered, bgColors[0]);
+            }
         } else {
-            document.getElementById('pieDetailList').innerHTML = '<div style="text-align:center; padding:12px; color:var(--text-sub);">暂无支出记录</div>';
+            document.getElementById('pieDetailContainer').innerHTML = '<div style="text-align:center; padding:20px 0; color:var(--text-sub);">点击饼图查看详情</div>';
         }
 
-        const months=[], totals=[];
-        for(let i=5; i>=0; i--) { const d=new Date(new Date().getFullYear(), new Date().getMonth()-i, 1); months.push(`${d.getMonth()+1}月`); totals.push(appData.records.filter(r=>{ if(!r.date) return false; const rd=new Date(r.date); return rd.getFullYear()===d.getFullYear() && rd.getMonth()===d.getMonth(); }).reduce((s,r)=> s+(parseFloat(r.amount)||0),0)); }
+        // 近6个月趋势
+        const months=[], totalsTrend=[];
+        for(let i=5; i>=0; i--) { const d=new Date(new Date().getFullYear(), new Date().getMonth()-i, 1); months.push(`${d.getMonth()+1}月`); totalsTrend.push(appData.records.filter(r=>{ if(!r.date) return false; const rd=new Date(r.date); return rd.getFullYear()===d.getFullYear() && rd.getMonth()===d.getMonth(); }).reduce((s,r)=> s+(parseFloat(r.amount)||0),0)); }
         const tCtx = document.getElementById('trendChart').getContext('2d');
         if(trendChart) trendChart.destroy();
-        trendChart = new Chart(tCtx, { type:'bar', data:{ labels:months, datasets:[{ data:totals, backgroundColor:'#c4b5fd' }] }, options:{ plugins:{ legend:{ display:false } } } });
+        trendChart = new Chart(tCtx, { type:'bar', data:{ labels:months, datasets:[{ data:totalsTrend, backgroundColor:'#c4b5fd' }] }, options:{ plugins:{ legend:{ display:false } } } });
 
         const select = document.getElementById('weightStatPetSelect');
         select.innerHTML = appData.pets.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
@@ -1167,7 +1223,6 @@
         reader.onload = function(e) {
             try {
                 const imported = JSON.parse(e.target.result);
-                // 验证数据结构
                 if (imported.categories && imported.pets && imported.records) {
                     appData = imported;
                     saveData();
