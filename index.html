@@ -3,22 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="毛孩账本">
-    <meta name="application-name" content="毛孩账本">
     <meta name="theme-color" content="#c4b5fd">
-    
     <title>毛孩账本</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    
     <link rel="manifest" id="manifest">
-    
     <style>
         :root {
             --bg-page: #faf8f5;
@@ -26,128 +20,55 @@
             --primary: #c4b5fd;
             --primary-light: #ede9fe;
             --primary-dark: #8b5cf6;
-            --accent-yellow: #fde68a;
-            --accent-blue: #bae6fd;
             --text-main: #1e1e2f;
             --text-sub: #6b7280;
             --border-light: #e9e4f0;
             --shadow: 0 2px 8px rgba(0,0,0,0.02);
             --radius-card: 16px;
-            --radius-btn: 30px;
             --danger: #fca5a5;
             --warning: #fde68a;
-            --success: #a7f3d0;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-page);
-            color: var(--text-main);
-            min-height: 100vh;
-            padding-bottom: 80px;
-            -webkit-font-smoothing: antialiased;
-        }
-
+        body { font-family: 'Inter', sans-serif; background: var(--bg-page); color: var(--text-main); min-height: 100vh; padding-bottom: 80px; }
         .page { display: none; padding: 14px 14px 20px; max-width: 480px; margin: 0 auto; }
         .page.active { display: block; }
-
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         h1 { font-size: 24px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-        h1 i { color: var(--primary-dark); width: 26px; height: 26px; }
         h2 { font-size: 20px; font-weight: 600; }
-
-        .card {
-            background: var(--card-bg); border-radius: var(--radius-card);
-            padding: 16px 14px; box-shadow: var(--shadow);
-            border: 1px solid var(--border-light); margin-bottom: 14px;
-        }
-
-        .btn {
-            background: var(--primary-dark); color: white; border: none;
-            padding: 10px 16px; border-radius: var(--radius-btn); font-weight: 500;
-            font-size: 14px; cursor: pointer; display: inline-flex;
-            align-items: center; justify-content: center; gap: 6px;
-        }
-        .btn-outline {
-            background: transparent; color: var(--text-main);
-            border: 1px solid var(--border-light);
-        }
+        .card { background: var(--card-bg); border-radius: var(--radius-card); padding: 16px 14px; box-shadow: var(--shadow); border: 1px solid var(--border-light); margin-bottom: 14px; }
+        .btn { background: var(--primary-dark); color: white; border: none; padding: 10px 16px; border-radius: 30px; font-weight: 500; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-outline { background: transparent; color: var(--text-main); border: 1px solid var(--border-light); }
         .btn-small { padding: 6px 12px; font-size: 13px; }
-
-        input, select, textarea {
-            width: 100%; padding: 10px 12px; border: 1px solid var(--border-light);
-            border-radius: 14px; background: var(--card-bg); font-size: 15px;
-            font-family: inherit;
-        }
+        .btn-danger { background: var(--danger); color: var(--text-main); }
+        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border-light); border-radius: 14px; background: var(--card-bg); font-size: 15px; font-family: inherit; }
         .form-row { margin-bottom: 12px; }
         label { font-size: 13px; font-weight: 500; color: var(--text-sub); display: block; margin-bottom: 4px; }
-
-        .nav-bar {
-            position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(8px); display: flex; justify-content: space-around;
-            padding: 8px 12px 16px; border-top: 1px solid var(--border-light);
-            max-width: 480px; margin: 0 auto;
-        }
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center; gap: 2px;
-            font-size: 11px; color: var(--text-sub); background: none; border: none;
-            cursor: pointer; padding: 6px 14px; border-radius: 30px;
-        }
-        .nav-item i { width: 22px; height: 22px; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); display: flex; justify-content: space-around; padding: 8px 12px 16px; border-top: 1px solid var(--border-light); max-width: 480px; margin: 0 auto; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; color: var(--text-sub); background: none; border: none; cursor: pointer; padding: 6px 14px; border-radius: 30px; }
         .nav-item.active { background: var(--primary-light); color: var(--primary-dark); font-weight: 500; }
-
-        .category-scroll {
-            display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 12px;
-            scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
-        }
+        .category-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 12px; -webkit-overflow-scrolling: touch; }
         .category-scroll::-webkit-scrollbar { display: none; }
-        .category-card {
-            flex: 0 0 110px; scroll-snap-align: start;
-            background: var(--card-bg); border-radius: 20px;
-            padding: 14px 10px; border: 1px solid var(--border-light);
-            text-align: center; cursor: pointer;
-        }
+        .category-card { flex: 0 0 100px; background: var(--card-bg); border-radius: 20px; padding: 14px 8px; border: 1px solid var(--border-light); text-align: center; cursor: pointer; }
         .category-card.active { border: 2px solid var(--primary-dark); background: var(--primary-light); }
-
-        .reminder-item {
-            background: var(--warning); border-radius: 14px; padding: 10px 14px;
-            margin: 8px 0; display: flex; align-items: center; gap: 10px;
-        }
+        .reminder-item { background: var(--warning); border-radius: 14px; padding: 10px 14px; margin: 8px 0; display: flex; align-items: center; gap: 10px; }
         .reminder-item.danger { background: var(--danger); }
-
-        .weight-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 0; border-bottom: 1px solid var(--border-light);
-        }
-
-        .modal {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.4); z-index: 1000;
-            display: none; align-items: center; justify-content: center;
-        }
+        .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 1000; display: none; align-items: center; justify-content: center; }
         .modal.show { display: flex; }
-        .modal-content {
-            background: var(--card-bg); border-radius: 24px; padding: 20px;
-            width: 90%; max-width: 380px; max-height: 80vh; overflow-y: auto;
-        }
-
-        .avatar {
-            width: 48px; height: 48px; border-radius: 24px;
-            background: var(--primary-light); overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
-        }
+        .modal-content { background: var(--card-bg); border-radius: 24px; padding: 20px; width: 90%; max-width: 380px; max-height: 80vh; overflow-y: auto; }
+        .avatar { width: 48px; height: 48px; border-radius: 24px; background: var(--primary-light); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-        .pet-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
-        .pet-info { flex: 1; }
-
+        .pet-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-light); }
         .tabs { display: flex; gap: 4px; margin-bottom: 14px; }
-        .tab {
-            flex: 1; padding: 8px; border: none; background: transparent;
-            border-radius: 20px; font-weight: 500; cursor: pointer;
-        }
+        .tab { flex: 1; padding: 8px; border: none; background: transparent; border-radius: 20px; font-weight: 500; cursor: pointer; }
         .tab.active { background: var(--primary-dark); color: white; }
+        .view-switch { display: flex; gap: 8px; margin-bottom: 14px; }
+        .view-switch button { flex: 1; padding: 8px; border-radius: 20px; border: 1px solid var(--border-light); background: transparent; }
+        .view-switch button.active { background: var(--primary-dark); color: white; }
+        .record-card { background: var(--card-bg); border-radius: 14px; padding: 12px; margin: 8px 0; border: 1px solid var(--border-light); }
+        .context-menu { position: fixed; background: white; border-radius: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); z-index: 2000; padding: 6px; display: none; }
+        .context-menu.show { display: block; }
+        .context-menu-item { padding: 10px 18px; cursor: pointer; border-radius: 10px; display: flex; align-items: center; gap: 8px; }
+        .context-menu-item.delete { color: #dc2626; }
     </style>
 </head>
 <body>
@@ -158,33 +79,27 @@
         <h1><i data-lucide="paw-print"></i> 毛孩账本</h1>
         <button class="btn-outline btn-small" onclick="app.showPage('settings')"><i data-lucide="settings"></i></button>
     </div>
-
-    <div class="view-switch" style="display: flex; gap: 8px; margin-bottom: 14px;">
+    <div class="view-switch">
         <button class="active" data-view="month" onclick="app.setViewMode('month')">月</button>
         <button data-view="year" onclick="app.setViewMode('year')">年</button>
     </div>
-
-    <div class="date-picker-bar" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
-        <span class="current" id="currentPeriodDisplay">2026.04</span>
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+        <span id="currentPeriodDisplay">2026.04</span>
         <div style="display: flex; gap: 8px;">
             <button onclick="app.prevPeriod()"><i data-lucide="chevron-left"></i></button>
             <button onclick="app.nextPeriod()"><i data-lucide="chevron-right"></i></button>
         </div>
     </div>
-
     <div class="card">
         <div style="display: flex; justify-content: space-between;">
-            <span style="color: var(--text-sub);">本月总支出</span>
+            <span style="color: var(--text-sub);">总支出</span>
             <span style="font-size: 26px; font-weight: 700; color: var(--primary-dark);" id="periodTotalAmount">¥0.00</span>
         </div>
     </div>
-
-    <!-- 提醒卡片 -->
     <div class="card" id="reminderCard" style="display: none;">
-        <h3 style="font-size: 16px; margin-bottom: 8px; display: flex; gap: 6px;"><i data-lucide="bell"></i> 待办提醒</h3>
+        <h3 style="font-size: 16px; margin-bottom: 8px;"><i data-lucide="bell"></i> 待办提醒</h3>
         <div id="reminderList"></div>
     </div>
-
     <div class="card">
         <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
             <h3 style="font-size: 16px;"><i data-lucide="folder"></i> 家族</h3>
@@ -196,7 +111,6 @@
             <i data-lucide="x" style="width: 16px; cursor: pointer;" onclick="app.clearFilter()"></i>
         </div>
     </div>
-
     <div class="card">
         <h3 style="font-size: 16px; margin-bottom: 12px;"><i data-lucide="list"></i> 流水</h3>
         <div id="recordsContainer"></div>
@@ -223,16 +137,13 @@
         <h2>宠物档案</h2>
         <button class="btn-outline btn-small" onclick="app.showAddCategory()"><i data-lucide="plus"></i> 大类</button>
     </div>
-    
     <div class="tabs">
         <button class="tab active" onclick="app.setPetTab('pets')">宠物</button>
-        <button class="tab" onclick="app.setPetTab('weight')">体重记录</button>
+        <button class="tab" onclick="app.setPetTab('weight')">体重</button>
     </div>
-    
     <div id="petsTabContent">
         <div id="categoryListContainer"></div>
     </div>
-    
     <div id="weightTabContent" style="display: none;">
         <div class="card">
             <select id="weightPetSelect"></select>
@@ -249,7 +160,6 @@
         <button class="tab active" onclick="app.setStatTab('expense')">支出</button>
         <button class="tab" onclick="app.setStatTab('weight')">体重</button>
     </div>
-    
     <div id="expenseStatContent">
         <div style="display: flex; gap: 6px; margin-bottom: 14px;">
             <button class="btn-outline btn-small" onclick="app.setStatPeriod('day')">日</button>
@@ -272,7 +182,6 @@
             <div style="height:160px;"><canvas id="trendChart"></canvas></div>
         </div>
     </div>
-    
     <div id="weightStatContent" style="display: none;">
         <div class="card">
             <select id="weightStatPetSelect"></select>
@@ -305,7 +214,7 @@
         <h3>数据</h3>
         <button class="btn-danger" onclick="app.resetAllData()"><i data-lucide="alert-triangle"></i> 重置</button>
     </div>
-    <div class="version-info" style="text-align:center; margin-top:16px; color:var(--text-sub);">毛孩账本 2.2 · 事项+体重</div>
+    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">毛孩账本 2.2 · 完整版</div>
 </div>
 
 <!-- 底部导航 -->
@@ -317,15 +226,47 @@
 </div>
 
 <!-- 弹窗 -->
+<div class="modal" id="addCategoryModal">
+    <div class="modal-content">
+        <h3>新建大类</h3>
+        <div class="form-row"><input type="text" id="newCategoryName" placeholder="名称"></div>
+        <div class="form-row"><input type="text" id="newCategoryIcon" placeholder="图标 (cat/fish/dog)" value="cat"></div>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn-outline" onclick="app.closeAddCategory()">取消</button>
+            <button class="btn" onclick="app.saveCategory()">创建</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="petEditModal">
+    <div class="modal-content">
+        <h3 id="petEditTitle">添加宠物</h3>
+        <input type="hidden" id="editPetId">
+        <input type="hidden" id="editPetCategoryId">
+        <div style="display: flex; justify-content: center; margin-bottom: 16px;">
+            <div class="avatar" id="petAvatarPreview" onclick="app.selectAvatar()">
+                <i data-lucide="camera"></i>
+            </div>
+            <input type="file" id="petAvatarInput" accept="image/*" style="display: none;" onchange="app.previewAvatar()">
+        </div>
+        <div class="form-row"><label>名字</label><input type="text" id="petNameInput"></div>
+        <div class="form-row"><label>生日</label><input type="date" id="petBirthdayInput"></div>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn-outline" onclick="app.closePetEdit()">取消</button>
+            <button class="btn" onclick="app.savePet()">保存</button>
+        </div>
+    </div>
+</div>
+
 <div class="modal" id="weightModal">
     <div class="modal-content">
-        <h3 id="weightModalTitle">记录体重</h3>
+        <h3>记录体重</h3>
         <input type="hidden" id="editWeightId">
         <div class="form-row"><label>宠物</label><select id="weightModalPetSelect"></select></div>
         <div class="form-row"><label>日期</label><input type="date" id="weightDate"></div>
         <div class="form-row"><label>体重 (kg)</label><input type="number" id="weightValue" step="0.01"></div>
         <div class="form-row"><label>备注</label><input type="text" id="weightNote"></div>
-        <div class="modal-actions" style="display: flex; gap: 10px;">
+        <div style="display: flex; gap: 10px;">
             <button class="btn-outline" onclick="app.closeWeightModal()">取消</button>
             <button class="btn" onclick="app.saveWeight()">保存</button>
         </div>
@@ -339,11 +280,33 @@
         <input type="hidden" id="taskRecordTemplateId">
         <div class="form-row"><label>日期</label><input type="date" id="taskRecordDate"></div>
         <div class="form-row"><label>备注</label><input type="text" id="taskRecordNote"></div>
-        <div class="modal-actions">
+        <div style="display: flex; gap: 10px;">
             <button class="btn-outline" onclick="app.closeTaskModal()">取消</button>
             <button class="btn" onclick="app.saveTaskRecord()">保存</button>
         </div>
     </div>
+</div>
+
+<div class="modal" id="editRecordModal">
+    <div class="modal-content">
+        <h3>编辑记录</h3>
+        <input type="hidden" id="editRecordId">
+        <div class="form-row"><label>金额</label><input type="number" id="editAmountInput" step="0.01"></div>
+        <div class="form-row"><label>日期</label><input type="date" id="editDateInput"></div>
+        <div class="form-row"><label>大类</label><select id="editCategorySelect"></select></div>
+        <div class="form-row"><label>类别</label><select id="editExpenseCategorySelect"></select></div>
+        <div class="form-row"><label>支付</label><select id="editPaymentSelect"><option>微信</option><option>支付宝</option><option>现金</option></select></div>
+        <div class="form-row"><label>备注</label><textarea id="editNoteInput" rows="2"></textarea></div>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn-outline" onclick="app.closeEditModal()">取消</button>
+            <button class="btn" onclick="app.saveEditRecord()">保存</button>
+        </div>
+    </div>
+</div>
+
+<div class="context-menu" id="contextMenu">
+    <div class="context-menu-item" onclick="app.contextEdit()"><i data-lucide="edit"></i> 编辑</div>
+    <div class="context-menu-item delete" onclick="app.contextDelete()"><i data-lucide="trash-2"></i> 删除</div>
 </div>
 
 <script>
@@ -351,19 +314,23 @@
     'use strict';
     
     const DEFAULT_DATA = {
-        categories: [], pets: [], records: [],
+        categories: [],
+        pets: [],
+        records: [],
         expenseCategories: [{ name: '食品' }, { name: '医疗' }, { name: '玩具' }, { name: '美容' }, { name: '日用' }],
         taskTemplates: [],
         weightRecords: []
     };
     
     let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    const STORAGE_KEY = 'pet_v22';
+    const STORAGE_KEY = 'pet_v22_full';
 
     let viewMode = 'month', currentYear = new Date().getFullYear(), currentMonth = new Date().getMonth()+1, filterCategoryId = null;
     let statPeriod = 'month', statYear = new Date().getFullYear(), statMonth = new Date().getMonth()+1, statDay = new Date().getDate();
     let pieChart=null, trendChart=null, weightChart=null;
     let petTab = 'pets', statTab = 'expense';
+    let tempAvatar = null;
+    let contextRecordId = null;
 
     function loadData() {
         try {
@@ -430,7 +397,7 @@
                 if (last && tpl.thresholdDays) {
                     const days = Math.floor((new Date() - new Date(last.date)) / 86400000);
                     if (days >= tpl.thresholdDays) {
-                        reminders.push({ pet: pet.name, task: tpl.name, days, threshold: tpl.thresholdDays });
+                        reminders.push({ pet: pet.name, petId: pet.id, task: tpl.name, templateId: tpl.id, days, threshold: tpl.thresholdDays });
                     }
                 }
             });
@@ -444,23 +411,20 @@
         const total = filtered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
         document.getElementById('periodTotalAmount').innerText = `¥${total.toFixed(2)}`;
 
-        // 提醒
         const reminders = getReminders();
         const reminderCard = document.getElementById('reminderCard');
-        const reminderList = document.getElementById('reminderList');
         if (reminders.length) {
             reminderCard.style.display = 'block';
-            reminderList.innerHTML = reminders.map(r => {
+            document.getElementById('reminderList').innerHTML = reminders.map(r => {
                 const isDanger = r.days > r.threshold * 1.5;
                 return `<div class="reminder-item ${isDanger ? 'danger' : ''}">
                     <i data-lucide="${isDanger ? 'alert-circle' : 'clock'}"></i>
-                    <div><b>${r.pet}</b> ${r.task} · ${r.days}天前</div>
-                    <button class="btn-small btn-outline" style="margin-left:auto;" onclick="app.quickRecordTask('${r.pet}','${r.task}')">记录</button>
+                    <div style="flex:1;"><b>${r.pet}</b> ${r.task} · ${r.days}天前</div>
+                    <button class="btn-small btn-outline" onclick="app.quickRecordTask('${r.petId}','${r.templateId}')">记录</button>
                 </div>`;
             }).join('');
         } else { reminderCard.style.display = 'none'; }
 
-        // 大类
         const scroll = document.getElementById('categoryScroll');
         if(appData.categories.length) {
             scroll.innerHTML = appData.categories.map(cat => {
@@ -469,7 +433,7 @@
                 ).reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
                 return `<div class="category-card ${filterCategoryId===cat.id?'active':''}" onclick="app.filterByCategory('${cat.id}')">
                     <div><i data-lucide="${cat.icon||'cat'}"></i></div>
-                    <div>${cat.name}</div>
+                    <div style="font-weight:600;">${cat.name}</div>
                     <div style="color:var(--primary-dark);">¥${catTotal.toFixed(0)}</div>
                 </div>`;
             }).join('');
@@ -489,11 +453,14 @@
             let html = '';
             Object.keys(byDay).forEach(date => {
                 const dayTotal = byDay[date].reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
-                html += `<div class="day-group"><div class="day-header"><span>${formatYMD(date)} ${getWeekday(date)}</span><span>¥${dayTotal.toFixed(2)}</span></div>`;
+                html += `<div class="day-group"><div style="display:flex; justify-content:space-between; padding:6px 2px;"><span>${formatYMD(date)} ${getWeekday(date)}</span><span>¥${dayTotal.toFixed(2)}</span></div>`;
                 byDay[date].forEach(r => {
                     const cat = appData.categories.find(c=>c.id===r.categoryId);
-                    html += `<div class="record-card"><div class="record-row"><span>${r.expenseCategory}</span><span>¥${parseFloat(r.amount).toFixed(2)}</span></div>
-                        <div class="dashed-line"></div><div class="record-meta"><span>${r.note||''}</span><span>${cat?.name||''}</span></div></div>`;
+                    html += `<div class="record-card" data-record-id="${r.id}" oncontextmenu="app.showContextMenu(event,'${r.id}');return false;">
+                        <div style="display:flex; justify-content:space-between;"><span>${r.expenseCategory}</span><span>¥${parseFloat(r.amount).toFixed(2)}</span></div>
+                        <div style="border-top:1px dashed var(--border-light); margin:8px 0;"></div>
+                        <div style="display:flex; justify-content:space-between; color:var(--text-sub);"><span>${r.note||''}</span><span>${cat?.name||''}</span></div>
+                    </div>`;
                 });
                 html += '</div>';
             });
@@ -502,15 +469,48 @@
         setTimeout(() => lucide.createIcons(), 10);
     }
 
-    function quickRecordTask(petName, taskName) {
-        const pet = appData.pets.find(p=>p.name===petName);
-        const tpl = appData.taskTemplates.find(t=>t.name===taskName);
-        if(pet && tpl) {
-            document.getElementById('taskRecordPetId').value = pet.id;
-            document.getElementById('taskRecordTemplateId').value = tpl.id;
-            document.getElementById('taskRecordDate').value = getToday();
-            document.getElementById('taskRecordModal').classList.add('show');
-        }
+    function showContextMenu(e, id) { e.preventDefault(); contextRecordId = id; const menu = document.getElementById('contextMenu'); menu.style.left = (e.touches?.[0]?.clientX || e.clientX) + 'px'; menu.style.top = (e.touches?.[0]?.clientY || e.clientY) + 'px'; menu.classList.add('show'); setTimeout(() => document.addEventListener('click', ()=> menu.classList.remove('show'), {once:true}), 50); }
+    function contextEdit() {
+        const r = appData.records.find(r=> r.id == contextRecordId); if (!r) return;
+        document.getElementById('editRecordId').value = r.id;
+        document.getElementById('editAmountInput').value = r.amount;
+        document.getElementById('editDateInput').value = r.date;
+        document.getElementById('editNoteInput').value = r.note||'';
+        document.getElementById('editCategorySelect').innerHTML = appData.categories.map(c=>`<option value="${c.id}" ${c.id===r.categoryId?'selected':''}>${c.name}</option>`).join('');
+        document.getElementById('editExpenseCategorySelect').innerHTML = appData.expenseCategories.map(ec=>`<option ${ec.name===r.expenseCategory?'selected':''}>${ec.name}</option>`).join('');
+        document.getElementById('editPaymentSelect').value = r.payment;
+        document.getElementById('editRecordModal').classList.add('show');
+    }
+    function contextDelete() { if (!confirm('删除？')) return; appData.records = appData.records.filter(r=> r.id != contextRecordId); saveData(); renderHome(); showToast('已删除'); }
+    function closeEditModal() { document.getElementById('editRecordModal').classList.remove('show'); }
+    function saveEditRecord() {
+        const r = appData.records.find(r=> r.id == document.getElementById('editRecordId').value); if (!r) return;
+        r.amount = parseFloat(document.getElementById('editAmountInput').value);
+        r.date = document.getElementById('editDateInput').value;
+        r.categoryId = document.getElementById('editCategorySelect').value;
+        r.expenseCategory = document.getElementById('editExpenseCategorySelect').value;
+        r.payment = document.getElementById('editPaymentSelect').value;
+        r.note = document.getElementById('editNoteInput').value;
+        saveData(); closeEditModal(); renderHome(); showToast('已更新');
+    }
+
+    function quickRecordTask(petId, templateId) {
+        document.getElementById('taskRecordPetId').value = petId;
+        document.getElementById('taskRecordTemplateId').value = templateId;
+        document.getElementById('taskRecordDate').value = getToday();
+        document.getElementById('taskRecordNote').value = '';
+        document.getElementById('taskRecordModal').classList.add('show');
+    }
+    function closeTaskModal() { document.getElementById('taskRecordModal').classList.remove('show'); }
+    function saveTaskRecord() {
+        const petId = document.getElementById('taskRecordPetId').value;
+        const tplId = document.getElementById('taskRecordTemplateId').value;
+        const pet = appData.pets.find(p=>p.id===petId);
+        if(!pet.tasks) pet.tasks = [];
+        let task = pet.tasks.find(t=>t.templateId===tplId);
+        if(!task) { task = { templateId: tplId, records: [] }; pet.tasks.push(task); }
+        task.records.push({ date: document.getElementById('taskRecordDate').value, note: document.getElementById('taskRecordNote').value });
+        saveData(); closeTaskModal(); renderHome(); showToast('已记录');
     }
 
     function renderAddForm() {
@@ -521,6 +521,7 @@
     function addRecord() {
         const amt = parseFloat(document.getElementById('amountInput').value);
         if(!amt) return showToast('金额无效', false);
+        if(!appData.categories.length) return showToast('请先创建大类', false);
         appData.records.push({
             id: Date.now()+Math.random(), amount: amt, date: document.getElementById('dateInput').value,
             categoryId: document.getElementById('categoryTypeSelect').value,
@@ -542,32 +543,104 @@
 
     function renderPetsPage() {
         const container = document.getElementById('categoryListContainer');
-        if(!appData.categories.length) { container.innerHTML = '<div class="card">暂无大类</div>'; return; }
+        if(!appData.categories.length) { container.innerHTML = '<div class="card">暂无大类，点击"+ 大类"创建</div>'; return; }
         let html = '';
         appData.categories.forEach(cat => {
-            html += `<div class="card"><div style="display:flex; justify-content:space-between;"><h3><i data-lucide="${cat.icon||'cat'}"></i> ${cat.name}</h3><button class="btn-outline btn-small" onclick="app.showAddPet('${cat.id}')"><i data-lucide="plus"></i></button></div>`;
-            appData.pets.filter(p=>p.categoryId===cat.id).forEach(p => {
-                html += `<div class="pet-item">
-                    <div class="avatar" onclick="app.editPet('${p.id}')">${p.avatar?`<img src="${p.avatar}">`:`<i data-lucide="${cat.icon||'cat'}"></i>`}</div>
-                    <div class="pet-info"><b>${p.name}</b><br><small>${p.birthday||''}</small></div>
-                    <div><button class="btn-outline btn-small" onclick="app.showTaskHistory('${p.id}')"><i data-lucide="calendar"></i></button>
-                    <button class="btn-outline btn-small" onclick="app.editPet('${p.id}')"><i data-lucide="edit"></i></button></div>
+            html += `<div class="card">
+                <div style="display:flex; justify-content:space-between;">
+                    <h3><i data-lucide="${cat.icon||'cat'}"></i> ${cat.name}</h3>
+                    <div>
+                        <button class="btn-outline btn-small" onclick="app.deleteCategory('${cat.id}')"><i data-lucide="trash-2"></i></button>
+                        <button class="btn-outline btn-small" onclick="app.showAddPet('${cat.id}')"><i data-lucide="plus"></i></button>
+                    </div>
                 </div>`;
-            });
+            const pets = appData.pets.filter(p=>p.categoryId===cat.id);
+            if(pets.length) {
+                pets.forEach(p => {
+                    html += `<div class="pet-item">
+                        <div class="avatar" onclick="app.editPet('${p.id}')">${p.avatar?`<img src="${p.avatar}">`:`<i data-lucide="${cat.icon||'cat'}"></i>`}</div>
+                        <div class="pet-info"><b>${p.name}</b><br><small>${p.birthday||'未设置'}</small></div>
+                        <div>
+                            <button class="btn-outline btn-small" onclick="app.showTaskHistory('${p.id}')"><i data-lucide="calendar"></i></button>
+                            <button class="btn-outline btn-small" onclick="app.editPet('${p.id}')"><i data-lucide="edit"></i></button>
+                        </div>
+                    </div>`;
+                });
+            } else { html += '<div style="padding:16px;text-align:center;color:var(--text-sub);">暂无宠物</div>'; }
             html += '</div>';
         });
         container.innerHTML = html;
         lucide.createIcons();
     }
 
+    function deleteCategory(id) { if(!confirm('删除大类？相关宠物也会被删除。')) return; appData.categories = appData.categories.filter(c=>c.id!==id); appData.pets = appData.pets.filter(p=>p.categoryId!==id); saveData(); renderPetsPage(); showToast('已删除'); }
+    
+    function showAddCategory() { document.getElementById('addCategoryModal').classList.add('show'); }
+    function closeAddCategory() { document.getElementById('addCategoryModal').classList.remove('show'); }
+    function saveCategory() {
+        const name = document.getElementById('newCategoryName').value.trim();
+        if(!name) return showToast('请输入名称', false);
+        appData.categories.push({ id: Date.now()+'', name, icon: document.getElementById('newCategoryIcon').value.trim()||'cat' });
+        saveData(); closeAddCategory(); renderPetsPage(); showToast('已创建');
+        document.getElementById('newCategoryName').value = '';
+    }
+
+    function showAddPet(catId) {
+        document.getElementById('petEditTitle').innerText = '添加宠物';
+        document.getElementById('editPetId').value = '';
+        document.getElementById('editPetCategoryId').value = catId;
+        document.getElementById('petNameInput').value = '';
+        document.getElementById('petBirthdayInput').value = '';
+        tempAvatar = null;
+        document.getElementById('petAvatarPreview').innerHTML = '<i data-lucide="camera"></i>';
+        document.getElementById('petEditModal').classList.add('show');
+        lucide.createIcons();
+    }
+    function editPet(petId) {
+        const p = appData.pets.find(p=>p.id===petId); if(!p) return;
+        document.getElementById('petEditTitle').innerText = '编辑宠物';
+        document.getElementById('editPetId').value = petId;
+        document.getElementById('editPetCategoryId').value = p.categoryId;
+        document.getElementById('petNameInput').value = p.name;
+        document.getElementById('petBirthdayInput').value = p.birthday||'';
+        tempAvatar = p.avatar || null;
+        const preview = document.getElementById('petAvatarPreview');
+        preview.innerHTML = p.avatar ? `<img src="${p.avatar}">` : '<i data-lucide="camera"></i>';
+        document.getElementById('petEditModal').classList.add('show');
+        lucide.createIcons();
+    }
+    function closePetEdit() { document.getElementById('petEditModal').classList.remove('show'); }
+    function selectAvatar() { document.getElementById('petAvatarInput').click(); }
+    function previewAvatar() {
+        const file = document.getElementById('petAvatarInput').files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = e => { tempAvatar = e.target.result; document.getElementById('petAvatarPreview').innerHTML = `<img src="${tempAvatar}">`; };
+            reader.readAsDataURL(file);
+        }
+    }
+    function savePet() {
+        const id = document.getElementById('editPetId').value;
+        const categoryId = document.getElementById('editPetCategoryId').value;
+        const name = document.getElementById('petNameInput').value.trim();
+        if(!name) return showToast('请输入名字', false);
+        if(id) {
+            const p = appData.pets.find(p=>p.id===id);
+            p.name=name; p.birthday=document.getElementById('petBirthdayInput').value;
+            if(tempAvatar !== null) p.avatar = tempAvatar;
+        } else {
+            appData.pets.push({ id: Date.now()+'', categoryId, name, birthday: document.getElementById('petBirthdayInput').value, avatar: tempAvatar||'', tasks: [] });
+        }
+        saveData(); closePetEdit(); renderPetsPage(); showToast('已保存');
+    }
+
     function showTaskHistory(petId) {
-        const pet = appData.pets.find(p=>p.id===petId);
-        if(!pet) return;
+        const pet = appData.pets.find(p=>p.id===petId); if(!pet) return;
         let msg = `${pet.name} 事项记录:\n`;
         appData.taskTemplates.forEach(tpl => {
             const task = pet.tasks?.find(t=>t.templateId===tpl.id);
             const last = task?.records?.slice(-1)[0];
-            msg += `\n${tpl.name}: ${last ? last.date+' ('+last.note+')' : '未记录'}`;
+            msg += `\n${tpl.name}: ${last ? last.date+(last.note?' ('+last.note+')':'') : '未记录'}`;
         });
         alert(msg);
     }
@@ -577,17 +650,17 @@
         select.innerHTML = appData.pets.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
         const list = document.getElementById('weightList');
         const petId = select.value;
+        if(!petId) { list.innerHTML = '<div>请先添加宠物</div>'; return; }
         const records = appData.weightRecords.filter(w=>w.petId===petId).sort((a,b)=> (b.date||'').localeCompare(a.date||''));
-        list.innerHTML = records.map(w=>`<div class="weight-item">
+        list.innerHTML = records.map(w=>`<div style="display:flex; justify-content:space-between; padding:8px 0;">
             <span>${w.date} ${w.weight}kg ${w.note||''}</span>
             <button class="btn-outline btn-small" onclick="app.deleteWeight('${w.id}')"><i data-lucide="trash-2"></i></button>
         </div>`).join('') || '<div style="padding:10px;">暂无记录</div>';
         lucide.createIcons();
         select.onchange = renderWeightList;
     }
-
     function showAddWeight() {
-        document.getElementById('weightModalTitle').innerText = '记录体重';
+        if(!appData.pets.length) return showToast('请先添加宠物', false);
         document.getElementById('editWeightId').value = '';
         document.getElementById('weightDate').value = getToday();
         document.getElementById('weightValue').value = '';
@@ -602,7 +675,7 @@
         const petId = document.getElementById('weightModalPetSelect').value;
         const date = document.getElementById('weightDate').value;
         const weight = parseFloat(document.getElementById('weightValue').value);
-        if(!weight) return;
+        if(!weight) return showToast('请输入体重', false);
         const note = document.getElementById('weightNote').value;
         if(id) {
             const w = appData.weightRecords.find(w=>w.id===id);
@@ -622,8 +695,13 @@
         document.getElementById('weightStatContent').style.display = tab==='weight' ? 'block' : 'none';
         if(tab==='weight') renderWeightChart();
     }
+    function setStatPeriod(p) { statPeriod = p; renderStatsPage(); }
 
     function renderStatsPage() {
+        const picker = document.getElementById('statDatePicker');
+        picker.value = `${statYear}-${String(statMonth).padStart(2,'0')}-${String(statDay).padStart(2,'0')}`;
+        picker.onchange = () => { const d=new Date(picker.value); statYear=d.getFullYear(); statMonth=d.getMonth()+1; statDay=d.getDate(); renderStatsPage(); };
+        
         const filtered = appData.records.filter(r=>{ if(!r.date) return false; const d=new Date(r.date); if(statPeriod==='day') return d.getFullYear()===statYear && d.getMonth()+1===statMonth && d.getDate()===statDay; if(statPeriod==='month') return d.getFullYear()===statYear && d.getMonth()+1===statMonth; return d.getFullYear()===statYear; });
         const total = filtered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
         document.getElementById('statTotalAmount').innerText = `¥${total.toFixed(2)}`;
@@ -632,7 +710,7 @@
         filtered.forEach(r=> { if(catTotals.hasOwnProperty(r.categoryId)) catTotals[r.categoryId] += parseFloat(r.amount)||0; });
         const ctx = document.getElementById('pieChart').getContext('2d');
         if(pieChart) pieChart.destroy();
-        pieChart = new Chart(ctx, { type:'pie', data:{ labels: appData.categories.map(c=>c.name), datasets:[{ data: appData.categories.map(c=>catTotals[c.id]||0), backgroundColor: ['#c4b5fd','#fde68a','#bae6fd'] }] } });
+        pieChart = new Chart(ctx, { type:'pie', data:{ labels: appData.categories.map(c=>c.name), datasets:[{ data: appData.categories.map(c=>catTotals[c.id]||0), backgroundColor: ['#c4b5fd','#fde68a','#bae6fd','#a7f3d0','#fbcfe8'] }] } });
 
         const months=[], totals=[];
         for(let i=5; i>=0; i--) { const d=new Date(new Date().getFullYear(), new Date().getMonth()-i, 1); months.push(`${d.getMonth()+1}月`); totals.push(appData.records.filter(r=>{ if(!r.date) return false; const rd=new Date(r.date); return rd.getFullYear()===d.getFullYear() && rd.getMonth()===d.getMonth(); }).reduce((s,r)=> s+(parseFloat(r.amount)||0),0)); }
@@ -658,54 +736,44 @@
         });
     }
 
-    function setStatPeriod(p) { statPeriod = p; renderStatsPage(); }
-
-    function showAddCategory() { document.getElementById('addCategoryPanel').style.display='block'; }
-    function saveCategory() {
-        const name = document.getElementById('newCategoryName').value.trim(); if(!name) return;
-        appData.categories.push({ id: Date.now()+'', name, icon: document.getElementById('newCategoryIcon').value||'cat' });
-        saveData(); showPage('pets');
-    }
-
     function renderSettings() {
-        document.getElementById('expenseCategoryList').innerHTML = appData.expenseCategories.map((ec,i)=>`<div style="display:flex; justify-content:space-between;"><span>${ec.name}</span><button onclick="app.removeExpenseCategory(${i})"><i data-lucide="trash-2"></i></button></div>`).join('');
-        document.getElementById('taskTemplateList').innerHTML = appData.taskTemplates.map((t,i)=>`<div style="display:flex; justify-content:space-between;"><span>${t.name} (${t.thresholdDays}天)</span><button onclick="app.removeTaskTemplate(${i})"><i data-lucide="trash-2"></i></button></div>`).join('');
+        document.getElementById('expenseCategoryList').innerHTML = appData.expenseCategories.map((ec,i)=>`<div style="display:flex; justify-content:space-between; padding:6px 0;"><span>${ec.name}</span><button class="btn-outline btn-small" onclick="app.removeExpenseCategory(${i})"><i data-lucide="trash-2"></i></button></div>`).join('');
+        document.getElementById('taskTemplateList').innerHTML = appData.taskTemplates.map((t,i)=>`<div style="display:flex; justify-content:space-between; padding:6px 0;"><span>${t.name} ${t.thresholdDays?t.thresholdDays+'天':''}</span><button class="btn-outline btn-small" onclick="app.removeTaskTemplate(${i})"><i data-lucide="trash-2"></i></button></div>`).join('');
         lucide.createIcons();
     }
-
-    function addExpenseCategory() { const n=document.getElementById('newExpenseCatName').value.trim(); if(!n) return; appData.expenseCategories.push({ name:n }); saveData(); renderSettings(); }
+    function addExpenseCategory() { const n=document.getElementById('newExpenseCatName').value.trim(); if(!n) return; appData.expenseCategories.push({ name:n }); saveData(); renderSettings(); document.getElementById('newExpenseCatName').value=''; showToast('已添加'); }
     function removeExpenseCategory(i) { appData.expenseCategories.splice(i,1); saveData(); renderSettings(); }
     function addTaskTemplate() {
         const n=document.getElementById('newTaskName').value.trim();
         const d=document.getElementById('newTaskThreshold').value;
         if(!n) return;
         appData.taskTemplates.push({ id: Date.now()+'', name: n, thresholdDays: d?parseInt(d):null });
-        saveData(); renderSettings();
+        saveData(); renderSettings(); showToast('已添加');
+        document.getElementById('newTaskName').value=''; document.getElementById('newTaskThreshold').value='';
     }
     function removeTaskTemplate(i) { appData.taskTemplates.splice(i,1); saveData(); renderSettings(); }
+    function resetAllData() { if(confirm('重置所有数据？不可恢复！')) { appData = JSON.parse(JSON.stringify(DEFAULT_DATA)); saveData(); showPage('home'); showToast('已重置'); } }
 
-    function closeTaskModal() { document.getElementById('taskRecordModal').classList.remove('show'); }
-    function saveTaskRecord() {
-        const petId = document.getElementById('taskRecordPetId').value;
-        const tplId = document.getElementById('taskRecordTemplateId').value;
-        const pet = appData.pets.find(p=>p.id===petId);
-        if(!pet.tasks) pet.tasks = [];
-        let task = pet.tasks.find(t=>t.templateId===tplId);
-        if(!task) { task = { templateId: tplId, records: [] }; pet.tasks.push(task); }
-        task.records.push({ date: document.getElementById('taskRecordDate').value, note: document.getElementById('taskRecordNote').value });
-        saveData(); closeTaskModal(); renderHome(); showToast('已记录');
-    }
+    function exportCSV() { alert('导出功能开发中'); }
+    function exportImage() { alert('导出功能开发中'); }
 
-    function resetAllData() { if(confirm('重置？')) { appData = JSON.parse(JSON.stringify(DEFAULT_DATA)); saveData(); showPage('home'); } }
-
-    // 简化其他功能
-    window.app = { showPage, setViewMode, prevPeriod, nextPeriod, filterByCategory, clearFilter, addRecord, setPetTab, renderWeightList, showAddWeight, closeWeightModal, saveWeight, deleteWeight, setStatTab, setStatPeriod, showAddCategory, saveCategory, addExpenseCategory, removeExpenseCategory, addTaskTemplate, removeTaskTemplate, quickRecordTask, closeTaskModal, saveTaskRecord, resetAllData, showTaskHistory, editPet: ()=>{}, showAddPet: ()=>{}, deleteCategory: ()=>{}, hideAddCategory: ()=>{}, hidePetEdit: ()=>{}, selectAvatar: ()=>{}, previewAvatar: ()=>{}, savePet: ()=>{}, exportCSV: ()=>{}, exportImage: ()=>{}, closeDrilldown: ()=>{}, statPrevPeriod: ()=>{}, statNextPeriod: ()=>{}, contextEdit: ()=>{}, contextDelete: ()=>{}, closeEditModal: ()=>{}, saveEditRecord: ()=>{}, showContextMenu: ()=>{}, toggleMonthRecords: ()=>{}, setStatPeriod, prevPeriod, nextPeriod };
+    window.app = {
+        showPage, setViewMode, prevPeriod, nextPeriod, filterByCategory, clearFilter,
+        addRecord, showContextMenu, contextEdit, contextDelete, closeEditModal, saveEditRecord,
+        setPetTab, showAddCategory, closeAddCategory, saveCategory, deleteCategory,
+        showAddPet, editPet, closePetEdit, selectAvatar, previewAvatar, savePet, showTaskHistory,
+        renderWeightList, showAddWeight, closeWeightModal, saveWeight, deleteWeight,
+        setStatTab, setStatPeriod, renderStatsPage,
+        addExpenseCategory, removeExpenseCategory, addTaskTemplate, removeTaskTemplate,
+        quickRecordTask, closeTaskModal, saveTaskRecord,
+        resetAllData, exportCSV, exportImage
+    };
 
     // PWA
     (function(){
         const m = { name:"毛孩账本", short_name:"毛孩账本", start_url:".", display:"standalone", theme_color:"#c4b5fd", background_color:"#faf8f5", icons:[{ src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23c4b5fd'/%3E%3Ccircle cx='50' cy='50' r='38' fill='%23ede9fe'/%3E%3Ctext x='50' y='72' font-size='55' text-anchor='middle' fill='%238b5cf6'%3E🐾%3C/text%3E%3C/svg%3E", sizes:"512x512" }] };
         document.getElementById('manifest').href = URL.createObjectURL(new Blob([JSON.stringify(m)], {type:'application/json'}));
-        if('serviceWorker' in navigator) navigator.serviceWorker.register(URL.createObjectURL(new Blob(['self.addEventListener("install",e=>{e.waitUntil(caches.open("v22").then(c=>c.addAll(["."])));self.skipWaiting()});self.addEventListener("fetch",e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match("."))))});'], {type:'application/javascript'})));
+        if('serviceWorker' in navigator) navigator.serviceWorker.register(URL.createObjectURL(new Blob(['self.addEventListener("install",e=>{e.waitUntil(caches.open("v22f").then(c=>c.addAll(["."])));self.skipWaiting()});self.addEventListener("fetch",e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match("."))))});'], {type:'application/javascript'})));
     })();
 
     loadData(); showPage('home');
