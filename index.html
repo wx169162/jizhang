@@ -12,7 +12,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="manifest" id="manifest">
+    
+    <!-- 这里是修改后的 Manifest，直接内嵌，Edge 一定能识别 -->
+    <link rel="manifest" href="data:application/manifest+json,{"name":"毛孩账本","short_name":"毛孩账本","start_url":".","display":"standalone","theme_color":"%23c4b5fd","background_color":"%23faf8f5","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23c4b5fd'/%3E%3Ccircle cx='50' cy='50' r='38' fill='%23ede9fe'/%3E%3Ctext x='50' y='72' font-size='55' text-anchor='middle' fill='%238b5cf6'%3E🐾%3C/text%3E%3C/svg%3E","sizes":"512x512","type":"image/svg+xml"}]}">
+    
     <style>
         :root {
             --bg-page: #faf8f5;
@@ -214,7 +217,7 @@
         <h3>数据</h3>
         <button class="btn-danger" onclick="app.resetAllData()"><i data-lucide="alert-triangle"></i> 重置</button>
     </div>
-    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">毛孩账本 2.2 · 完整版</div>
+    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">毛孩账本 2.2 · 正式版</div>
 </div>
 
 <!-- 底部导航 -->
@@ -769,14 +772,16 @@
         resetAllData, exportCSV, exportImage
     };
 
-    // PWA
-    (function(){
-        const m = { name:"毛孩账本", short_name:"毛孩账本", start_url:".", display:"standalone", theme_color:"#c4b5fd", background_color:"#faf8f5", icons:[{ src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23c4b5fd'/%3E%3Ccircle cx='50' cy='50' r='38' fill='%23ede9fe'/%3E%3Ctext x='50' y='72' font-size='55' text-anchor='middle' fill='%238b5cf6'%3E🐾%3C/text%3E%3C/svg%3E", sizes:"512x512" }] };
-        document.getElementById('manifest').href = URL.createObjectURL(new Blob([JSON.stringify(m)], {type:'application/json'}));
-        if('serviceWorker' in navigator) navigator.serviceWorker.register(URL.createObjectURL(new Blob(['self.addEventListener("install",e=>{e.waitUntil(caches.open("v22f").then(c=>c.addAll(["."])));self.skipWaiting()});self.addEventListener("fetch",e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match("."))))});'], {type:'application/javascript'})));
-    })();
+    // 注册 Service Worker 保证离线可用
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register(URL.createObjectURL(new Blob([
+            'self.addEventListener("install",e=>{e.waitUntil(caches.open("v22f").then(c=>c.addAll(["."])));self.skipWaiting()});',
+            'self.addEventListener("fetch",e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match("."))))});'
+        ], {type:'application/javascript'})));
+    }
 
-    loadData(); showPage('home');
+    loadData();
+    showPage('home');
 })();
 </script>
 </body>
