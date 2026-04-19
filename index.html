@@ -43,7 +43,7 @@
         input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border-light); border-radius: 14px; background: var(--card-bg); font-size: 15px; font-family: inherit; }
         .form-row { margin-bottom: 12px; }
         label { font-size: 13px; font-weight: 500; color: var(--text-sub); display: block; margin-bottom: 4px; }
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); display: flex; justify-content: space-around; padding: 8px 12px 16px; border-top: 1px solid var(--border-light); max-width: 480px; margin: 0 auto; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); display: flex; justify-content: space-around; padding: 8px 12px 16px; border-top: 1px solid var(--border-light); max-width: 480px; margin: 0 auto; z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; color: var(--text-sub); background: none; border: none; cursor: pointer; padding: 6px 14px; border-radius: 30px; }
         .nav-item.active { background: var(--primary-light); color: var(--primary-dark); font-weight: 500; }
         .category-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 12px; -webkit-overflow-scrolling: touch; }
@@ -57,7 +57,8 @@
         .modal-content { background: var(--card-bg); border-radius: 24px; padding: 20px; width: 90%; max-width: 380px; max-height: 80vh; overflow-y: auto; }
         .avatar { width: 48px; height: 48px; border-radius: 24px; background: var(--primary-light); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .pet-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-light); }
+        .pet-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-light); cursor: pointer; }
+        .pet-item.longpress { background: var(--primary-light); }
         .tabs { display: flex; gap: 4px; margin-bottom: 14px; }
         .tab { flex: 1; padding: 8px; border: none; background: transparent; border-radius: 20px; font-weight: 500; cursor: pointer; }
         .tab.active { background: var(--primary-dark); color: white; }
@@ -104,13 +105,6 @@
             height: 12px;
             border-radius: 12px;
             display: inline-block;
-            margin-right: 8px;
-        }
-        .detail-icon {
-            width: 20px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
             margin-right: 8px;
         }
         
@@ -165,6 +159,48 @@
             display: none;
         }
         
+        /* 宠物详情弹窗样式 */
+        .pet-detail-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .pet-detail-avatar {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 12px;
+        }
+        .pet-detail-name {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .pet-detail-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: var(--primary-light);
+            border-radius: 16px;
+        }
+        .pet-detail-info-item {
+            text-align: center;
+        }
+        .pet-detail-info-label {
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+        .pet-detail-info-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        .task-record-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
         @media (max-width: 400px) {
             .analysis-layout {
                 flex-direction: column;
@@ -182,6 +218,7 @@
 </head>
 <body>
 
+<!-- 首页 -->
 <div id="pageHome" class="page active">
     <div class="header">
         <h1><i data-lucide="paw-print"></i> 小账本</h1>
@@ -211,7 +248,7 @@
     <div class="card">
         <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
             <h3 style="font-size: 16px;"><i data-lucide="folder"></i> 家族</h3>
-            <button class="btn-outline btn-small" onclick="app.showPage('pets')">管理</button>
+            <button class="btn-outline btn-small" onclick="app.showAddCategory()"><i data-lucide="plus"></i> 大类</button>
         </div>
         <div class="category-scroll" id="categoryScroll"></div>
         <div id="filterBadge" style="display: none; background: var(--primary-light); padding: 4px 12px; border-radius: 20px; margin-top: 8px;">
@@ -225,70 +262,65 @@
     </div>
 </div>
 
-<div id="pageAdd" class="page">
-    <div class="header"><h2>记账</h2></div>
-    <div class="card">
-        <div class="form-row"><label>金额</label><input type="number" id="amountInput" step="0.01"></div>
-        <div class="form-row"><label>日期</label><input type="date" id="dateInput"></div>
-        <div class="form-row"><label>所属宠物</label><select id="petSelect"></select></div>
-        <div class="form-row"><label>大类</label><select id="categoryTypeSelect"></select></div>
-        <div class="form-row"><label>类别</label><select id="expenseCategorySelect"></select></div>
-        <div class="form-row"><label>支付</label><select id="paymentSelect"><option>微信</option><option>支付宝</option><option>现金</option></select></div>
-        <div class="form-row"><label>备注</label><textarea id="noteInput" rows="2"></textarea></div>
-        <div class="form-row" style="display: flex; gap: 8px;">
-            <label style="display: flex; align-items: center; gap: 4px;">
-                <input type="checkbox" id="isRecurring"> 定期记账
-            </label>
-            <select id="recurringPeriod" style="display: none; width: auto;">
-                <option value="monthly">每月</option>
-                <option value="quarterly">每季</option>
-                <option value="yearly">每年</option>
-            </select>
+<!-- 记录页（记账+体重） -->
+<div id="pageRecord" class="page">
+    <div class="header"><h2>记录</h2></div>
+    <div class="tabs">
+        <button class="tab active" onclick="app.setRecordTab('expense')">记账</button>
+        <button class="tab" onclick="app.setRecordTab('weight')">体重记录</button>
+    </div>
+    <div id="expenseRecordContent">
+        <div class="card">
+            <div class="form-row"><label>金额</label><input type="number" id="amountInput" step="0.01"></div>
+            <div class="form-row"><label>日期</label><input type="date" id="dateInput"></div>
+            <div class="form-row"><label>所属宠物</label><select id="petSelect"></select></div>
+            <div class="form-row"><label>大类</label><select id="categoryTypeSelect"></select></div>
+            <div class="form-row"><label>类别</label><select id="expenseCategorySelect"></select></div>
+            <div class="form-row"><label>支付</label><select id="paymentSelect"><option>微信</option><option>支付宝</option><option>现金</option></select></div>
+            <div class="form-row"><label>备注</label><textarea id="noteInput" rows="2"></textarea></div>
+            <div class="form-row" style="display: flex; gap: 8px;">
+                <label style="display: flex; align-items: center; gap: 4px;">
+                    <input type="checkbox" id="isRecurring"> 定期记账
+                </label>
+                <select id="recurringPeriod" style="display: none; width: auto;">
+                    <option value="monthly">每月</option>
+                    <option value="quarterly">每季</option>
+                    <option value="yearly">每年</option>
+                </select>
+            </div>
+            <button class="btn" onclick="app.addRecord()"><i data-lucide="plus"></i> 保存</button>
         </div>
-        <button class="btn" onclick="app.addRecord()"><i data-lucide="plus"></i> 保存</button>
+    </div>
+    <div id="weightRecordContent" style="display: none;">
+        <div class="card">
+            <div class="form-row"><label>宠物</label><select id="weightRecordPetSelect"></select></div>
+            <div class="form-row"><label>日期</label><input type="date" id="weightRecordDate"></div>
+            <div class="form-row"><label>体重 (kg)</label><input type="number" id="weightRecordValue" step="0.01"></div>
+            <div class="form-row"><label>备注</label><input type="text" id="weightRecordNote"></div>
+            <button class="btn" onclick="app.addWeightRecord()"><i data-lucide="plus"></i> 保存</button>
+        </div>
+        <div class="card">
+            <h3>体重变化趋势</h3>
+            <div style="height:200px;"><canvas id="weightTrendChart"></canvas></div>
+        </div>
     </div>
 </div>
 
+<!-- 档案页 -->
 <div id="pagePets" class="page">
     <div class="header">
         <h2>宠物档案</h2>
         <button class="btn-outline btn-small" onclick="app.showAddCategory()"><i data-lucide="plus"></i> 大类</button>
     </div>
-    <div class="tabs">
-        <button class="tab active" onclick="app.setPetTab('pets')">宠物</button>
-        <button class="tab" onclick="app.setPetTab('weight')">体重</button>
-        <button class="tab" onclick="app.setPetTab('petStats')">宠物统计</button>
-    </div>
-    <div id="petsTabContent">
-        <div id="categoryListContainer"></div>
-    </div>
-    <div id="weightTabContent" style="display: none;">
-        <div class="card">
-            <select id="weightPetSelect"></select>
-            <button class="btn btn-small" style="margin-top: 10px;" onclick="app.showAddWeight()"><i data-lucide="plus"></i> 记录体重</button>
-            <div id="weightList" style="margin-top: 14px;"></div>
-        </div>
-    </div>
-    <div id="petStatsTabContent" style="display: none;">
-        <div class="card">
-            <h3>按宠物查看账单</h3>
-            <div id="petBillSelector" class="pet-selector"></div>
-            <div id="petBillList"></div>
-        </div>
-        <div class="card">
-            <h3>年度对比报表</h3>
-            <select id="compareYearSelect"></select>
-            <div id="yearCompareContainer"></div>
-        </div>
-    </div>
+    <div id="categoryListContainer"></div>
 </div>
 
+<!-- 统计页 -->
 <div id="pageStats" class="page">
     <div class="header"><h2>统计</h2></div>
     <div class="tabs">
-        <button class="tab active" onclick="app.setStatTab('expense')">支出</button>
-        <button class="tab" onclick="app.setStatTab('weight')">体重</button>
-        <button class="tab" onclick="app.setStatTab('budget')">预算</button>
+        <button class="tab active" onclick="app.setStatTab('expense')">支出统计</button>
+        <button class="tab" onclick="app.setStatTab('petStats')">宠物统计</button>
     </div>
     <div id="expenseStatContent">
         <div style="display: flex; gap: 6px; margin-bottom: 14px;">
@@ -320,25 +352,21 @@
             <div style="height:160px;"><canvas id="trendChart"></canvas></div>
         </div>
     </div>
-    <div id="weightStatContent" style="display: none;">
+    <div id="petStatsContent" style="display: none;">
         <div class="card">
-            <select id="weightStatPetSelect"></select>
-            <div style="height:200px; margin-top: 16px;"><canvas id="weightChart"></canvas></div>
+            <h3>按宠物查看账单</h3>
+            <div id="petBillSelector" class="pet-selector"></div>
+            <div id="petBillList"></div>
         </div>
-    </div>
-    <div id="budgetStatContent" style="display: none;">
         <div class="card">
-            <h3>预算设置</h3>
-            <div class="form-row">
-                <label>月度预算</label>
-                <input type="number" id="monthlyBudget" step="0.01" placeholder="输入预算金额">
-                <button class="btn btn-small" style="margin-top: 8px;" onclick="app.saveBudget()">保存预算</button>
-            </div>
-            <div id="budgetDisplay" style="margin-top: 12px;"></div>
+            <h3>年度对比报表</h3>
+            <select id="compareYearSelect"></select>
+            <div id="yearCompareContainer"></div>
         </div>
     </div>
 </div>
 
+<!-- 设置页 -->
 <div id="pageSettings" class="page">
     <div class="header"><h2>设置</h2></div>
     <div class="card">
@@ -363,6 +391,15 @@
         <div id="recurringList"></div>
     </div>
     <div class="card">
+        <h3>预算设置</h3>
+        <div class="form-row">
+            <label>月度预算</label>
+            <input type="number" id="monthlyBudget" step="0.01" placeholder="输入预算金额">
+            <button class="btn btn-small" style="margin-top: 8px;" onclick="app.saveBudget()">保存预算</button>
+        </div>
+        <div id="budgetDisplay" style="margin-top: 12px;"></div>
+    </div>
+    <div class="card">
         <h3>数据</h3>
         <div style="display: flex; flex-wrap: wrap; gap: 8px;">
             <button class="btn-outline btn-small" onclick="app.exportData()"><i data-lucide="download"></i> 导出数据</button>
@@ -373,16 +410,18 @@
             <button class="btn-danger btn-small" onclick="app.resetAllData()"><i data-lucide="alert-triangle"></i> 重置</button>
         </div>
     </div>
-    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v2.3 · 正式版</div>
+    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v2.4 · 正式版</div>
 </div>
 
+<!-- 底部导航 -->
 <div class="nav-bar">
     <button class="nav-item active" data-page="home" onclick="app.showPage('home')"><i data-lucide="home"></i>首页</button>
-    <button class="nav-item" data-page="add" onclick="app.showPage('add')"><i data-lucide="plus-circle"></i>记账</button>
+    <button class="nav-item" data-page="record" onclick="app.showPage('record')"><i data-lucide="edit-3"></i>记录</button>
     <button class="nav-item" data-page="pets" onclick="app.showPage('pets')"><i data-lucide="cat"></i>档案</button>
     <button class="nav-item" data-page="stats" onclick="app.showPage('stats')"><i data-lucide="chart-pie"></i>统计</button>
 </div>
 
+<!-- 弹窗 -->
 <div class="modal" id="addCategoryModal">
     <div class="modal-content">
         <h3>新建大类</h3>
@@ -413,6 +452,10 @@
             <button class="btn" onclick="app.savePet()">保存</button>
         </div>
     </div>
+</div>
+
+<div class="modal" id="petDetailModal">
+    <div class="modal-content" id="petDetailContent"></div>
 </div>
 
 <div class="modal" id="weightModal">
@@ -462,6 +505,16 @@
     </div>
 </div>
 
+<div class="modal" id="deletePetModal">
+    <div class="modal-content">
+        <h3>删除宠物</h3>
+        <p style="margin-bottom: 16px;">请选择处理方式：</p>
+        <button class="btn" style="margin-bottom: 8px; background: #dc2626;" onclick="app.confirmDeletePet('both')">删除宠物及其所有账单</button>
+        <button class="btn-outline" onclick="app.confirmDeletePet('keep')">保留账单，仅解除关联</button>
+        <button class="btn-outline" style="margin-top: 12px;" onclick="app.closeDeletePetModal()">取消</button>
+    </div>
+</div>
+
 <div class="context-menu" id="contextMenu">
     <div class="context-menu-item" onclick="app.contextEdit()"><i data-lucide="edit"></i> 编辑</div>
     <div class="context-menu-item delete" onclick="app.contextDelete()"><i data-lucide="trash-2"></i> 删除</div>
@@ -483,8 +536,8 @@
     };
     
     let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    const STORAGE_KEY = 'pet_v23_full';
-    const OLD_STORAGE_KEYS = ['pet_v22_full', 'pet_v21_full'];
+    const STORAGE_KEY = 'pet_v24_full';
+    const OLD_STORAGE_KEYS = ['pet_v23_full', 'pet_v22_full', 'pet_v21_full'];
 
     function migrateOldData() {
         for (let oldKey of OLD_STORAGE_KEYS) {
@@ -551,6 +604,26 @@
     const getToday = () => new Date().toISOString().slice(0,10);
     const formatYMD = (d) => { if(!d) return ''; const dt = new Date(d); return `${dt.getMonth()+1}月${dt.getDate()}日`; };
     const getWeekday = (d) => ['周日','周一','周二','周三','周四','周五','周六'][new Date(d).getDay()];
+    
+    // 计算年龄
+    function calculateAge(birthday) {
+        if (!birthday) return '未设置';
+        const birth = new Date(birthday);
+        const today = new Date();
+        let years = today.getFullYear() - birth.getFullYear();
+        let months = today.getMonth() - birth.getMonth();
+        if (months < 0) {
+            years--;
+            months += 12;
+        }
+        if (years > 0) {
+            return `${years}岁${months > 0 ? months + '个月' : ''}`;
+        } else if (months > 0) {
+            return `${months}个月`;
+        } else {
+            return '小于1个月';
+        }
+    }
 
     function showPage(pageId) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -558,8 +631,8 @@
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.querySelector(`.nav-item[data-page="${pageId}"]`)?.classList.add('active');
         if (pageId === 'home') renderHome();
-        else if (pageId === 'add') renderAddForm();
-        else if (pageId === 'pets') { renderPetsPage(); renderWeightList(); renderPetStats(); }
+        else if (pageId === 'record') { renderRecordForm(); renderWeightTrendChart(); }
+        else if (pageId === 'pets') renderPetsPage();
         else if (pageId === 'stats') renderStatsPage();
         else if (pageId === 'settings') renderSettings();
         setTimeout(() => lucide.createIcons(), 10);
@@ -567,10 +640,11 @@
 
     let viewMode = 'month', currentYear = new Date().getFullYear(), currentMonth = new Date().getMonth()+1, filterCategoryId = null;
     let statPeriod = 'month', statYear = new Date().getFullYear(), statMonth = new Date().getMonth()+1, statDay = new Date().getDate();
-    let pieChart=null, trendChart=null, weightChart=null;
-    let petTab = 'pets', statTab = 'expense';
+    let pieChart=null, trendChart=null, weightChart=null, weightTrendChart=null;
+    let statTab = 'expense', recordTab = 'expense';
     let tempAvatar = null;
     let contextRecordId = null;
+    let pendingDeletePetId = null;
 
     function setViewMode(m) { viewMode = m; document.querySelectorAll('.view-switch button').forEach(b=>b.classList.remove('active')); document.querySelector(`.view-switch button[data-view="${m}"]`).classList.add('active'); renderHome(); }
     function prevPeriod() { if(viewMode==='month'){ currentMonth--; if(currentMonth<1){ currentMonth=12; currentYear--; } } else { currentYear--; } renderHome(); }
@@ -636,7 +710,7 @@
                     <div style="color:var(--primary-dark);">¥${catTotal.toFixed(0)}</div>
                 </div>`;
             }).join('');
-        } else { scroll.innerHTML = '<div style="padding:16px;">点击"管理"添加大类</div>'; }
+        } else { scroll.innerHTML = '<div style="padding:16px;">点击"大类"添加</div>'; }
 
         const badge = document.getElementById('filterBadge');
         if(filterCategoryId) {
@@ -712,19 +786,24 @@
         let task = pet.tasks.find(t=>t.templateId===tplId);
         if(!task) { task = { templateId: tplId, records: [] }; pet.tasks.push(task); }
         task.records.push({ date: document.getElementById('taskRecordDate').value, note: document.getElementById('taskRecordNote').value });
-        saveData(); closeTaskModal(); renderHome(); showToast('已记录');
+        saveData(); closeTaskModal(); 
+        if (document.getElementById('pageHome').classList.contains('active')) renderHome();
+        showToast('已记录');
     }
 
-    function renderAddForm() {
+    function renderRecordForm() {
         document.getElementById('dateInput').value = getToday();
         document.getElementById('petSelect').innerHTML = '<option value="">无</option>' + appData.pets.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
         document.getElementById('categoryTypeSelect').innerHTML = appData.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
         document.getElementById('expenseCategorySelect').innerHTML = appData.expenseCategories.map(ec=>`<option>${ec.name}</option>`).join('');
+        document.getElementById('weightRecordPetSelect').innerHTML = appData.pets.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+        document.getElementById('weightRecordDate').value = getToday();
         
         const chk = document.getElementById('isRecurring');
         const periodSelect = document.getElementById('recurringPeriod');
         chk.onchange = () => { periodSelect.style.display = chk.checked ? 'inline-block' : 'none'; };
     }
+    
     function addRecord() {
         const amt = parseFloat(document.getElementById('amountInput').value);
         if(!amt) return showToast('金额无效', false);
@@ -756,16 +835,47 @@
         
         saveData(); showPage('home');
     }
-
-    function setPetTab(tab) {
-        petTab = tab;
-        document.querySelectorAll('#pagePets .tab').forEach(t=>t.classList.remove('active'));
+    
+    function addWeightRecord() {
+        const petId = document.getElementById('weightRecordPetSelect').value;
+        if (!petId) return showToast('请选择宠物', false);
+        const weight = parseFloat(document.getElementById('weightRecordValue').value);
+        if (!weight) return showToast('请输入体重', false);
+        
+        appData.weightRecords.push({
+            id: Date.now()+Math.random(),
+            petId: petId,
+            date: document.getElementById('weightRecordDate').value,
+            weight: weight,
+            note: document.getElementById('weightRecordNote').value || ''
+        });
+        saveData();
+        showToast('体重已记录');
+        document.getElementById('weightRecordValue').value = '';
+        document.getElementById('weightRecordNote').value = '';
+        renderWeightTrendChart();
+    }
+    
+    function renderWeightTrendChart() {
+        const petId = document.getElementById('weightRecordPetSelect').value;
+        if (!petId) return;
+        const records = appData.weightRecords.filter(w => w.petId === petId).sort((a,b) => (a.date||'').localeCompare(b.date||''));
+        const ctx = document.getElementById('weightTrendChart').getContext('2d');
+        if (weightTrendChart) weightTrendChart.destroy();
+        weightTrendChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: records.map(r=>r.date), datasets: [{ label: '体重(kg)', data: records.map(r=>r.weight), borderColor: '#8b5cf6', tension: 0.2, fill: false }] }
+        });
+        document.getElementById('weightRecordPetSelect').onchange = renderWeightTrendChart;
+    }
+    
+    function setRecordTab(tab) {
+        recordTab = tab;
+        document.querySelectorAll('#pageRecord .tab').forEach(t=>t.classList.remove('active'));
         event.target.classList.add('active');
-        document.getElementById('petsTabContent').style.display = tab==='pets' ? 'block' : 'none';
-        document.getElementById('weightTabContent').style.display = tab==='weight' ? 'block' : 'none';
-        document.getElementById('petStatsTabContent').style.display = tab==='petStats' ? 'block' : 'none';
-        if(tab==='weight') renderWeightList();
-        if(tab==='petStats') renderPetStats();
+        document.getElementById('expenseRecordContent').style.display = tab==='expense' ? 'block' : 'none';
+        document.getElementById('weightRecordContent').style.display = tab==='weight' ? 'block' : 'none';
+        if (tab === 'weight') renderWeightTrendChart();
     }
 
     function renderPetsPage() {
@@ -774,33 +884,159 @@
         let html = '';
         appData.categories.forEach(cat => {
             html += `<div class="card">
-                <div style="display:flex; justify-content:space-between;">
+                <div style="display:flex; justify-content:space-between; margin-bottom: 12px;">
                     <h3><i data-lucide="${cat.icon||'cat'}"></i> ${cat.name}</h3>
-                    <div>
-                        <button class="btn-outline btn-small" onclick="app.deleteCategory('${cat.id}')"><i data-lucide="trash-2"></i></button>
-                        <button class="btn-outline btn-small" onclick="app.showAddPet('${cat.id}')"><i data-lucide="plus"></i></button>
-                    </div>
+                    <button class="btn-outline btn-small" onclick="app.deleteCategory('${cat.id}')"><i data-lucide="trash-2"></i></button>
                 </div>`;
             const pets = appData.pets.filter(p=>p.categoryId===cat.id);
             if(pets.length) {
                 pets.forEach(p => {
-                    html += `<div class="pet-item">
-                        <div class="avatar" onclick="app.editPet('${p.id}')">${p.avatar?`<img src="${p.avatar}">`:`<i data-lucide="${cat.icon||'cat'}"></i>`}</div>
-                        <div class="pet-info"><b>${p.name}</b><br><small>${p.birthday||'未设置'}</small></div>
-                        <div>
-                            <button class="btn-outline btn-small" onclick="app.showTaskHistory('${p.id}')"><i data-lucide="calendar"></i></button>
-                            <button class="btn-outline btn-small" onclick="app.editPet('${p.id}')"><i data-lucide="edit"></i></button>
-                        </div>
+                    html += `<div class="pet-item" data-pet-id="${p.id}" onclick="app.showPetDetail('${p.id}')" oncontextmenu="app.showPetContextMenu(event,'${p.id}');return false;">
+                        <div class="avatar">${p.avatar?`<img src="${p.avatar}">`:`<i data-lucide="${cat.icon||'cat'}"></i>`}</div>
+                        <div class="pet-info" style="flex:1;"><b>${p.name}</b><br><small>${p.birthday||'未设置生日'}</small></div>
+                        <button class="btn-outline btn-small" onclick="event.stopPropagation();app.showTaskHistory('${p.id}')"><i data-lucide="calendar"></i></button>
                     </div>`;
                 });
-            } else { html += '<div style="padding:16px;text-align:center;color:var(--text-sub);">暂无宠物</div>'; }
+            } else { html += '<div style="padding:16px;text-align:center;color:var(--text-sub);">暂无宠物，点击"+"添加</div>'; }
+            html += `<div style="margin-top: 12px;"><button class="btn-outline btn-small" onclick="app.showAddPet('${cat.id}')"><i data-lucide="plus"></i> 添加宠物</button></div>`;
             html += '</div>';
         });
         container.innerHTML = html;
         lucide.createIcons();
     }
+    
+    function showPetDetail(petId) {
+        const pet = appData.pets.find(p => p.id === petId);
+        if (!pet) return;
+        
+        const category = appData.categories.find(c => c.id === pet.categoryId);
+        const petSpending = appData.records.filter(r => r.petId === petId).reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
+        
+        let tasksHtml = '';
+        appData.taskTemplates.forEach(tpl => {
+            const task = pet.tasks?.find(t => t.templateId === tpl.id);
+            const last = task?.records?.slice(-1)[0];
+            tasksHtml += `<div class="task-record-item">
+                <span><i data-lucide="clipboard-list"></i> ${tpl.name}</span>
+                <span style="color: var(--text-sub);">${last ? last.date : '未记录'}</span>
+            </div>`;
+        });
+        
+        const html = `
+            <div class="pet-detail-header">
+                <div class="avatar pet-detail-avatar">${pet.avatar?`<img src="${pet.avatar}">`:`<i data-lucide="${category?.icon||'cat'}"></i>`}</div>
+                <div class="pet-detail-name">${pet.name}</div>
+            </div>
+            <div class="pet-detail-info">
+                <div class="pet-detail-info-item">
+                    <div class="pet-detail-info-label">生日</div>
+                    <div class="pet-detail-info-value">${pet.birthday || '未设置'}</div>
+                </div>
+                <div class="pet-detail-info-item">
+                    <div class="pet-detail-info-label">年龄</div>
+                    <div class="pet-detail-info-value">${calculateAge(pet.birthday)}</div>
+                </div>
+                <div class="pet-detail-info-item">
+                    <div class="pet-detail-info-label">身价</div>
+                    <div class="pet-detail-info-value">¥${petSpending.toFixed(2)}</div>
+                </div>
+                <div class="pet-detail-info-item">
+                    <div class="pet-detail-info-label">大类</div>
+                    <div class="pet-detail-info-value">${category?.name || '未知'}</div>
+                </div>
+            </div>
+            <h4 style="margin-bottom: 12px;">事项记录</h4>
+            ${tasksHtml}
+            <div style="margin-top: 16px; display: flex; gap: 8px;">
+                <button class="btn-outline btn-small" onclick="app.closePetDetail();app.editPet('${pet.id}')"><i data-lucide="edit"></i> 编辑</button>
+                <button class="btn-outline btn-small" onclick="app.closePetDetail();app.showDeletePetOptions('${pet.id}')" style="color: #dc2626;"><i data-lucide="trash-2"></i> 删除</button>
+            </div>
+        `;
+        
+        document.getElementById('petDetailContent').innerHTML = html;
+        document.getElementById('petDetailModal').classList.add('show');
+        lucide.createIcons();
+    }
+    
+    function closePetDetail() {
+        document.getElementById('petDetailModal').classList.remove('show');
+    }
+    
+    let petContextMenuId = null;
+    function showPetContextMenu(e, petId) {
+        e.preventDefault();
+        petContextMenuId = petId;
+        const menu = document.getElementById('petContextMenu');
+        if (!menu) {
+            const newMenu = document.createElement('div');
+            newMenu.id = 'petContextMenu';
+            newMenu.className = 'context-menu';
+            newMenu.innerHTML = `
+                <div class="context-menu-item" onclick="app.editPetFromContext()"><i data-lucide="edit"></i> 编辑</div>
+                <div class="context-menu-item delete" onclick="app.deletePetFromContext()"><i data-lucide="trash-2"></i> 删除</div>
+            `;
+            document.body.appendChild(newMenu);
+        }
+        const menuEl = document.getElementById('petContextMenu');
+        menuEl.style.left = (e.touches?.[0]?.clientX || e.clientX) + 'px';
+        menuEl.style.top = (e.touches?.[0]?.clientY || e.clientY) + 'px';
+        menuEl.classList.add('show');
+        setTimeout(() => document.addEventListener('click', ()=> menuEl.classList.remove('show'), {once:true}), 50);
+    }
+    
+    function editPetFromContext() {
+        if (petContextMenuId) {
+            editPet(petContextMenuId);
+            petContextMenuId = null;
+        }
+    }
+    
+    function deletePetFromContext() {
+        if (petContextMenuId) {
+            showDeletePetOptions(petContextMenuId);
+            petContextMenuId = null;
+        }
+    }
+    
+    function showDeletePetOptions(petId) {
+        pendingDeletePetId = petId;
+        document.getElementById('deletePetModal').classList.add('show');
+    }
+    
+    function closeDeletePetModal() {
+        pendingDeletePetId = null;
+        document.getElementById('deletePetModal').classList.remove('show');
+    }
+    
+    function confirmDeletePet(action) {
+        if (!pendingDeletePetId) return;
+        if (action === 'both') {
+            appData.records = appData.records.filter(r => r.petId !== pendingDeletePetId);
+            appData.weightRecords = appData.weightRecords.filter(w => w.petId !== pendingDeletePetId);
+            appData.pets = appData.pets.filter(p => p.id !== pendingDeletePetId);
+            showToast('已删除宠物及其所有账单');
+        } else if (action === 'keep') {
+            appData.records.forEach(r => { if (r.petId === pendingDeletePetId) r.petId = ''; });
+            appData.weightRecords = appData.weightRecords.filter(w => w.petId !== pendingDeletePetId);
+            appData.pets = appData.pets.filter(p => p.id !== pendingDeletePetId);
+            showToast('已删除宠物，账单已保留');
+        }
+        saveData();
+        closeDeletePetModal();
+        renderPetsPage();
+        if (document.getElementById('pageHome').classList.contains('active')) renderHome();
+    }
 
-    function deleteCategory(id) { if(!confirm('删除大类？相关宠物也会被删除。')) return; appData.categories = appData.categories.filter(c=>c.id!==id); appData.pets = appData.pets.filter(p=>p.categoryId!==id); saveData(); renderPetsPage(); showToast('已删除'); }
+    function deleteCategory(id) { if(!confirm('删除大类？相关宠物也会被删除。')) return; 
+        const petsToDelete = appData.pets.filter(p=>p.categoryId===id);
+        petsToDelete.forEach(pet => {
+            appData.records = appData.records.filter(r => r.petId !== pet.id);
+            appData.weightRecords = appData.weightRecords.filter(w => w.petId !== pet.id);
+        });
+        appData.categories = appData.categories.filter(c=>c.id!==id); 
+        appData.pets = appData.pets.filter(p=>p.categoryId!==id); 
+        saveData(); renderPetsPage(); showToast('已删除'); 
+    }
     
     function showAddCategory() { document.getElementById('addCategoryModal').classList.add('show'); }
     function closeAddCategory() { document.getElementById('addCategoryModal').classList.remove('show'); }
@@ -835,6 +1071,7 @@
         preview.innerHTML = p.avatar ? `<img src="${p.avatar}">` : '<i data-lucide="camera"></i>';
         document.getElementById('petEditModal').classList.add('show');
         lucide.createIcons();
+        closePetDetail();
     }
     function closePetEdit() { document.getElementById('petEditModal').classList.remove('show'); }
     function selectAvatar() { document.getElementById('petAvatarInput').click(); }
@@ -872,49 +1109,132 @@
         alert(msg);
     }
 
-    function renderWeightList() {
-        const select = document.getElementById('weightPetSelect');
-        select.innerHTML = appData.pets.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
-        const list = document.getElementById('weightList');
-        const petId = select.value;
-        if(!petId) { list.innerHTML = '<div>请先添加宠物</div>'; return; }
-        const records = appData.weightRecords.filter(w=>w.petId===petId).sort((a,b)=> (b.date||'').localeCompare(a.date||''));
-        list.innerHTML = records.map(w=>`<div style="display:flex; justify-content:space-between; padding:8px 0;">
-            <span>${w.date} ${w.weight}kg ${w.note||''}</span>
-            <button class="btn-outline btn-small" onclick="app.deleteWeight('${w.id}')"><i data-lucide="trash-2"></i></button>
-        </div>`).join('') || '<div style="padding:10px;">暂无记录</div>';
-        lucide.createIcons();
-        select.onchange = renderWeightList;
+    function setStatTab(tab) {
+        statTab = tab;
+        document.querySelectorAll('#pageStats .tab').forEach(t=>t.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById('expenseStatContent').style.display = tab==='expense' ? 'block' : 'none';
+        document.getElementById('petStatsContent').style.display = tab==='petStats' ? 'block' : 'none';
+        if(tab==='expense') renderStatsPage();
+        if(tab==='petStats') renderPetStatsPage();
     }
-    function showAddWeight() {
-        if(!appData.pets.length) return showToast('请先添加宠物', false);
-        document.getElementById('editWeightId').value = '';
-        document.getElementById('weightDate').value = getToday();
-        document.getElementById('weightValue').value = '';
-        document.getElementById('weightNote').value = '';
-        const select = document.getElementById('weightModalPetSelect');
-        select.innerHTML = appData.pets.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
-        document.getElementById('weightModal').classList.add('show');
-    }
-    function closeWeightModal() { document.getElementById('weightModal').classList.remove('show'); }
-    function saveWeight() {
-        const id = document.getElementById('editWeightId').value;
-        const petId = document.getElementById('weightModalPetSelect').value;
-        const date = document.getElementById('weightDate').value;
-        const weight = parseFloat(document.getElementById('weightValue').value);
-        if(!weight) return showToast('请输入体重', false);
-        const note = document.getElementById('weightNote').value;
-        if(id) {
-            const w = appData.weightRecords.find(w=>w.id===id);
-            w.petId=petId; w.date=date; w.weight=weight; w.note=note;
-        } else {
-            appData.weightRecords.push({ id: Date.now()+'', petId, date, weight, note });
-        }
-        saveData(); closeWeightModal(); renderWeightList(); showToast('已保存');
-    }
-    function deleteWeight(id) { appData.weightRecords = appData.weightRecords.filter(w=>w.id!==id); saveData(); renderWeightList(); }
+    function setStatPeriod(p) { statPeriod = p; renderStatsPage(); }
 
-    function renderPetStats() {
+    function renderStatsPage() {
+        const picker = document.getElementById('statDatePicker');
+        picker.value = `${statYear}-${String(statMonth).padStart(2,'0')}-${String(statDay).padStart(2,'0')}`;
+        picker.onchange = () => { const d=new Date(picker.value); statYear=d.getFullYear(); statMonth=d.getMonth()+1; statDay=d.getDate(); renderStatsPage(); };
+        
+        const filtered = appData.records.filter(r=>{ if(!r.date) return false; const d=new Date(r.date); if(statPeriod==='day') return d.getFullYear()===statYear && d.getMonth()+1===statMonth && d.getDate()===statDay; if(statPeriod==='month') return d.getFullYear()===statYear && d.getMonth()+1===statMonth; return d.getFullYear()===statYear; });
+        const total = filtered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
+        document.getElementById('statTotalAmount').innerText = `¥${total.toFixed(2)}`;
+        
+        let compareText = '';
+        if(statPeriod === 'month') {
+            const prevMonth = new Date(statYear, statMonth-2, 1);
+            const prevFiltered = appData.records.filter(r=>{ if(!r.date) return false; const d=new Date(r.date); return d.getFullYear()===prevMonth.getFullYear() && d.getMonth()===prevMonth.getMonth(); });
+            const prevTotal = prevFiltered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
+            if(prevTotal > 0) {
+                const change = ((total - prevTotal) / prevTotal * 100).toFixed(1);
+                compareText = `环比上月: ${change > 0 ? '↑' : '↓'} ${Math.abs(change)}% (${prevTotal.toFixed(2)} → ${total.toFixed(2)})`;
+            }
+        } else if(statPeriod === 'year') {
+            const prevYear = statYear - 1;
+            const prevFiltered = appData.records.filter(r=>{ if(!r.date) return false; const d=new Date(r.date); return d.getFullYear()===prevYear; });
+            const prevTotal = prevFiltered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
+            if(prevTotal > 0) {
+                const change = ((total - prevTotal) / prevTotal * 100).toFixed(1);
+                compareText = `同比去年: ${change > 0 ? '↑' : '↓'} ${Math.abs(change)}% (${prevTotal.toFixed(2)} → ${total.toFixed(2)})`;
+            }
+        }
+        document.getElementById('compareInfo').innerHTML = compareText;
+        
+        const catTotals = {}; 
+        appData.categories.forEach(c=> { catTotals[c.id]={ name: c.name, amount: 0, icon: c.icon || 'cat' }; });
+        filtered.forEach(r=> { if(catTotals[r.categoryId]) catTotals[r.categoryId].amount += parseFloat(r.amount)||0; });
+        
+        const colors = ['#c4b5fd','#fde68a','#bae6fd','#a7f3d0','#fbcfe8','#fed7aa','#fecaca','#d9f99d'];
+        const labels = [], amounts = [], bgColors = [], categoryIds = [];
+        let idx = 0;
+        for(let catId in catTotals) {
+            if(catTotals[catId].amount > 0) {
+                labels.push(catTotals[catId].name);
+                amounts.push(catTotals[catId].amount);
+                bgColors.push(colors[idx % colors.length]);
+                categoryIds.push(catId);
+                idx++;
+            }
+        }
+        
+        const ctx = document.getElementById('pieChart').getContext('2d');
+        if(pieChart) pieChart.destroy();
+        pieChart = new Chart(ctx, { 
+            type:'pie', 
+            data:{ labels: labels, datasets:[{ data: amounts, backgroundColor: bgColors }] },
+            options: {
+                onClick: (e, activeEls) => {
+                    if(activeEls.length) {
+                        const index = activeEls[0].index;
+                        const catId = categoryIds[index];
+                        const category = appData.categories.find(c => c.id === catId);
+                        if(category) {
+                            renderPieDetail(category, filtered, bgColors[index]);
+                        }
+                    }
+                }
+            }
+        });
+        
+        function renderPieDetail(category, filteredRecords, color) {
+            const detailContainer = document.getElementById('pieDetailContainer');
+            if(!detailContainer) return;
+            
+            const catRecords = filteredRecords.filter(r => r.categoryId === category.id);
+            const expenseTotals = {};
+            catRecords.forEach(r => {
+                if(!expenseTotals[r.expenseCategory]) expenseTotals[r.expenseCategory] = 0;
+                expenseTotals[r.expenseCategory] += parseFloat(r.amount) || 0;
+            });
+            
+            const sortedExpenses = Object.entries(expenseTotals).sort((a, b) => b[1] - a[1]);
+            
+            let html = `<div style="margin-bottom: 12px; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="${category.icon || 'cat'}" style="width: 20px; height: 20px;"></i>
+                <span>${category.name} 详细支出</span>
+            </div>`;
+            
+            for(let [expName, expAmount] of sortedExpenses) {
+                html += `<div class="pie-detail-item" onclick="app.filterByExpenseCategory('${expName}')">
+                    <span><span class="pie-detail-color" style="background: ${color}"></span>${expName}</span>
+                    <span>¥${expAmount.toFixed(2)}</span>
+                </div>`;
+            }
+            
+            if(Object.keys(expenseTotals).length === 0) {
+                html += '<div style="text-align:center; padding:12px; color:var(--text-sub);">暂无支出记录</div>';
+            }
+            
+            detailContainer.innerHTML = html;
+            lucide.createIcons();
+        }
+        
+        if(categoryIds.length > 0) {
+            const firstCat = appData.categories.find(c => c.id === categoryIds[0]);
+            if(firstCat) {
+                renderPieDetail(firstCat, filtered, bgColors[0]);
+            }
+        } else {
+            document.getElementById('pieDetailContainer').innerHTML = '<div style="text-align:center; padding:20px 0; color:var(--text-sub);">点击饼图查看详情</div>';
+        }
+
+        const months=[], totalsTrend=[];
+        for(let i=5; i>=0; i--) { const d=new Date(new Date().getFullYear(), new Date().getMonth()-i, 1); months.push(`${d.getMonth()+1}月`); totalsTrend.push(appData.records.filter(r=>{ if(!r.date) return false; const rd=new Date(r.date); return rd.getFullYear()===d.getFullYear() && rd.getMonth()===d.getMonth(); }).reduce((s,r)=> s+(parseFloat(r.amount)||0),0)); }
+        const tCtx = document.getElementById('trendChart').getContext('2d');
+        if(trendChart) trendChart.destroy();
+        trendChart = new Chart(tCtx, { type:'bar', data:{ labels:months, datasets:[{ data:totalsTrend, backgroundColor:'#c4b5fd' }] }, options:{ plugins:{ legend:{ display:false } } } });
+    }
+    
+    function renderPetStatsPage() {
         const selector = document.getElementById('petBillSelector');
         selector.innerHTML = appData.pets.map(p => `<div class="pet-chip" onclick="app.showPetBill('${p.id}')">${p.name}</div>`).join('');
         
@@ -992,163 +1312,11 @@
         
         document.getElementById('yearCompareContainer').innerHTML = html;
     }
-
-    function setStatTab(tab) {
-        statTab = tab;
-        document.querySelectorAll('#pageStats .tab').forEach(t=>t.classList.remove('active'));
-        event.target.classList.add('active');
-        document.getElementById('expenseStatContent').style.display = tab==='expense' ? 'block' : 'none';
-        document.getElementById('weightStatContent').style.display = tab==='weight' ? 'block' : 'none';
-        document.getElementById('budgetStatContent').style.display = tab==='budget' ? 'block' : 'none';
-        if(tab==='weight') renderWeightChart();
-        if(tab==='budget') renderBudget();
-    }
-    function setStatPeriod(p) { statPeriod = p; renderStatsPage(); }
-
-    function renderStatsPage() {
-        const picker = document.getElementById('statDatePicker');
-        picker.value = `${statYear}-${String(statMonth).padStart(2,'0')}-${String(statDay).padStart(2,'0')}`;
-        picker.onchange = () => { const d=new Date(picker.value); statYear=d.getFullYear(); statMonth=d.getMonth()+1; statDay=d.getDate(); renderStatsPage(); };
-        
-        const filtered = appData.records.filter(r=>{ if(!r.date) return false; const d=new Date(r.date); if(statPeriod==='day') return d.getFullYear()===statYear && d.getMonth()+1===statMonth && d.getDate()===statDay; if(statPeriod==='month') return d.getFullYear()===statYear && d.getMonth()+1===statMonth; return d.getFullYear()===statYear; });
-        const total = filtered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
-        document.getElementById('statTotalAmount').innerText = `¥${total.toFixed(2)}`;
-        
-        let compareText = '';
-        if(statPeriod === 'month') {
-            const prevMonth = new Date(statYear, statMonth-2, 1);
-            const prevFiltered = appData.records.filter(r=>{ if(!r.date) return false; const d=new Date(r.date); return d.getFullYear()===prevMonth.getFullYear() && d.getMonth()===prevMonth.getMonth(); });
-            const prevTotal = prevFiltered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
-            if(prevTotal > 0) {
-                const change = ((total - prevTotal) / prevTotal * 100).toFixed(1);
-                compareText = `环比上月: ${change > 0 ? '↑' : '↓'} ${Math.abs(change)}% (${prevTotal.toFixed(2)} → ${total.toFixed(2)})`;
-            }
-        } else if(statPeriod === 'year') {
-            const prevYear = statYear - 1;
-            const prevFiltered = appData.records.filter(r=>{ if(!r.date) return false; const d=new Date(r.date); return d.getFullYear()===prevYear; });
-            const prevTotal = prevFiltered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
-            if(prevTotal > 0) {
-                const change = ((total - prevTotal) / prevTotal * 100).toFixed(1);
-                compareText = `同比去年: ${change > 0 ? '↑' : '↓'} ${Math.abs(change)}% (${prevTotal.toFixed(2)} → ${total.toFixed(2)})`;
-            }
-        }
-        document.getElementById('compareInfo').innerHTML = compareText;
-        
-        // 准备饼图数据
-        const catTotals = {}; 
-        const catIcons = {};
-        appData.categories.forEach(c=> { 
-            catTotals[c.id]={ name: c.name, amount: 0, icon: c.icon || 'cat' }; 
-            catIcons[c.id] = c.icon || 'cat';
-        });
-        filtered.forEach(r=> { if(catTotals[r.categoryId]) catTotals[r.categoryId].amount += parseFloat(r.amount)||0; });
-        
-        const colors = ['#c4b5fd','#fde68a','#bae6fd','#a7f3d0','#fbcfe8','#fed7aa','#fecaca','#d9f99d'];
-        const labels = [], amounts = [], bgColors = [], categoryIds = [];
-        let idx = 0;
-        for(let catId in catTotals) {
-            if(catTotals[catId].amount > 0) {
-                labels.push(catTotals[catId].name);
-                amounts.push(catTotals[catId].amount);
-                bgColors.push(colors[idx % colors.length]);
-                categoryIds.push(catId);
-                idx++;
-            }
-        }
-        
-        // 渲染饼图
-        const ctx = document.getElementById('pieChart').getContext('2d');
-        if(pieChart) pieChart.destroy();
-        pieChart = new Chart(ctx, { 
-            type:'pie', 
-            data:{ labels: labels, datasets:[{ data: amounts, backgroundColor: bgColors }] },
-            options: {
-                onClick: (e, activeEls) => {
-                    if(activeEls.length) {
-                        const index = activeEls[0].index;
-                        const catId = categoryIds[index];
-                        const category = appData.categories.find(c => c.id === catId);
-                        if(category) {
-                            renderPieDetail(category, filtered, bgColors[index]);
-                        }
-                    }
-                }
-            }
-        });
-        
-        // 渲染右侧详情（默认显示第一个有支出的类别）
-        function renderPieDetail(category, filteredRecords, color) {
-            const detailContainer = document.getElementById('pieDetailContainer');
-            if(!detailContainer) return;
-            
-            const catRecords = filteredRecords.filter(r => r.categoryId === category.id);
-            const expenseTotals = {};
-            catRecords.forEach(r => {
-                if(!expenseTotals[r.expenseCategory]) expenseTotals[r.expenseCategory] = 0;
-                expenseTotals[r.expenseCategory] += parseFloat(r.amount) || 0;
-            });
-            
-            // 将支出类别按金额从高到低排序
-            const sortedExpenses = Object.entries(expenseTotals).sort((a, b) => b[1] - a[1]);
-            
-            let html = `<div style="margin-bottom: 12px; font-weight: 500; display: flex; align-items: center; gap: 8px;">
-                <i data-lucide="${category.icon || 'cat'}" style="width: 20px; height: 20px;"></i>
-                <span>${category.name} 详细支出</span>
-            </div>`;
-            
-            for(let [expName, expAmount] of sortedExpenses) {
-                html += `<div class="pie-detail-item" onclick="app.filterByExpenseCategory('${expName}')">
-                    <span><span class="pie-detail-color" style="background: ${color}"></span>${expName}</span>
-                    <span>¥${expAmount.toFixed(2)}</span>
-                </div>`;
-            }
-            
-            if(Object.keys(expenseTotals).length === 0) {
-                html += '<div style="text-align:center; padding:12px; color:var(--text-sub);">暂无支出记录</div>';
-            }
-            
-            detailContainer.innerHTML = html;
-            lucide.createIcons();
-        }
-        
-        if(categoryIds.length > 0) {
-            const firstCat = appData.categories.find(c => c.id === categoryIds[0]);
-            if(firstCat) {
-                renderPieDetail(firstCat, filtered, bgColors[0]);
-            }
-        } else {
-            document.getElementById('pieDetailContainer').innerHTML = '<div style="text-align:center; padding:20px 0; color:var(--text-sub);">点击饼图查看详情</div>';
-        }
-
-        // 近6个月趋势
-        const months=[], totalsTrend=[];
-        for(let i=5; i>=0; i--) { const d=new Date(new Date().getFullYear(), new Date().getMonth()-i, 1); months.push(`${d.getMonth()+1}月`); totalsTrend.push(appData.records.filter(r=>{ if(!r.date) return false; const rd=new Date(r.date); return rd.getFullYear()===d.getFullYear() && rd.getMonth()===d.getMonth(); }).reduce((s,r)=> s+(parseFloat(r.amount)||0),0)); }
-        const tCtx = document.getElementById('trendChart').getContext('2d');
-        if(trendChart) trendChart.destroy();
-        trendChart = new Chart(tCtx, { type:'bar', data:{ labels:months, datasets:[{ data:totalsTrend, backgroundColor:'#c4b5fd' }] }, options:{ plugins:{ legend:{ display:false } } } });
-
-        const select = document.getElementById('weightStatPetSelect');
-        select.innerHTML = appData.pets.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
-        select.onchange = renderWeightChart;
-        if(statTab==='weight') renderWeightChart();
-    }
     
     function filterByExpenseCategory(catName) {
         showToast(`筛选: ${catName}`);
     }
 
-    function renderWeightChart() {
-        const petId = document.getElementById('weightStatPetSelect').value;
-        if(!petId) return;
-        const records = appData.weightRecords.filter(w=>w.petId===petId).sort((a,b)=> (a.date||'').localeCompare(b.date||''));
-        const ctx = document.getElementById('weightChart').getContext('2d');
-        if(weightChart) weightChart.destroy();
-        weightChart = new Chart(ctx, {
-            type: 'line',
-            data: { labels: records.map(r=>r.date), datasets: [{ label: '体重(kg)', data: records.map(r=>r.weight), borderColor: '#8b5cf6', tension: 0.2 }] }
-        });
-    }
-    
     function renderBudget() {
         const budget = appData.monthlyBudget || 0;
         document.getElementById('monthlyBudget').value = budget;
@@ -1188,7 +1356,6 @@
         document.getElementById('taskTemplateList').innerHTML = appData.taskTemplates.map((t,i)=>`<div style="display:flex; justify-content:space-between; padding:6px 0;"><span>${t.name} ${t.thresholdDays?t.thresholdDays+'天':''}</span><button class="btn-outline btn-small" onclick="app.removeTaskTemplate(${i})"><i data-lucide="trash-2"></i></button></div>`).join('');
         
         const recurringHtml = appData.recurringRecords.map((r,i) => {
-            const cat = appData.categories.find(c => c.id === r.record.categoryId);
             return `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-light);">
                 <div>${r.record.expenseCategory} - ¥${r.record.amount}<br><small>${r.period} | 上次: ${r.lastDate}</small></div>
                 <button class="btn-outline btn-small" onclick="app.deleteRecurring(${i})"><i data-lucide="trash-2"></i></button>
@@ -1196,6 +1363,7 @@
         }).join('');
         document.getElementById('recurringList').innerHTML = recurringHtml || '<div>暂无定期记账</div>';
         
+        renderBudget();
         lucide.createIcons();
     }
     
@@ -1257,15 +1425,17 @@
 
     window.app = {
         showPage, setViewMode, prevPeriod, nextPeriod, filterByCategory, clearFilter,
-        addRecord, showContextMenu, contextEdit, contextDelete, closeEditModal, saveEditRecord,
-        setPetTab, showAddCategory, closeAddCategory, saveCategory, deleteCategory,
+        addRecord, addWeightRecord, setRecordTab,
+        showContextMenu, contextEdit, contextDelete, closeEditModal, saveEditRecord,
+        showAddCategory, closeAddCategory, saveCategory, deleteCategory,
         showAddPet, editPet, closePetEdit, selectAvatar, previewAvatar, savePet, showTaskHistory,
-        renderWeightList, showAddWeight, closeWeightModal, saveWeight, deleteWeight,
-        setStatTab, setStatPeriod, renderStatsPage,
+        setStatTab, setStatPeriod, renderStatsPage, renderPetStatsPage,
         addExpenseCategory, removeExpenseCategory, addTaskTemplate, removeTaskTemplate,
         quickRecordTask, closeTaskModal, saveTaskRecord,
-        resetAllData, exportData, importData, deleteRecurring,
-        showPetBill, filterByExpenseCategory, saveBudget
+        resetAllData, exportData, importData, deleteRecurring, saveBudget,
+        showPetBill, filterByExpenseCategory,
+        showPetDetail, closePetDetail, showPetContextMenu, editPetFromContext, deletePetFromContext,
+        showDeletePetOptions, closeDeletePetModal, confirmDeletePet
     };
 
     if ('serviceWorker' in navigator) {
