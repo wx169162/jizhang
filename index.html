@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="毛孩账本">
+    <meta name="apple-mobile-web-app-title" content="小账本">
     <meta name="theme-color" content="#c4b5fd">
-    <title>毛孩账本</title>
+    <title>小账本</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -70,15 +70,77 @@
         .context-menu.show { display: block; }
         .context-menu-item { padding: 10px 18px; cursor: pointer; border-radius: 10px; display: flex; align-items: center; gap: 8px; }
         .context-menu-item.delete { color: #dc2626; }
+        
+        /* 新增：饼图详情列表样式 */
+        .pie-detail-list {
+            margin-top: 16px;
+            border-top: 1px solid var(--border-light);
+            padding-top: 12px;
+        }
+        .pie-detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-light);
+            cursor: pointer;
+        }
+        .pie-detail-item:hover {
+            background: var(--primary-light);
+        }
+        .pie-detail-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        /* 宠物选择器样式 */
+        .pet-selector {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+        }
+        .pet-chip {
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .pet-chip.active {
+            background: var(--primary-dark);
+            color: white;
+            border-color: var(--primary-dark);
+        }
+        
+        /* 年度对比卡片 */
+        .compare-card {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background: var(--primary-light);
+            border-radius: 14px;
+            margin-bottom: 8px;
+        }
+        .compare-change {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .compare-change.up { color: #dc2626; }
+        .compare-change.down { color: #10b981; }
     </style>
 </head>
 <body>
 
-<!-- 所有页面内容保持不变 -->
 <!-- 首页 -->
 <div id="pageHome" class="page active">
     <div class="header">
-        <h1><i data-lucide="paw-print"></i> 毛孩账本</h1>
+        <h1><i data-lucide="paw-print"></i> 小账本</h1>
         <button class="btn-outline btn-small" onclick="app.showPage('settings')"><i data-lucide="settings"></i></button>
     </div>
     <div class="view-switch">
@@ -125,10 +187,21 @@
     <div class="card">
         <div class="form-row"><label>金额</label><input type="number" id="amountInput" step="0.01"></div>
         <div class="form-row"><label>日期</label><input type="date" id="dateInput"></div>
+        <div class="form-row"><label>所属宠物</label><select id="petSelect"></select></div>
         <div class="form-row"><label>大类</label><select id="categoryTypeSelect"></select></div>
         <div class="form-row"><label>类别</label><select id="expenseCategorySelect"></select></div>
         <div class="form-row"><label>支付</label><select id="paymentSelect"><option>微信</option><option>支付宝</option><option>现金</option></select></div>
         <div class="form-row"><label>备注</label><textarea id="noteInput" rows="2"></textarea></div>
+        <div class="form-row" style="display: flex; gap: 8px;">
+            <label style="display: flex; align-items: center; gap: 4px;">
+                <input type="checkbox" id="isRecurring"> 定期记账
+            </label>
+            <select id="recurringPeriod" style="display: none; width: auto;">
+                <option value="monthly">每月</option>
+                <option value="quarterly">每季</option>
+                <option value="yearly">每年</option>
+            </select>
+        </div>
         <button class="btn" onclick="app.addRecord()"><i data-lucide="plus"></i> 保存</button>
     </div>
 </div>
@@ -142,6 +215,7 @@
     <div class="tabs">
         <button class="tab active" onclick="app.setPetTab('pets')">宠物</button>
         <button class="tab" onclick="app.setPetTab('weight')">体重</button>
+        <button class="tab" onclick="app.setPetTab('petStats')">宠物统计</button>
     </div>
     <div id="petsTabContent">
         <div id="categoryListContainer"></div>
@@ -153,6 +227,18 @@
             <div id="weightList" style="margin-top: 14px;"></div>
         </div>
     </div>
+    <div id="petStatsTabContent" style="display: none;">
+        <div class="card">
+            <h3>按宠物查看账单</h3>
+            <div id="petBillSelector" class="pet-selector"></div>
+            <div id="petBillList"></div>
+        </div>
+        <div class="card">
+            <h3>年度对比报表</h3>
+            <select id="compareYearSelect"></select>
+            <div id="yearCompareContainer"></div>
+        </div>
+    </div>
 </div>
 
 <!-- 统计页 -->
@@ -161,6 +247,7 @@
     <div class="tabs">
         <button class="tab active" onclick="app.setStatTab('expense')">支出</button>
         <button class="tab" onclick="app.setStatTab('weight')">体重</button>
+        <button class="tab" onclick="app.setStatTab('budget')">预算</button>
     </div>
     <div id="expenseStatContent">
         <div style="display: flex; gap: 6px; margin-bottom: 14px;">
@@ -174,10 +261,12 @@
                 <span id="statTotalLabel">总支出</span>
                 <span id="statTotalAmount" style="font-size: 26px; font-weight: 700; color: var(--primary-dark);">¥0.00</span>
             </div>
+            <div id="compareInfo" style="font-size: 12px; color: var(--text-sub); margin-top: 8px;"></div>
         </div>
         <div class="card">
-            <h3>大类占比</h3>
+            <h3>消费分析</h3>
             <div style="height:180px;"><canvas id="pieChart"></canvas></div>
+            <div id="pieDetailList" class="pie-detail-list"></div>
         </div>
         <div class="card">
             <h3>近6个月趋势</h3>
@@ -188,6 +277,17 @@
         <div class="card">
             <select id="weightStatPetSelect"></select>
             <div style="height:200px; margin-top: 16px;"><canvas id="weightChart"></canvas></div>
+        </div>
+    </div>
+    <div id="budgetStatContent" style="display: none;">
+        <div class="card">
+            <h3>预算设置</h3>
+            <div class="form-row">
+                <label>月度预算</label>
+                <input type="number" id="monthlyBudget" step="0.01" placeholder="输入预算金额">
+                <button class="btn btn-small" style="margin-top: 8px;" onclick="app.saveBudget()">保存预算</button>
+            </div>
+            <div id="budgetDisplay" style="margin-top: 12px;"></div>
         </div>
     </div>
 </div>
@@ -213,10 +313,15 @@
         </div>
     </div>
     <div class="card">
+        <h3>定期记账</h3>
+        <div id="recurringList"></div>
+    </div>
+    <div class="card">
         <h3>数据</h3>
+        <button class="btn-outline btn-small" onclick="app.exportData()"><i data-lucide="download"></i> 导出数据</button>
         <button class="btn-danger" onclick="app.resetAllData()"><i data-lucide="alert-triangle"></i> 重置</button>
     </div>
-    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">毛孩账本 2.2 · 正式版</div>
+    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 2.2 · 正式版</div>
 </div>
 
 <!-- 底部导航 -->
@@ -295,6 +400,7 @@
         <input type="hidden" id="editRecordId">
         <div class="form-row"><label>金额</label><input type="number" id="editAmountInput" step="0.01"></div>
         <div class="form-row"><label>日期</label><input type="date" id="editDateInput"></div>
+        <div class="form-row"><label>所属宠物</label><select id="editPetSelect"></select></div>
         <div class="form-row"><label>大类</label><select id="editCategorySelect"></select></div>
         <div class="form-row"><label>类别</label><select id="editExpenseCategorySelect"></select></div>
         <div class="form-row"><label>支付</label><select id="editPaymentSelect"><option>微信</option><option>支付宝</option><option>现金</option></select></div>
@@ -321,11 +427,13 @@
         records: [],
         expenseCategories: [{ name: '食品' }, { name: '医疗' }, { name: '玩具' }, { name: '美容' }, { name: '日用' }],
         taskTemplates: [],
-        weightRecords: []
+        weightRecords: [],
+        recurringRecords: [],
+        monthlyBudget: null
     };
     
     let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    const STORAGE_KEY = 'pet_v22_full';
+    const STORAGE_KEY = 'pet_v23_full';
 
     let viewMode = 'month', currentYear = new Date().getFullYear(), currentMonth = new Date().getMonth()+1, filterCategoryId = null;
     let statPeriod = 'month', statYear = new Date().getFullYear(), statMonth = new Date().getMonth()+1, statDay = new Date().getDate();
@@ -345,6 +453,11 @@
                 appData.expenseCategories = parsed.expenseCategories || DEFAULT_DATA.expenseCategories;
                 appData.taskTemplates = parsed.taskTemplates || [];
                 appData.weightRecords = parsed.weightRecords || [];
+                appData.recurringRecords = parsed.recurringRecords || [];
+                appData.monthlyBudget = parsed.monthlyBudget || null;
+                
+                // 为旧数据添加petId字段
+                appData.records.forEach(r => { if (!r.petId) r.petId = ''; });
             }
         } catch(e) { appData = JSON.parse(JSON.stringify(DEFAULT_DATA)); }
     }
@@ -369,7 +482,7 @@
         document.querySelector(`.nav-item[data-page="${pageId}"]`)?.classList.add('active');
         if (pageId === 'home') renderHome();
         else if (pageId === 'add') renderAddForm();
-        else if (pageId === 'pets') { renderPetsPage(); renderWeightList(); }
+        else if (pageId === 'pets') { renderPetsPage(); renderWeightList(); renderPetStats(); }
         else if (pageId === 'stats') renderStatsPage();
         else if (pageId === 'settings') renderSettings();
         setTimeout(() => lucide.createIcons(), 10);
@@ -458,8 +571,9 @@
                 html += `<div class="day-group"><div style="display:flex; justify-content:space-between; padding:6px 2px;"><span>${formatYMD(date)} ${getWeekday(date)}</span><span>¥${dayTotal.toFixed(2)}</span></div>`;
                 byDay[date].forEach(r => {
                     const cat = appData.categories.find(c=>c.id===r.categoryId);
+                    const pet = appData.pets.find(p=>p.id===r.petId);
                     html += `<div class="record-card" data-record-id="${r.id}" oncontextmenu="app.showContextMenu(event,'${r.id}');return false;">
-                        <div style="display:flex; justify-content:space-between;"><span>${r.expenseCategory}</span><span>¥${parseFloat(r.amount).toFixed(2)}</span></div>
+                        <div style="display:flex; justify-content:space-between;"><span>${r.expenseCategory} ${pet ? '· '+pet.name : ''}</span><span>¥${parseFloat(r.amount).toFixed(2)}</span></div>
                         <div style="border-top:1px dashed var(--border-light); margin:8px 0;"></div>
                         <div style="display:flex; justify-content:space-between; color:var(--text-sub);"><span>${r.note||''}</span><span>${cat?.name||''}</span></div>
                     </div>`;
@@ -478,6 +592,7 @@
         document.getElementById('editAmountInput').value = r.amount;
         document.getElementById('editDateInput').value = r.date;
         document.getElementById('editNoteInput').value = r.note||'';
+        document.getElementById('editPetSelect').innerHTML = '<option value="">无</option>' + appData.pets.map(p=>`<option value="${p.id}" ${p.id===r.petId?'selected':''}>${p.name}</option>`).join('');
         document.getElementById('editCategorySelect').innerHTML = appData.categories.map(c=>`<option value="${c.id}" ${c.id===r.categoryId?'selected':''}>${c.name}</option>`).join('');
         document.getElementById('editExpenseCategorySelect').innerHTML = appData.expenseCategories.map(ec=>`<option ${ec.name===r.expenseCategory?'selected':''}>${ec.name}</option>`).join('');
         document.getElementById('editPaymentSelect').value = r.payment;
@@ -489,6 +604,7 @@
         const r = appData.records.find(r=> r.id == document.getElementById('editRecordId').value); if (!r) return;
         r.amount = parseFloat(document.getElementById('editAmountInput').value);
         r.date = document.getElementById('editDateInput').value;
+        r.petId = document.getElementById('editPetSelect').value;
         r.categoryId = document.getElementById('editCategorySelect').value;
         r.expenseCategory = document.getElementById('editExpenseCategorySelect').value;
         r.payment = document.getElementById('editPaymentSelect').value;
@@ -517,21 +633,46 @@
 
     function renderAddForm() {
         document.getElementById('dateInput').value = getToday();
+        document.getElementById('petSelect').innerHTML = '<option value="">无</option>' + appData.pets.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
         document.getElementById('categoryTypeSelect').innerHTML = appData.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
         document.getElementById('expenseCategorySelect').innerHTML = appData.expenseCategories.map(ec=>`<option>${ec.name}</option>`).join('');
+        
+        // 定期记账复选框事件
+        const chk = document.getElementById('isRecurring');
+        const periodSelect = document.getElementById('recurringPeriod');
+        chk.onchange = () => { periodSelect.style.display = chk.checked ? 'inline-block' : 'none'; };
     }
     function addRecord() {
         const amt = parseFloat(document.getElementById('amountInput').value);
         if(!amt) return showToast('金额无效', false);
         if(!appData.categories.length) return showToast('请先创建大类', false);
-        appData.records.push({
-            id: Date.now()+Math.random(), amount: amt, date: document.getElementById('dateInput').value,
+        const newRecord = {
+            id: Date.now()+Math.random(), 
+            amount: amt, 
+            date: document.getElementById('dateInput').value,
+            petId: document.getElementById('petSelect').value,
             categoryId: document.getElementById('categoryTypeSelect').value,
             expenseCategory: document.getElementById('expenseCategorySelect').value,
             payment: document.getElementById('paymentSelect').value,
             note: document.getElementById('noteInput').value
-        });
-        saveData(); showToast('已保存'); showPage('home');
+        };
+        appData.records.push(newRecord);
+        
+        // 处理定期记账
+        if(document.getElementById('isRecurring').checked) {
+            const period = document.getElementById('recurringPeriod').value;
+            appData.recurringRecords.push({
+                id: Date.now()+Math.random(),
+                record: newRecord,
+                period: period,
+                lastDate: newRecord.date
+            });
+            showToast('已保存并设为定期记账');
+        } else {
+            showToast('已保存');
+        }
+        
+        saveData(); showPage('home');
     }
 
     function setPetTab(tab) {
@@ -540,7 +681,9 @@
         event.target.classList.add('active');
         document.getElementById('petsTabContent').style.display = tab==='pets' ? 'block' : 'none';
         document.getElementById('weightTabContent').style.display = tab==='weight' ? 'block' : 'none';
+        document.getElementById('petStatsTabContent').style.display = tab==='petStats' ? 'block' : 'none';
         if(tab==='weight') renderWeightList();
+        if(tab==='petStats') renderPetStats();
     }
 
     function renderPetsPage() {
@@ -689,13 +832,98 @@
     }
     function deleteWeight(id) { appData.weightRecords = appData.weightRecords.filter(w=>w.id!==id); saveData(); renderWeightList(); }
 
+    // 新增：宠物统计功能
+    function renderPetStats() {
+        // 按宠物查看账单
+        const selector = document.getElementById('petBillSelector');
+        selector.innerHTML = appData.pets.map(p => `<div class="pet-chip" onclick="app.showPetBill('${p.id}')">${p.name}</div>`).join('');
+        
+        // 年度对比报表
+        const yearSelect = document.getElementById('compareYearSelect');
+        const years = [...new Set(appData.records.map(r => new Date(r.date).getFullYear()).filter(y => y))];
+        yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}年</option>`).join('');
+        if(years.length) yearSelect.onchange = () => renderYearCompare(yearSelect.value);
+        if(years.length) renderYearCompare(years[0]);
+    }
+    
+    function showPetBill(petId) {
+        const pet = appData.pets.find(p => p.id === petId);
+        const records = appData.records.filter(r => r.petId === petId).sort((a,b) => (b.date||'').localeCompare(a.date||''));
+        const total = records.reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
+        
+        let html = `<div style="margin-bottom: 12px;"><strong>${pet.name}</strong> 总消费: ¥${total.toFixed(2)}</div>`;
+        const byMonth = {};
+        records.forEach(r => {
+            const month = new Date(r.date).getMonth() + 1;
+            if(!byMonth[month]) byMonth[month] = 0;
+            byMonth[month] += parseFloat(r.amount) || 0;
+        });
+        html += '<div style="margin-top: 12px;">月度分布:</div>';
+        for(let m = 1; m <= 12; m++) {
+            if(byMonth[m]) {
+                html += `<div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                    <span>${m}月</span><span>¥${byMonth[m].toFixed(2)}</span>
+                </div>`;
+            }
+        }
+        html += '<div style="margin-top: 12px;">账单明细:</div>';
+        records.forEach(r => {
+            const cat = appData.categories.find(c => c.id === r.categoryId);
+            html += `<div style="padding: 8px 0; border-bottom: 1px solid var(--border-light);">
+                <div>${r.date} | ${r.expenseCategory} | ¥${parseFloat(r.amount).toFixed(2)}</div>
+                <div style="font-size: 12px; color: var(--text-sub);">${cat?.name || ''} ${r.note ? '· ' + r.note : ''}</div>
+            </div>`;
+        });
+        document.getElementById('petBillList').innerHTML = html || '<div>暂无账单</div>';
+        lucide.createIcons();
+    }
+    
+    function renderYearCompare(year) {
+        const thisYear = appData.records.filter(r => new Date(r.date).getFullYear() == year);
+        const lastYear = appData.records.filter(r => new Date(r.date).getFullYear() == year - 1);
+        
+        const thisTotal = thisYear.reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
+        const lastTotal = lastYear.reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
+        const change = lastTotal ? ((thisTotal - lastTotal) / lastTotal * 100).toFixed(1) : 0;
+        
+        let html = `<div class="compare-card">
+            <div>${year}年总支出</div>
+            <div><strong>¥${thisTotal.toFixed(2)}</strong></div>
+        </div>`;
+        if(lastTotal > 0) {
+            html += `<div class="compare-card">
+                <div>相比${year-1}年</div>
+                <div class="compare-change ${change > 0 ? 'up' : 'down'}">${change > 0 ? '↑' : '↓'} ${Math.abs(change)}%</div>
+            </div>`;
+        }
+        
+        // 按宠物对比
+        html += `<div style="margin-top: 12px;"><strong>各宠物支出对比</strong></div>`;
+        appData.pets.forEach(pet => {
+            const petThis = thisYear.filter(r => r.petId === pet.id).reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
+            const petLast = lastYear.filter(r => r.petId === pet.id).reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
+            if(petThis > 0 || petLast > 0) {
+                const petChange = petLast ? ((petThis - petLast) / petLast * 100).toFixed(1) : 100;
+                html += `<div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-light);">
+                    <span>${pet.name}</span>
+                    <span>¥${petThis.toFixed(2)}</span>
+                    ${petLast > 0 ? `<span class="compare-change ${petChange > 0 ? 'up' : 'down'}" style="font-size: 12px;">${petChange > 0 ? '↑' : '↓'} ${Math.abs(petChange)}%</span>` : '<span style="font-size: 12px; color: var(--text-sub);">新增</span>'}
+                </div>`;
+            }
+        });
+        
+        document.getElementById('yearCompareContainer').innerHTML = html;
+    }
+
     function setStatTab(tab) {
         statTab = tab;
         document.querySelectorAll('#pageStats .tab').forEach(t=>t.classList.remove('active'));
         event.target.classList.add('active');
         document.getElementById('expenseStatContent').style.display = tab==='expense' ? 'block' : 'none';
         document.getElementById('weightStatContent').style.display = tab==='weight' ? 'block' : 'none';
+        document.getElementById('budgetStatContent').style.display = tab==='budget' ? 'block' : 'none';
         if(tab==='weight') renderWeightChart();
+        if(tab==='budget') renderBudget();
     }
     function setStatPeriod(p) { statPeriod = p; renderStatsPage(); }
 
@@ -708,12 +936,94 @@
         const total = filtered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
         document.getElementById('statTotalAmount').innerText = `¥${total.toFixed(2)}`;
         
-        const catTotals = {}; appData.categories.forEach(c=> catTotals[c.id]=0);
-        filtered.forEach(r=> { if(catTotals.hasOwnProperty(r.categoryId)) catTotals[r.categoryId] += parseFloat(r.amount)||0; });
+        // 环比/同比分析
+        let compareText = '';
+        if(statPeriod === 'month') {
+            const prevMonth = new Date(statYear, statMonth-2, 1);
+            const prevFiltered = appData.records.filter(r=>{ if(!r.date) return false; const d=new Date(r.date); return d.getFullYear()===prevMonth.getFullYear() && d.getMonth()===prevMonth.getMonth(); });
+            const prevTotal = prevFiltered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
+            if(prevTotal > 0) {
+                const change = ((total - prevTotal) / prevTotal * 100).toFixed(1);
+                compareText = `环比上月: ${change > 0 ? '↑' : '↓'} ${Math.abs(change)}% (${prevTotal.toFixed(2)} → ${total.toFixed(2)})`;
+            }
+        } else if(statPeriod === 'year') {
+            const prevYear = statYear - 1;
+            const prevFiltered = appData.records.filter(r=>{ if(!r.date) return false; const d=new Date(r.date); return d.getFullYear()===prevYear; });
+            const prevTotal = prevFiltered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
+            if(prevTotal > 0) {
+                const change = ((total - prevTotal) / prevTotal * 100).toFixed(1);
+                compareText = `同比去年: ${change > 0 ? '↑' : '↓'} ${Math.abs(change)}% (${prevTotal.toFixed(2)} → ${total.toFixed(2)})`;
+            }
+        }
+        document.getElementById('compareInfo').innerHTML = compareText;
+        
+        // 消费分析 - 饼图 + 详情列表
+        const catTotals = {}; 
+        appData.categories.forEach(c=> catTotals[c.id]={ name: c.name, amount: 0, color: '' });
+        filtered.forEach(r=> { if(catTotals[r.categoryId]) catTotals[r.categoryId].amount += parseFloat(r.amount)||0; });
+        
+        const colors = ['#c4b5fd','#fde68a','#bae6fd','#a7f3d0','#fbcfe8','#fed7aa','#fecaca','#d9f99d'];
+        const labels = [], amounts = [], bgColors = [];
+        let idx = 0;
+        for(let catId in catTotals) {
+            if(catTotals[catId].amount > 0) {
+                labels.push(catTotals[catId].name);
+                amounts.push(catTotals[catId].amount);
+                const color = colors[idx % colors.length];
+                bgColors.push(color);
+                catTotals[catId].color = color;
+                idx++;
+            }
+        }
+        
         const ctx = document.getElementById('pieChart').getContext('2d');
         if(pieChart) pieChart.destroy();
-        pieChart = new Chart(ctx, { type:'pie', data:{ labels: appData.categories.map(c=>c.name), datasets:[{ data: appData.categories.map(c=>catTotals[c.id]||0), backgroundColor: ['#c4b5fd','#fde68a','#bae6fd','#a7f3d0','#fbcfe8'] }] } });
+        pieChart = new Chart(ctx, { 
+            type:'pie', 
+            data:{ labels: labels, datasets:[{ data: amounts, backgroundColor: bgColors }] },
+            options: {
+                onClick: (e, activeEls) => {
+                    if(activeEls.length) {
+                        const index = activeEls[0].index;
+                        const categoryName = labels[index];
+                        renderPieDetail(categoryName, filtered);
+                    }
+                }
+            }
+        });
+        
+        // 显示饼图详情列表
+        function renderPieDetail(clickedCategory, filteredRecords) {
+            const detailDiv = document.getElementById('pieDetailList');
+            const category = appData.categories.find(c => c.name === clickedCategory);
+            if(!category) return;
+            
+            const catRecords = filteredRecords.filter(r => r.categoryId === category.id);
+            const expenseTotals = {};
+            catRecords.forEach(r => {
+                if(!expenseTotals[r.expenseCategory]) expenseTotals[r.expenseCategory] = 0;
+                expenseTotals[r.expenseCategory] += parseFloat(r.amount) || 0;
+            });
+            
+            let html = `<div style="margin-bottom: 8px; font-weight: 500;">📊 ${clickedCategory} 详细支出</div>`;
+            for(let exp in expenseTotals) {
+                html += `<div class="pie-detail-item" onclick="app.filterByExpenseCategory('${exp}')">
+                    <span><span class="pie-detail-color" style="background: ${bgColors[labels.indexOf(clickedCategory)]}"></span>${exp}</span>
+                    <span>¥${expenseTotals[exp].toFixed(2)}</span>
+                </div>`;
+            }
+            detailDiv.innerHTML = html;
+            lucide.createIcons();
+        }
+        
+        // 默认显示第一个有支出的类别详情
+        if(labels.length > 0) {
+            renderPieDetail(labels[0], filtered);
+        } else {
+            document.getElementById('pieDetailList').innerHTML = '<div style="text-align:center; padding:12px; color:var(--text-sub);">暂无支出记录</div>';
+        }
 
+        // 近6个月趋势
         const months=[], totals=[];
         for(let i=5; i>=0; i--) { const d=new Date(new Date().getFullYear(), new Date().getMonth()-i, 1); months.push(`${d.getMonth()+1}月`); totals.push(appData.records.filter(r=>{ if(!r.date) return false; const rd=new Date(r.date); return rd.getFullYear()===d.getFullYear() && rd.getMonth()===d.getMonth(); }).reduce((s,r)=> s+(parseFloat(r.amount)||0),0)); }
         const tCtx = document.getElementById('trendChart').getContext('2d');
@@ -724,6 +1034,11 @@
         select.innerHTML = appData.pets.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
         select.onchange = renderWeightChart;
         if(statTab==='weight') renderWeightChart();
+    }
+    
+    function filterByExpenseCategory(catName) {
+        showToast(`筛选: ${catName}`);
+        // 这里可以添加跳转到首页并筛选该类别的功能
     }
 
     function renderWeightChart() {
@@ -737,12 +1052,77 @@
             data: { labels: records.map(r=>r.date), datasets: [{ label: '体重(kg)', data: records.map(r=>r.weight), borderColor: '#8b5cf6', tension: 0.2 }] }
         });
     }
+    
+    function renderBudget() {
+        const budget = appData.monthlyBudget || 0;
+        document.getElementById('monthlyBudget').value = budget;
+        
+        const currentMonth = new Date().getMonth() + 1;
+        const currentYear = new Date().getFullYear();
+        const monthSpending = appData.records.filter(r => {
+            if(!r.date) return false;
+            const d = new Date(r.date);
+            return d.getFullYear() === currentYear && d.getMonth() + 1 === currentMonth;
+        }).reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
+        
+        let html = `<div>本月预算: ¥${budget.toFixed(2)}</div>`;
+        html += `<div>本月已用: ¥${monthSpending.toFixed(2)}</div>`;
+        if(budget > 0) {
+            const percent = (monthSpending / budget * 100).toFixed(1);
+            html += `<div>预算使用: ${percent}%</div>`;
+            if(monthSpending > budget) {
+                html += `<div style="color: #dc2626; margin-top: 8px;">⚠️ 已超预算 ¥${(monthSpending - budget).toFixed(2)}</div>`;
+            } else {
+                html += `<div style="color: #10b981; margin-top: 8px;">✅ 剩余预算 ¥${(budget - monthSpending).toFixed(2)}</div>`;
+            }
+        }
+        document.getElementById('budgetDisplay').innerHTML = html;
+    }
+    
+    function saveBudget() {
+        const budget = parseFloat(document.getElementById('monthlyBudget').value);
+        appData.monthlyBudget = budget;
+        saveData();
+        renderBudget();
+        showToast('预算已保存');
+    }
 
     function renderSettings() {
         document.getElementById('expenseCategoryList').innerHTML = appData.expenseCategories.map((ec,i)=>`<div style="display:flex; justify-content:space-between; padding:6px 0;"><span>${ec.name}</span><button class="btn-outline btn-small" onclick="app.removeExpenseCategory(${i})"><i data-lucide="trash-2"></i></button></div>`).join('');
         document.getElementById('taskTemplateList').innerHTML = appData.taskTemplates.map((t,i)=>`<div style="display:flex; justify-content:space-between; padding:6px 0;"><span>${t.name} ${t.thresholdDays?t.thresholdDays+'天':''}</span><button class="btn-outline btn-small" onclick="app.removeTaskTemplate(${i})"><i data-lucide="trash-2"></i></button></div>`).join('');
+        
+        // 定期记账列表
+        const recurringHtml = appData.recurringRecords.map((r,i) => {
+            const cat = appData.categories.find(c => c.id === r.record.categoryId);
+            return `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-light);">
+                <div>${r.record.expenseCategory} - ¥${r.record.amount}<br><small>${r.period} | 上次: ${r.lastDate}</small></div>
+                <button class="btn-outline btn-small" onclick="app.deleteRecurring(${i})"><i data-lucide="trash-2"></i></button>
+            </div>`;
+        }).join('');
+        document.getElementById('recurringList').innerHTML = recurringHtml || '<div>暂无定期记账</div>';
+        
         lucide.createIcons();
     }
+    
+    function deleteRecurring(index) {
+        appData.recurringRecords.splice(index, 1);
+        saveData();
+        renderSettings();
+        showToast('已删除');
+    }
+    
+    function exportData() {
+        const dataStr = JSON.stringify(appData, null, 2);
+        const blob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `xiaozhangben_backup_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('导出成功');
+    }
+    
     function addExpenseCategory() { const n=document.getElementById('newExpenseCatName').value.trim(); if(!n) return; appData.expenseCategories.push({ name:n }); saveData(); renderSettings(); document.getElementById('newExpenseCatName').value=''; showToast('已添加'); }
     function removeExpenseCategory(i) { appData.expenseCategories.splice(i,1); saveData(); renderSettings(); }
     function addTaskTemplate() {
@@ -756,9 +1136,6 @@
     function removeTaskTemplate(i) { appData.taskTemplates.splice(i,1); saveData(); renderSettings(); }
     function resetAllData() { if(confirm('重置所有数据？不可恢复！')) { appData = JSON.parse(JSON.stringify(DEFAULT_DATA)); saveData(); showPage('home'); showToast('已重置'); } }
 
-    function exportCSV() { alert('导出功能开发中'); }
-    function exportImage() { alert('导出功能开发中'); }
-
     window.app = {
         showPage, setViewMode, prevPeriod, nextPeriod, filterByCategory, clearFilter,
         addRecord, showContextMenu, contextEdit, contextDelete, closeEditModal, saveEditRecord,
@@ -768,12 +1145,12 @@
         setStatTab, setStatPeriod, renderStatsPage,
         addExpenseCategory, removeExpenseCategory, addTaskTemplate, removeTaskTemplate,
         quickRecordTask, closeTaskModal, saveTaskRecord,
-        resetAllData, exportCSV, exportImage
+        resetAllData, exportData, deleteRecurring,
+        showPetBill, filterByExpenseCategory, saveBudget
     };
 
-    // 修复：Service Worker - 一步到位
+    // Service Worker
     if ('serviceWorker' in navigator) {
-        // 动态创建 Service Worker 代码
         const swCode = `
             const CACHE_NAME = 'pet-ledger-v1';
             self.addEventListener('install', event => {
@@ -786,26 +1163,15 @@
                 event.waitUntil(self.clients.claim());
             });
         `;
-        
         const blob = new Blob([swCode], {type: 'application/javascript'});
         const swUrl = URL.createObjectURL(blob);
-        
-        navigator.serviceWorker.register(swUrl).then(reg => {
-            console.log('SW registered');
-            setTimeout(() => {
-                if (reg.active) {
-                    console.log('SW activated');
-                }
-            }, 1000);
-        }).catch(err => {
-            console.log('SW failed:', err);
-        });
+        navigator.serviceWorker.register(swUrl).catch(err => console.log('SW failed:', err));
     }
 
-    // 动态添加 manifest
+    // Manifest
     const manifestObj = {
-        name: "毛孩账本",
-        short_name: "毛孩账本",
+        name: "小账本",
+        short_name: "小账本",
         start_url: "/jizhang/",
         display: "standalone",
         theme_color: "#c4b5fd",
@@ -816,7 +1182,6 @@
             type: "image/svg+xml"
         }]
     };
-    
     const manifestBlob = new Blob([JSON.stringify(manifestObj)], {type: 'application/json'});
     const manifestURL = URL.createObjectURL(manifestBlob);
     const manifestLink = document.createElement('link');
