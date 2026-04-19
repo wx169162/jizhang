@@ -46,18 +46,6 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
         
-        @keyframes pop {
-            0% { transform: scale(1); }
-            50% { transform: scale(0.95); }
-            100% { transform: scale(1); }
-        }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
-            70% { box-shadow: 0 0 0 8px rgba(139, 92, 246, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
-        }
-        
         /* 卡片动画 */
         .card {
             background: var(--card-bg);
@@ -95,7 +83,7 @@
         }
         
         .btn:hover { transform: scale(1.02); background: #7c3aed; }
-        .btn:active { transform: scale(0.96); animation: pop 0.2s ease; }
+        .btn:active { transform: scale(0.96); }
         
         .btn-cancel { 
             background: var(--cancel-bg); 
@@ -169,7 +157,25 @@
             flex: 1;
         }
         
-        /* 导航栏动画 */
+        /* ========== 导航栏样式（修复） ========== */
+        .nav-bar { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            background: rgba(255,255,255,0.95); 
+            backdrop-filter: blur(8px); 
+            display: flex; 
+            justify-content: space-around; 
+            align-items: center;
+            padding: 8px 12px 16px; 
+            border-top: 1px solid var(--border-light); 
+            max-width: 480px; 
+            margin: 0 auto; 
+            z-index: 100;
+            width: 100%;
+        }
+        
         .nav-item { 
             display: flex; 
             flex-direction: column; 
@@ -187,30 +193,13 @@
         .nav-item:active { transform: scale(0.95); }
         .nav-item.active { background: var(--primary-light); color: var(--primary-dark); font-weight: 500; }
         
-        /* 宠物卡片动画 */
-        .pet-item { 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            padding: 10px 0; 
-            border-bottom: 1px solid var(--border-light); 
-            cursor: pointer; 
-            transition: all 0.2s ease;
-        }
-        .pet-item:active { transform: scale(0.98); background: var(--primary-light); border-radius: 12px; padding: 10px; margin: 0 -10px; }
+        /* 其他原有样式 */
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        h1 { font-size: 24px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        h2 { font-size: 20px; font-weight: 600; }
         
-        /* 记录卡片动画 */
-        .record-card { 
-            background: var(--card-bg); 
-            border-radius: 14px; 
-            padding: 12px; 
-            margin: 8px 0; 
-            border: 1px solid var(--border-light); 
-            transition: all 0.2s ease;
-        }
-        .record-card:active { transform: scale(0.98); background: var(--primary-light); }
-        
-        /* 分类卡片动画 */
+        .category-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 12px; -webkit-overflow-scrolling: touch; }
+        .category-scroll::-webkit-scrollbar { display: none; }
         .category-card { 
             flex: 0 0 100px; 
             background: var(--card-bg); 
@@ -224,7 +213,9 @@
         .category-card:active { transform: scale(0.95); }
         .category-card.active { border: 2px solid var(--primary-dark); background: var(--primary-light); }
         
-        /* 输入框动效 */
+        .reminder-item { background: var(--warning); border-radius: 14px; padding: 10px 14px; margin: 8px 0; display: flex; align-items: center; gap: 10px; }
+        .reminder-item.danger { background: var(--danger); }
+        
         input, select, textarea { 
             width: 100%; 
             padding: 10px 12px; 
@@ -241,43 +232,19 @@
             box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
         }
         
-        /* 按钮涟漪效果 */
-        .btn, .data-btn, .btn-cancel, .btn-outline, .nav-item, .category-card, .pet-item, .record-card {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .btn::after, .data-btn::after, .btn-cancel::after, .btn-outline::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.4s, height 0.4s;
-        }
-        
-        .btn:active::after, .data-btn:active::after, .btn-cancel:active::after, .btn-outline:active::after {
-            width: 200px;
-            height: 200px;
-        }
-        
-        /* ========== 原有样式 ========== */
-        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-        h1 { font-size: 24px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-        h2 { font-size: 20px; font-weight: 600; }
-        
-        .category-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 12px; -webkit-overflow-scrolling: touch; }
-        .category-scroll::-webkit-scrollbar { display: none; }
-        
-        .reminder-item { background: var(--warning); border-radius: 14px; padding: 10px 14px; margin: 8px 0; display: flex; align-items: center; gap: 10px; }
-        .reminder-item.danger { background: var(--danger); }
-        
         .avatar { width: 48px; height: 48px; border-radius: 24px; background: var(--primary-light); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .pet-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 10px 0; 
+            border-bottom: 1px solid var(--border-light); 
+            cursor: pointer; 
+            transition: all 0.2s ease;
+        }
+        .pet-item:active { transform: scale(0.98); background: var(--primary-light); border-radius: 12px; padding: 10px; margin: 0 -10px; }
         
         .tabs { display: flex; gap: 4px; margin-bottom: 14px; }
         .tab { flex: 1; padding: 8px; border: none; background: transparent; border-radius: 20px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; }
@@ -288,6 +255,16 @@
         .view-switch button { flex: 1; padding: 8px; border-radius: 20px; border: 1px solid var(--border-light); background: transparent; transition: all 0.2s ease; }
         .view-switch button:active { transform: scale(0.96); }
         .view-switch button.active { background: var(--primary-dark); color: white; }
+        
+        .record-card { 
+            background: var(--card-bg); 
+            border-radius: 14px; 
+            padding: 12px; 
+            margin: 8px 0; 
+            border: 1px solid var(--border-light); 
+            transition: all 0.2s ease;
+        }
+        .record-card:active { transform: scale(0.98); background: var(--primary-light); }
         
         .context-menu { position: fixed; background: white; border-radius: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); z-index: 2000; padding: 6px; display: none; animation: fadeIn 0.15s ease; }
         .context-menu.show { display: block; }
@@ -372,41 +349,6 @@
         .compare-change.up { color: #dc2626; }
         .compare-change.down { color: #10b981; }
         
-        /* 宠生大事样式 */
-        .life-event-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-light);
-            transition: background 0.15s;
-        }
-        .life-event-item:active { background: var(--primary-light); border-radius: 12px; padding: 12px; margin: 0 -6px; }
-        .life-event-content { flex: 1; }
-        .life-event-date { font-size: 12px; color: var(--text-sub); margin-bottom: 4px; }
-        .life-event-title { font-weight: 500; }
-        .life-event-note { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
-        .delete-event-btn { background: none; border: none; color: var(--text-sub); cursor: pointer; padding: 4px 8px; transition: all 0.2s; }
-        .delete-event-btn:active { transform: scale(0.9); color: #dc2626; }
-        
-        /* 事项记录样式 */
-        .task-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-light);
-            transition: background 0.15s;
-        }
-        .task-item:active { background: var(--primary-light); border-radius: 12px; padding: 12px; margin: 0 -6px; }
-        .task-badge {
-            background: var(--primary-light);
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            color: var(--primary-dark);
-        }
-        
         .file-input-label {
             display: inline-block;
             background: var(--primary-dark);
@@ -459,7 +401,41 @@
             color: var(--primary-dark);
         }
         
-        /* 事件类型选择器 */
+        /* 宠生大事样式 */
+        .life-event-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-light);
+            transition: background 0.15s;
+        }
+        .life-event-item:active { background: var(--primary-light); border-radius: 12px; padding: 12px; margin: 0 -6px; }
+        .life-event-content { flex: 1; }
+        .life-event-date { font-size: 12px; color: var(--text-sub); margin-bottom: 4px; }
+        .life-event-title { font-weight: 500; }
+        .life-event-note { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+        .delete-event-btn { background: none; border: none; color: var(--text-sub); cursor: pointer; padding: 4px 8px; transition: all 0.2s; }
+        .delete-event-btn:active { transform: scale(0.9); color: #dc2626; }
+        
+        /* 事项记录样式 */
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-light);
+            transition: background 0.15s;
+        }
+        .task-item:active { background: var(--primary-light); border-radius: 12px; padding: 12px; margin: 0 -6px; }
+        .task-badge {
+            background: var(--primary-light);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: var(--primary-dark);
+        }
+        
         .event-type-selector {
             display: flex;
             gap: 8px;
@@ -708,7 +684,7 @@
             <button class="data-btn" onclick="app.resetAllData()" style="background: #dc2626;"><i data-lucide="alert-triangle"></i> 重置</button>
         </div>
     </div>
-    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v2.5 · 正式版</div>
+    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v2.6 · 正式版</div>
 </div>
 
 <!-- 底部导航 -->
@@ -825,8 +801,8 @@
     };
     
     let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    const STORAGE_KEY = 'pet_v25_full';
-    const OLD_STORAGE_KEYS = ['pet_v24_full', 'pet_v23_full', 'pet_v22_full', 'pet_v21_full'];
+    const STORAGE_KEY = 'pet_v26_full';
+    const OLD_STORAGE_KEYS = ['pet_v25_full', 'pet_v24_full', 'pet_v23_full', 'pet_v22_full', 'pet_v21_full'];
 
     function migrateOldData() {
         for (let oldKey of OLD_STORAGE_KEYS) {
@@ -844,6 +820,7 @@
                     if (parsed.lifeEvents && (!appData.lifeEvents.length)) appData.lifeEvents = parsed.lifeEvents;
                     if (parsed.taskRecords && (!appData.taskRecords.length)) appData.taskRecords = parsed.taskRecords;
                     
+                    // 迁移旧的任务记录
                     if (parsed.taskTemplates && parsed.pets) {
                         parsed.pets.forEach(pet => {
                             if (pet.tasks && pet.tasks.length) {
@@ -974,16 +951,18 @@
     function filterByCategory(id) { filterCategoryId = id; renderHome(); }
     function clearFilter() { filterCategoryId = null; renderHome(); }
 
+    // 修复：事项记录提醒，包括「其他」类型
     function getReminders() {
         const reminders = [];
         const today = new Date();
         appData.taskRecords.forEach(task => {
             const taskDate = new Date(task.date);
             const daysDiff = Math.floor((today - taskDate) / 86400000);
-            let threshold = 90;
+            let threshold = 90; // 默认驱虫
             if (task.type === '疫苗') threshold = 365;
             if (task.type === '洗澡') threshold = 30;
             if (task.type === '体检') threshold = 180;
+            if (task.type === '其他') threshold = 30; // 其他默认30天提醒
             if (daysDiff >= threshold) {
                 const pet = appData.pets.find(p => p.id === task.petId);
                 if (pet) {
@@ -1876,6 +1855,13 @@
     function addExpenseCategory() { const n=document.getElementById('newExpenseCatName').value.trim(); if(!n) return; appData.expenseCategories.push({ name:n }); saveData(); renderSettings(); document.getElementById('newExpenseCatName').value=''; showToast('已添加'); }
     function removeExpenseCategory(i) { appData.expenseCategories.splice(i,1); saveData(); renderSettings(); }
     function resetAllData() { if(confirm('重置所有数据？不可恢复！')) { appData = JSON.parse(JSON.stringify(DEFAULT_DATA)); saveData(); showPage('home'); showToast('已重置'); } }
+
+    // 修复：点击弹窗背景关闭
+    document.addEventListener('click', function(e) {
+        if (e.target.classList && e.target.classList.contains('modal')) {
+            e.target.classList.remove('show');
+        }
+    });
 
     window.app = {
         showPage, setViewMode, prevPeriod, nextPeriod, filterByCategory, clearFilter,
