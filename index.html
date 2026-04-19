@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="毛孩账本">
+    <meta name="application-name" content="毛孩账本">
+    <meta name="theme-color" content="#c4b5fd">
+    
+    <title>毛孩账本</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <link rel="manifest" id="manifest">
+    
+    <style>
+        :root {
+            --bg-page: #faf8f5;
+            --card-bg: #ffffff;
+            --primary: #c4b5fd;
+            --primary-light: #ede9fe;
+            --primary-dark: #8b5cf6;
+            --accent-yellow: #fde68a;
+            --accent-blue: #bae6fd;
+            --text-main: #1e1e2f;
+            --text-sub: #6b7280;
+            --border-light: #e9e4f0;
+            --shadow: 0 2px 8px rgba(0,0,0,0.02);
+            --radius-card: 16px;
+            --radius-btn: 30px;
+            --danger: #fca5a5;
+            --warning: #fde68a;
+            --success: #a7f3d0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-page);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 80px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page { display: none; padding: 14px 14px 20px; max-width: 480px; margin: 0 auto; }
+        .page.active { display: block; }
+
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        h1 { font-size: 24px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        h1 i { color: var(--primary-dark); width: 26px; height: 26px; }
+        h2 { font-size: 20px; font-weight: 600; }
+
+        .card {
+            background: var(--card-bg); border-radius: var(--radius-card);
+            padding: 16px 14px; box-shadow: var(--shadow);
+            border: 1px solid var(--border-light); margin-bottom: 14px;
+        }
+
+        .btn {
+            background: var(--primary-dark); color: white; border: none;
+            padding: 10px 16px; border-radius: var(--radius-btn); font-weight: 500;
+            font-size: 14px; cursor: pointer; display: inline-flex;
+            align-items: center; justify-content: center; gap: 6px;
+        }
+        .btn-outline {
+            background: transparent; color: var(--text-main);
+            border: 1px solid var(--border-light);
+        }
+        .btn-small { padding: 6px 12px; font-size: 13px; }
+
+        input, select, textarea {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border-light);
+            border-radius: 14px; background: var(--card-bg); font-size: 15px;
+            font-family: inherit;
+        }
+        .form-row { margin-bottom: 12px; }
+        label { font-size: 13px; font-weight: 500; color: var(--text-sub); display: block; margin-bottom: 4px; }
+
+        .nav-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(8px); display: flex; justify-content: space-around;
+            padding: 8px 12px 16px; border-top: 1px solid var(--border-light);
+            max-width: 480px; margin: 0 auto;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; gap: 2px;
+            font-size: 11px; color: var(--text-sub); background: none; border: none;
+            cursor: pointer; padding: 6px 14px; border-radius: 30px;
+        }
+        .nav-item i { width: 22px; height: 22px; }
+        .nav-item.active { background: var(--primary-light); color: var(--primary-dark); font-weight: 500; }
+
+        .category-scroll {
+            display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 12px;
+            scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+        }
+        .category-scroll::-webkit-scrollbar { display: none; }
+        .category-card {
+            flex: 0 0 110px; scroll-snap-align: start;
+            background: var(--card-bg); border-radius: 20px;
+            padding: 14px 10px; border: 1px solid var(--border-light);
+            text-align: center; cursor: pointer;
+        }
+        .category-card.active { border: 2px solid var(--primary-dark); background: var(--primary-light); }
+
+        .reminder-item {
+            background: var(--warning); border-radius: 14px; padding: 10px 14px;
+            margin: 8px 0; display: flex; align-items: center; gap: 10px;
+        }
+        .reminder-item.danger { background: var(--danger); }
+
+        .weight-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0; border-bottom: 1px solid var(--border-light);
+        }
+
+        .modal {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4); z-index: 1000;
+            display: none; align-items: center; justify-content: center;
+        }
+        .modal.show { display: flex; }
+        .modal-content {
+            background: var(--card-bg); border-radius: 24px; padding: 20px;
+            width: 90%; max-width: 380px; max-height: 80vh; overflow-y: auto;
+        }
+
+        .avatar {
+            width: 48px; height: 48px; border-radius: 24px;
+            background: var(--primary-light); overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        .pet-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
+        .pet-info { flex: 1; }
+
+        .tabs { display: flex; gap: 4px; margin-bottom: 14px; }
+        .tab {
+            flex: 1; padding: 8px; border: none; background: transparent;
+            border-radius: 20px; font-weight: 500; cursor: pointer;
+        }
+        .tab.active { background: var(--primary-dark); color: white; }
+    </style>
+</head>
+<body>
+
+<!-- 首页 -->
+<div id="pageHome" class="page active">
+    <div class="header">
+        <h1><i data-lucide="paw-print"></i> 毛孩账本</h1>
+        <button class="btn-outline btn-small" onclick="app.showPage('settings')"><i data-lucide="settings"></i></button>
+    </div>
+
+    <div class="view-switch" style="display: flex; gap: 8px; margin-bottom: 14px;">
+        <button class="active" data-view="month" onclick="app.setViewMode('month')">月</button>
+        <button data-view="year" onclick="app.setViewMode('year')">年</button>
+    </div>
+
+    <div class="date-picker-bar" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+        <span class="current" id="currentPeriodDisplay">2026.04</span>
+        <div style="display: flex; gap: 8px;">
+            <button onclick="app.prevPeriod()"><i data-lucide="chevron-left"></i></button>
+            <button onclick="app.nextPeriod()"><i data-lucide="chevron-right"></i></button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-sub);">本月总支出</span>
+            <span style="font-size: 26px; font-weight: 700; color: var(--primary-dark);" id="periodTotalAmount">¥0.00</span>
+        </div>
+    </div>
+
+    <!-- 提醒卡片 -->
+    <div class="card" id="reminderCard" style="display: none;">
+        <h3 style="font-size: 16px; margin-bottom: 8px; display: flex; gap: 6px;"><i data-lucide="bell"></i> 待办提醒</h3>
+        <div id="reminderList"></div>
+    </div>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+            <h3 style="font-size: 16px;"><i data-lucide="folder"></i> 家族</h3>
+            <button class="btn-outline btn-small" onclick="app.showPage('pets')">管理</button>
+        </div>
+        <div class="category-scroll" id="categoryScroll"></div>
+        <div id="filterBadge" style="display: none; background: var(--primary-light); padding: 4px 12px; border-radius: 20px; margin-top: 8px;">
+            <span id="filterText"></span>
+            <i data-lucide="x" style="width: 16px; cursor: pointer;" onclick="app.clearFilter()"></i>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3 style="font-size: 16px; margin-bottom: 12px;"><i data-lucide="list"></i> 流水</h3>
+        <div id="recordsContainer"></div>
+    </div>
+</div>
+
+<!-- 记账页 -->
+<div id="pageAdd" class="page">
+    <div class="header"><h2>记账</h2></div>
+    <div class="card">
+        <div class="form-row"><label>金额</label><input type="number" id="amountInput" step="0.01"></div>
+        <div class="form-row"><label>日期</label><input type="date" id="dateInput"></div>
+        <div class="form-row"><label>大类</label><select id="categoryTypeSelect"></select></div>
+        <div class="form-row"><label>类别</label><select id="expenseCategorySelect"></select></div>
+        <div class="form-row"><label>支付</label><select id="paymentSelect"><option>微信</option><option>支付宝</option><option>现金</option></select></div>
+        <div class="form-row"><label>备注</label><textarea id="noteInput" rows="2"></textarea></div>
+        <button class="btn" onclick="app.addRecord()"><i data-lucide="plus"></i> 保存</button>
+    </div>
+</div>
+
+<!-- 档案页 -->
+<div id="pagePets" class="page">
+    <div class="header">
+        <h2>宠物档案</h2>
+        <button class="btn-outline btn-small" onclick="app.showAddCategory()"><i data-lucide="plus"></i> 大类</button>
+    </div>
+    
+    <div class="tabs">
+        <button class="tab active" onclick="app.setPetTab('pets')">宠物</button>
+        <button class="tab" onclick="app.setPetTab('weight')">体重记录</button>
+    </div>
+    
+    <div id="petsTabContent">
+        <div id="categoryListContainer"></div>
+    </div>
+    
+    <div id="weightTabContent" style="display: none;">
+        <div class="card">
+            <select id="weightPetSelect"></select>
+            <button class="btn btn-small" style="margin-top: 10px;" onclick="app.showAddWeight()"><i data-lucide="plus"></i> 记录体重</button>
+            <div id="weightList" style="margin-top: 14px;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 统计页 -->
+<div id="pageStats" class="page">
+    <div class="header"><h2>统计</h2></div>
+    <div class="tabs">
+        <button class="tab active" onclick="app.setStatTab('expense')">支出</button>
+        <button class="tab" onclick="app.setStatTab('weight')">体重</button>
+    </div>
+    
+    <div id="expenseStatContent">
+        <div style="display: flex; gap: 6px; margin-bottom: 14px;">
+            <button class="btn-outline btn-small" onclick="app.setStatPeriod('day')">日</button>
+            <button class="btn-outline btn-small" onclick="app.setStatPeriod('month')">月</button>
+            <button class="btn-outline btn-small" onclick="app.setStatPeriod('year')">年</button>
+            <input type="date" id="statDatePicker" style="flex:1;">
+        </div>
+        <div class="card">
+            <div style="display: flex; justify-content: space-between;">
+                <span id="statTotalLabel">总支出</span>
+                <span id="statTotalAmount" style="font-size: 26px; font-weight: 700; color: var(--primary-dark);">¥0.00</span>
+            </div>
+        </div>
+        <div class="card">
+            <h3>大类占比</h3>
+            <div style="height:180px;"><canvas id="pieChart"></canvas></div>
+        </div>
+        <div class="card">
+            <h3>近6个月趋势</h3>
+            <div style="height:160px;"><canvas id="trendChart"></canvas></div>
+        </div>
+    </div>
+    
+    <div id="weightStatContent" style="display: none;">
+        <div class="card">
+            <select id="weightStatPetSelect"></select>
+            <div style="height:200px; margin-top: 16px;"><canvas id="weightChart"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<!-- 设置页 -->
+<div id="pageSettings" class="page">
+    <div class="header"><h2>设置</h2></div>
+    <div class="card">
+        <h3>支出类别</h3>
+        <div id="expenseCategoryList"></div>
+        <div style="display: flex; gap: 6px; margin-top: 10px;">
+            <input type="text" id="newExpenseCatName" placeholder="新类别">
+            <button class="btn-small btn" onclick="app.addExpenseCategory()"><i data-lucide="plus"></i></button>
+        </div>
+    </div>
+    <div class="card">
+        <h3>事项模板</h3>
+        <div id="taskTemplateList"></div>
+        <div style="display: flex; gap: 6px; margin-top: 10px;">
+            <input type="text" id="newTaskName" placeholder="如: 驱虫">
+            <input type="number" id="newTaskThreshold" placeholder="提醒天数" style="width:80px;">
+            <button class="btn-small btn" onclick="app.addTaskTemplate()"><i data-lucide="plus"></i></button>
+        </div>
+    </div>
+    <div class="card">
+        <h3>数据</h3>
+        <button class="btn-danger" onclick="app.resetAllData()"><i data-lucide="alert-triangle"></i> 重置</button>
+    </div>
+    <div class="version-info" style="text-align:center; margin-top:16px; color:var(--text-sub);">毛孩账本 2.2 · 事项+体重</div>
+</div>
+
+<!-- 底部导航 -->
+<div class="nav-bar">
+    <button class="nav-item active" data-page="home" onclick="app.showPage('home')"><i data-lucide="home"></i>首页</button>
+    <button class="nav-item" data-page="add" onclick="app.showPage('add')"><i data-lucide="plus-circle"></i>记账</button>
+    <button class="nav-item" data-page="pets" onclick="app.showPage('pets')"><i data-lucide="cat"></i>档案</button>
+    <button class="nav-item" data-page="stats" onclick="app.showPage('stats')"><i data-lucide="chart-pie"></i>统计</button>
+</div>
+
+<!-- 弹窗 -->
+<div class="modal" id="weightModal">
+    <div class="modal-content">
+        <h3 id="weightModalTitle">记录体重</h3>
+        <input type="hidden" id="editWeightId">
+        <div class="form-row"><label>宠物</label><select id="weightModalPetSelect"></select></div>
+        <div class="form-row"><label>日期</label><input type="date" id="weightDate"></div>
+        <div class="form-row"><label>体重 (kg)</label><input type="number" id="weightValue" step="0.01"></div>
+        <div class="form-row"><label>备注</label><input type="text" id="weightNote"></div>
+        <div class="modal-actions" style="display: flex; gap: 10px;">
+            <button class="btn-outline" onclick="app.closeWeightModal()">取消</button>
+            <button class="btn" onclick="app.saveWeight()">保存</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="taskRecordModal">
+    <div class="modal-content">
+        <h3>记录事项</h3>
+        <input type="hidden" id="taskRecordPetId">
+        <input type="hidden" id="taskRecordTemplateId">
+        <div class="form-row"><label>日期</label><input type="date" id="taskRecordDate"></div>
+        <div class="form-row"><label>备注</label><input type="text" id="taskRecordNote"></div>
+        <div class="modal-actions">
+            <button class="btn-outline" onclick="app.closeTaskModal()">取消</button>
+            <button class="btn" onclick="app.saveTaskRecord()">保存</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function(){
+    'use strict';
+    
+    const DEFAULT_DATA = {
+        categories: [], pets: [], records: [],
+        expenseCategories: [{ name: '食品' }, { name: '医疗' }, { name: '玩具' }, { name: '美容' }, { name: '日用' }],
+        taskTemplates: [],
+        weightRecords: []
+    };
+    
+    let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    const STORAGE_KEY = 'pet_v22';
+
+    let viewMode = 'month', currentYear = new Date().getFullYear(), currentMonth = new Date().getMonth()+1, filterCategoryId = null;
+    let statPeriod = 'month', statYear = new Date().getFullYear(), statMonth = new Date().getMonth()+1, statDay = new Date().getDate();
+    let pieChart=null, trendChart=null, weightChart=null;
+    let petTab = 'pets', statTab = 'expense';
+
+    function loadData() {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                appData.categories = parsed.categories || [];
+                appData.pets = parsed.pets || [];
+                appData.records = parsed.records || [];
+                appData.expenseCategories = parsed.expenseCategories || DEFAULT_DATA.expenseCategories;
+                appData.taskTemplates = parsed.taskTemplates || [];
+                appData.weightRecords = parsed.weightRecords || [];
+            }
+        } catch(e) { appData = JSON.parse(JSON.stringify(DEFAULT_DATA)); }
+    }
+    function saveData() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch(e){} }
+
+    function showToast(msg, ok=true) {
+        const toast = document.createElement('div');
+        toast.style.cssText = `position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:${ok?'#1e1e2f':'#fca5a5'}; color:white; padding:10px 20px; border-radius:30px; z-index:9999;`;
+        toast.innerText = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 1800);
+    }
+
+    const getToday = () => new Date().toISOString().slice(0,10);
+    const formatYMD = (d) => { if(!d) return ''; const dt = new Date(d); return `${dt.getMonth()+1}月${dt.getDate()}日`; };
+    const getWeekday = (d) => ['周日','周一','周二','周三','周四','周五','周六'][new Date(d).getDay()];
+
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('page' + pageId.charAt(0).toUpperCase() + pageId.slice(1)).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.querySelector(`.nav-item[data-page="${pageId}"]`)?.classList.add('active');
+        if (pageId === 'home') renderHome();
+        else if (pageId === 'add') renderAddForm();
+        else if (pageId === 'pets') { renderPetsPage(); renderWeightList(); }
+        else if (pageId === 'stats') renderStatsPage();
+        else if (pageId === 'settings') renderSettings();
+        setTimeout(() => lucide.createIcons(), 10);
+    }
+
+    function setViewMode(m) { viewMode = m; document.querySelectorAll('.view-switch button').forEach(b=>b.classList.remove('active')); document.querySelector(`.view-switch button[data-view="${m}"]`).classList.add('active'); renderHome(); }
+    function prevPeriod() { if(viewMode==='month'){ currentMonth--; if(currentMonth<1){ currentMonth=12; currentYear--; } } else { currentYear--; } renderHome(); }
+    function nextPeriod() { if(viewMode==='month'){ currentMonth++; if(currentMonth>12){ currentMonth=1; currentYear++; } } else { currentYear++; } renderHome(); }
+    function getPeriodFilter() {
+        return (r) => {
+            if(!r.date) return false;
+            const d = new Date(r.date);
+            let match = viewMode==='month' ? d.getFullYear()===currentYear && d.getMonth()+1===currentMonth : d.getFullYear()===currentYear;
+            if(match && filterCategoryId) match = r.categoryId === filterCategoryId;
+            return match;
+        };
+    }
+    function filterByCategory(id) { filterCategoryId = id; renderHome(); }
+    function clearFilter() { filterCategoryId = null; renderHome(); }
+
+    function getReminders() {
+        const reminders = [];
+        appData.pets.forEach(pet => {
+            appData.taskTemplates.forEach(tpl => {
+                const task = pet.tasks?.find(t => t.templateId === tpl.id);
+                const last = task?.records?.slice(-1)[0];
+                if (last && tpl.thresholdDays) {
+                    const days = Math.floor((new Date() - new Date(last.date)) / 86400000);
+                    if (days >= tpl.thresholdDays) {
+                        reminders.push({ pet: pet.name, task: tpl.name, days, threshold: tpl.thresholdDays });
+                    }
+                }
+            });
+        });
+        return reminders;
+    }
+
+    function renderHome() {
+        document.getElementById('currentPeriodDisplay').innerText = viewMode==='month' ? `${currentYear}.${String(currentMonth).padStart(2,'0')}` : `${currentYear}`;
+        const filtered = appData.records.filter(getPeriodFilter());
+        const total = filtered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
+        document.getElementById('periodTotalAmount').innerText = `¥${total.toFixed(2)}`;
+
+        // 提醒
+        const reminders = getReminders();
+        const reminderCard = document.getElementById('reminderCard');
+        const reminderList = document.getElementById('reminderList');
+        if (reminders.length) {
+            reminderCard.style.display = 'block';
+            reminderList.innerHTML = reminders.map(r => {
+                const isDanger = r.days > r.threshold * 1.5;
+                return `<div class="reminder-item ${isDanger ? 'danger' : ''}">
+                    <i data-lucide="${isDanger ? 'alert-circle' : 'clock'}"></i>
+                    <div><b>${r.pet}</b> ${r.task} · ${r.days}天前</div>
+                    <button class="btn-small btn-outline" style="margin-left:auto;" onclick="app.quickRecordTask('${r.pet}','${r.task}')">记录</button>
+                </div>`;
+            }).join('');
+        } else { reminderCard.style.display = 'none'; }
+
+        // 大类
+        const scroll = document.getElementById('categoryScroll');
+        if(appData.categories.length) {
+            scroll.innerHTML = appData.categories.map(cat => {
+                const catTotal = appData.records.filter(r => r.categoryId === cat.id && 
+                    (viewMode==='month' ? new Date(r.date).getFullYear()===currentYear && new Date(r.date).getMonth()+1===currentMonth : new Date(r.date).getFullYear()===currentYear)
+                ).reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
+                return `<div class="category-card ${filterCategoryId===cat.id?'active':''}" onclick="app.filterByCategory('${cat.id}')">
+                    <div><i data-lucide="${cat.icon||'cat'}"></i></div>
+                    <div>${cat.name}</div>
+                    <div style="color:var(--primary-dark);">¥${catTotal.toFixed(0)}</div>
+                </div>`;
+            }).join('');
+        } else { scroll.innerHTML = '<div style="padding:16px;">点击"管理"添加大类</div>'; }
+
+        const badge = document.getElementById('filterBadge');
+        if(filterCategoryId) {
+            const cat = appData.categories.find(c=>c.id===filterCategoryId);
+            document.getElementById('filterText').innerHTML = `<i data-lucide="${cat?.icon||'cat'}"></i> 只看${cat?.name}`;
+            badge.style.display = 'inline-flex';
+        } else { badge.style.display = 'none'; }
+
+        const container = document.getElementById('recordsContainer');
+        if(viewMode==='month') {
+            const byDay = {};
+            filtered.sort((a,b)=> (b.date||'').localeCompare(a.date||'')).forEach(r => { if(!byDay[r.date]) byDay[r.date]=[]; byDay[r.date].push(r); });
+            let html = '';
+            Object.keys(byDay).forEach(date => {
+                const dayTotal = byDay[date].reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
+                html += `<div class="day-group"><div class="day-header"><span>${formatYMD(date)} ${getWeekday(date)}</span><span>¥${dayTotal.toFixed(2)}</span></div>`;
+                byDay[date].forEach(r => {
+                    const cat = appData.categories.find(c=>c.id===r.categoryId);
+                    html += `<div class="record-card"><div class="record-row"><span>${r.expenseCategory}</span><span>¥${parseFloat(r.amount).toFixed(2)}</span></div>
+                        <div class="dashed-line"></div><div class="record-meta"><span>${r.note||''}</span><span>${cat?.name||''}</span></div></div>`;
+                });
+                html += '</div>';
+            });
+            container.innerHTML = html || '<div style="padding:20px;text-align:center;">暂无流水</div>';
+        }
+        setTimeout(() => lucide.createIcons(), 10);
+    }
+
+    function quickRecordTask(petName, taskName) {
+        const pet = appData.pets.find(p=>p.name===petName);
+        const tpl = appData.taskTemplates.find(t=>t.name===taskName);
+        if(pet && tpl) {
+            document.getElementById('taskRecordPetId').value = pet.id;
+            document.getElementById('taskRecordTemplateId').value = tpl.id;
+            document.getElementById('taskRecordDate').value = getToday();
+            document.getElementById('taskRecordModal').classList.add('show');
+        }
+    }
+
+    function renderAddForm() {
+        document.getElementById('dateInput').value = getToday();
+        document.getElementById('categoryTypeSelect').innerHTML = appData.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+        document.getElementById('expenseCategorySelect').innerHTML = appData.expenseCategories.map(ec=>`<option>${ec.name}</option>`).join('');
+    }
+    function addRecord() {
+        const amt = parseFloat(document.getElementById('amountInput').value);
+        if(!amt) return showToast('金额无效', false);
+        appData.records.push({
+            id: Date.now()+Math.random(), amount: amt, date: document.getElementById('dateInput').value,
+            categoryId: document.getElementById('categoryTypeSelect').value,
+            expenseCategory: document.getElementById('expenseCategorySelect').value,
+            payment: document.getElementById('paymentSelect').value,
+            note: document.getElementById('noteInput').value
+        });
+        saveData(); showToast('已保存'); showPage('home');
+    }
+
+    function setPetTab(tab) {
+        petTab = tab;
+        document.querySelectorAll('#pagePets .tab').forEach(t=>t.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById('petsTabContent').style.display = tab==='pets' ? 'block' : 'none';
+        document.getElementById('weightTabContent').style.display = tab==='weight' ? 'block' : 'none';
+        if(tab==='weight') renderWeightList();
+    }
+
+    function renderPetsPage() {
+        const container = document.getElementById('categoryListContainer');
+        if(!appData.categories.length) { container.innerHTML = '<div class="card">暂无大类</div>'; return; }
+        let html = '';
+        appData.categories.forEach(cat => {
+            html += `<div class="card"><div style="display:flex; justify-content:space-between;"><h3><i data-lucide="${cat.icon||'cat'}"></i> ${cat.name}</h3><button class="btn-outline btn-small" onclick="app.showAddPet('${cat.id}')"><i data-lucide="plus"></i></button></div>`;
+            appData.pets.filter(p=>p.categoryId===cat.id).forEach(p => {
+                html += `<div class="pet-item">
+                    <div class="avatar" onclick="app.editPet('${p.id}')">${p.avatar?`<img src="${p.avatar}">`:`<i data-lucide="${cat.icon||'cat'}"></i>`}</div>
+                    <div class="pet-info"><b>${p.name}</b><br><small>${p.birthday||''}</small></div>
+                    <div><button class="btn-outline btn-small" onclick="app.showTaskHistory('${p.id}')"><i data-lucide="calendar"></i></button>
+                    <button class="btn-outline btn-small" onclick="app.editPet('${p.id}')"><i data-lucide="edit"></i></button></div>
+                </div>`;
+            });
+            html += '</div>';
+        });
+        container.innerHTML = html;
+        lucide.createIcons();
+    }
+
+    function showTaskHistory(petId) {
+        const pet = appData.pets.find(p=>p.id===petId);
+        if(!pet) return;
+        let msg = `${pet.name} 事项记录:\n`;
+        appData.taskTemplates.forEach(tpl => {
+            const task = pet.tasks?.find(t=>t.templateId===tpl.id);
+            const last = task?.records?.slice(-1)[0];
+            msg += `\n${tpl.name}: ${last ? last.date+' ('+last.note+')' : '未记录'}`;
+        });
+        alert(msg);
+    }
+
+    function renderWeightList() {
+        const select = document.getElementById('weightPetSelect');
+        select.innerHTML = appData.pets.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+        const list = document.getElementById('weightList');
+        const petId = select.value;
+        const records = appData.weightRecords.filter(w=>w.petId===petId).sort((a,b)=> (b.date||'').localeCompare(a.date||''));
+        list.innerHTML = records.map(w=>`<div class="weight-item">
+            <span>${w.date} ${w.weight}kg ${w.note||''}</span>
+            <button class="btn-outline btn-small" onclick="app.deleteWeight('${w.id}')"><i data-lucide="trash-2"></i></button>
+        </div>`).join('') || '<div style="padding:10px;">暂无记录</div>';
+        lucide.createIcons();
+        select.onchange = renderWeightList;
+    }
+
+    function showAddWeight() {
+        document.getElementById('weightModalTitle').innerText = '记录体重';
+        document.getElementById('editWeightId').value = '';
+        document.getElementById('weightDate').value = getToday();
+        document.getElementById('weightValue').value = '';
+        document.getElementById('weightNote').value = '';
+        const select = document.getElementById('weightModalPetSelect');
+        select.innerHTML = appData.pets.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+        document.getElementById('weightModal').classList.add('show');
+    }
+    function closeWeightModal() { document.getElementById('weightModal').classList.remove('show'); }
+    function saveWeight() {
+        const id = document.getElementById('editWeightId').value;
+        const petId = document.getElementById('weightModalPetSelect').value;
+        const date = document.getElementById('weightDate').value;
+        const weight = parseFloat(document.getElementById('weightValue').value);
+        if(!weight) return;
+        const note = document.getElementById('weightNote').value;
+        if(id) {
+            const w = appData.weightRecords.find(w=>w.id===id);
+            w.petId=petId; w.date=date; w.weight=weight; w.note=note;
+        } else {
+            appData.weightRecords.push({ id: Date.now()+'', petId, date, weight, note });
+        }
+        saveData(); closeWeightModal(); renderWeightList(); showToast('已保存');
+    }
+    function deleteWeight(id) { appData.weightRecords = appData.weightRecords.filter(w=>w.id!==id); saveData(); renderWeightList(); }
+
+    function setStatTab(tab) {
+        statTab = tab;
+        document.querySelectorAll('#pageStats .tab').forEach(t=>t.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById('expenseStatContent').style.display = tab==='expense' ? 'block' : 'none';
+        document.getElementById('weightStatContent').style.display = tab==='weight' ? 'block' : 'none';
+        if(tab==='weight') renderWeightChart();
+    }
+
+    function renderStatsPage() {
+        const filtered = appData.records.filter(r=>{ if(!r.date) return false; const d=new Date(r.date); if(statPeriod==='day') return d.getFullYear()===statYear && d.getMonth()+1===statMonth && d.getDate()===statDay; if(statPeriod==='month') return d.getFullYear()===statYear && d.getMonth()+1===statMonth; return d.getFullYear()===statYear; });
+        const total = filtered.reduce((s,r)=> s+(parseFloat(r.amount)||0),0);
+        document.getElementById('statTotalAmount').innerText = `¥${total.toFixed(2)}`;
+        
+        const catTotals = {}; appData.categories.forEach(c=> catTotals[c.id]=0);
+        filtered.forEach(r=> { if(catTotals.hasOwnProperty(r.categoryId)) catTotals[r.categoryId] += parseFloat(r.amount)||0; });
+        const ctx = document.getElementById('pieChart').getContext('2d');
+        if(pieChart) pieChart.destroy();
+        pieChart = new Chart(ctx, { type:'pie', data:{ labels: appData.categories.map(c=>c.name), datasets:[{ data: appData.categories.map(c=>catTotals[c.id]||0), backgroundColor: ['#c4b5fd','#fde68a','#bae6fd'] }] } });
+
+        const months=[], totals=[];
+        for(let i=5; i>=0; i--) { const d=new Date(new Date().getFullYear(), new Date().getMonth()-i, 1); months.push(`${d.getMonth()+1}月`); totals.push(appData.records.filter(r=>{ if(!r.date) return false; const rd=new Date(r.date); return rd.getFullYear()===d.getFullYear() && rd.getMonth()===d.getMonth(); }).reduce((s,r)=> s+(parseFloat(r.amount)||0),0)); }
+        const tCtx = document.getElementById('trendChart').getContext('2d');
+        if(trendChart) trendChart.destroy();
+        trendChart = new Chart(tCtx, { type:'bar', data:{ labels:months, datasets:[{ data:totals, backgroundColor:'#c4b5fd' }] }, options:{ plugins:{ legend:{ display:false } } } });
+
+        const select = document.getElementById('weightStatPetSelect');
+        select.innerHTML = appData.pets.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+        select.onchange = renderWeightChart;
+        if(statTab==='weight') renderWeightChart();
+    }
+
+    function renderWeightChart() {
+        const petId = document.getElementById('weightStatPetSelect').value;
+        if(!petId) return;
+        const records = appData.weightRecords.filter(w=>w.petId===petId).sort((a,b)=> (a.date||'').localeCompare(b.date||''));
+        const ctx = document.getElementById('weightChart').getContext('2d');
+        if(weightChart) weightChart.destroy();
+        weightChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: records.map(r=>r.date), datasets: [{ label: '体重(kg)', data: records.map(r=>r.weight), borderColor: '#8b5cf6', tension: 0.2 }] }
+        });
+    }
+
+    function setStatPeriod(p) { statPeriod = p; renderStatsPage(); }
+
+    function showAddCategory() { document.getElementById('addCategoryPanel').style.display='block'; }
+    function saveCategory() {
+        const name = document.getElementById('newCategoryName').value.trim(); if(!name) return;
+        appData.categories.push({ id: Date.now()+'', name, icon: document.getElementById('newCategoryIcon').value||'cat' });
+        saveData(); showPage('pets');
+    }
+
+    function renderSettings() {
+        document.getElementById('expenseCategoryList').innerHTML = appData.expenseCategories.map((ec,i)=>`<div style="display:flex; justify-content:space-between;"><span>${ec.name}</span><button onclick="app.removeExpenseCategory(${i})"><i data-lucide="trash-2"></i></button></div>`).join('');
+        document.getElementById('taskTemplateList').innerHTML = appData.taskTemplates.map((t,i)=>`<div style="display:flex; justify-content:space-between;"><span>${t.name} (${t.thresholdDays}天)</span><button onclick="app.removeTaskTemplate(${i})"><i data-lucide="trash-2"></i></button></div>`).join('');
+        lucide.createIcons();
+    }
+
+    function addExpenseCategory() { const n=document.getElementById('newExpenseCatName').value.trim(); if(!n) return; appData.expenseCategories.push({ name:n }); saveData(); renderSettings(); }
+    function removeExpenseCategory(i) { appData.expenseCategories.splice(i,1); saveData(); renderSettings(); }
+    function addTaskTemplate() {
+        const n=document.getElementById('newTaskName').value.trim();
+        const d=document.getElementById('newTaskThreshold').value;
+        if(!n) return;
+        appData.taskTemplates.push({ id: Date.now()+'', name: n, thresholdDays: d?parseInt(d):null });
+        saveData(); renderSettings();
+    }
+    function removeTaskTemplate(i) { appData.taskTemplates.splice(i,1); saveData(); renderSettings(); }
+
+    function closeTaskModal() { document.getElementById('taskRecordModal').classList.remove('show'); }
+    function saveTaskRecord() {
+        const petId = document.getElementById('taskRecordPetId').value;
+        const tplId = document.getElementById('taskRecordTemplateId').value;
+        const pet = appData.pets.find(p=>p.id===petId);
+        if(!pet.tasks) pet.tasks = [];
+        let task = pet.tasks.find(t=>t.templateId===tplId);
+        if(!task) { task = { templateId: tplId, records: [] }; pet.tasks.push(task); }
+        task.records.push({ date: document.getElementById('taskRecordDate').value, note: document.getElementById('taskRecordNote').value });
+        saveData(); closeTaskModal(); renderHome(); showToast('已记录');
+    }
+
+    function resetAllData() { if(confirm('重置？')) { appData = JSON.parse(JSON.stringify(DEFAULT_DATA)); saveData(); showPage('home'); } }
+
+    // 简化其他功能
+    window.app = { showPage, setViewMode, prevPeriod, nextPeriod, filterByCategory, clearFilter, addRecord, setPetTab, renderWeightList, showAddWeight, closeWeightModal, saveWeight, deleteWeight, setStatTab, setStatPeriod, showAddCategory, saveCategory, addExpenseCategory, removeExpenseCategory, addTaskTemplate, removeTaskTemplate, quickRecordTask, closeTaskModal, saveTaskRecord, resetAllData, showTaskHistory, editPet: ()=>{}, showAddPet: ()=>{}, deleteCategory: ()=>{}, hideAddCategory: ()=>{}, hidePetEdit: ()=>{}, selectAvatar: ()=>{}, previewAvatar: ()=>{}, savePet: ()=>{}, exportCSV: ()=>{}, exportImage: ()=>{}, closeDrilldown: ()=>{}, statPrevPeriod: ()=>{}, statNextPeriod: ()=>{}, contextEdit: ()=>{}, contextDelete: ()=>{}, closeEditModal: ()=>{}, saveEditRecord: ()=>{}, showContextMenu: ()=>{}, toggleMonthRecords: ()=>{}, setStatPeriod, prevPeriod, nextPeriod };
+
+    // PWA
+    (function(){
+        const m = { name:"毛孩账本", short_name:"毛孩账本", start_url:".", display:"standalone", theme_color:"#c4b5fd", background_color:"#faf8f5", icons:[{ src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23c4b5fd'/%3E%3Ccircle cx='50' cy='50' r='38' fill='%23ede9fe'/%3E%3Ctext x='50' y='72' font-size='55' text-anchor='middle' fill='%238b5cf6'%3E🐾%3C/text%3E%3C/svg%3E", sizes:"512x512" }] };
+        document.getElementById('manifest').href = URL.createObjectURL(new Blob([JSON.stringify(m)], {type:'application/json'}));
+        if('serviceWorker' in navigator) navigator.serviceWorker.register(URL.createObjectURL(new Blob(['self.addEventListener("install",e=>{e.waitUntil(caches.open("v22").then(c=>c.addAll(["."])));self.skipWaiting()});self.addEventListener("fetch",e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match("."))))});'], {type:'application/javascript'})));
+    })();
+
+    loadData(); showPage('home');
+})();
+</script>
+</body>
+</html>
