@@ -593,6 +593,14 @@
         .avatar { width: 48px; height: 48px; border-radius: 24px; background: var(--primary-light); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
         
+        /* 家族卡片长按提示 */
+        .category-card-item {
+            transition: background 0.1s ease;
+        }
+        .category-card-item:active {
+            background: var(--primary-light);
+        }
+        
         .pet-item { 
             display: flex; 
             align-items: center; 
@@ -838,7 +846,7 @@
     <div class="card"><h3>预算设置</h3><div class="form-row"><label>月度预算</label><input type="number" id="monthlyBudget" step="0.01"><button class="btn" style="margin-top: 8px;" onclick="app.saveBudget()">保存预算</button></div><div id="budgetDisplay" style="margin-top: 12px;"></div></div>
     <div class="card"><h3>记账模板</h3><div id="templatesList"></div><div style="margin-top: 8px;"><button class="btn-secondary btn-small" onclick="app.openTemplateModal()"><i data-lucide="plus"></i> 添加模板</button></div></div>
     <div class="card"><h3>数据</h3><div style="display: flex; flex-wrap: wrap; gap: 8px;"><button class="data-btn" onclick="app.exportData()"><i data-lucide="download"></i> 导出数据</button><label class="data-btn" style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;"><i data-lucide="upload"></i> 导入数据<input type="file" id="importFileInput" accept=".json" onchange="app.importData(this)" style="display: none;"></label><button class="data-btn" onclick="app.resetAllData()" style="background: #dc2626;"><i data-lucide="alert-triangle"></i> 重置</button></div></div>
-    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v3.8 · 正式版</div>
+    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v3.8.1 · 正式版</div>
 </div>
 
 <div class="nav-bar">
@@ -959,14 +967,13 @@
         taskRecords: [],
         wishlists: [],
         templates: [],
-        taskTypes: []  // 自定义事项类型 [{ name: '驱虫', interval: 90 }]
+        taskTypes: []
     };
     
     let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    const STORAGE_KEY = 'pet_v38_full';
-    const OLD_STORAGE_KEYS = ['pet_v37_full', 'pet_v36_full', 'pet_v35_full'];
+    const STORAGE_KEY = 'pet_v381_full';
+    const OLD_STORAGE_KEYS = ['pet_v38_full', 'pet_v37_full', 'pet_v36_full'];
 
-    // 默认事项类型（仅在首次初始化时使用）
     const DEFAULT_TASK_TYPES = [
         { name: '驱虫', interval: 90 },
         { name: '疫苗', interval: 365 },
@@ -994,7 +1001,7 @@
     function getTaskInterval(taskType) {
         const customType = appData.taskTypes.find(t => t.name === taskType);
         if (customType) return customType.interval;
-        return 30; // 默认
+        return 30;
     }
     
     function getAllTaskTypes() {
@@ -1085,7 +1092,6 @@
             const types = getAllTaskTypes();
             if (types[parseInt(idx)]) {
                 if (appData.taskTypes.length === 0) {
-                    // 正在使用默认类型，需要先复制
                     appData.taskTypes = [...DEFAULT_TASK_TYPES];
                 }
                 appData.taskTypes[parseInt(idx)] = newType;
@@ -1930,15 +1936,69 @@
         } 
     }
 
+    // 长按删除家族相关变量
+    let pressTimer = null;
+    let longPressCategoryId = null;
+
+    function startPress(catId, element) {
+        pressTimer = setTimeout(() => {
+            if (confirm(`确定要删除家族「${appData.categories.find(c => c.id === catId)?.name}」吗？\n家族下的所有宠物及相关数据也会被删除！`)) {
+                deleteCategoryById(catId);
+            }
+            pressTimer = null;
+            longPressCategoryId = null;
+        }, 500);
+        longPressCategoryId = catId;
+        // 添加视觉反馈
+        element.style.backgroundColor = 'var(--primary-light)';
+    }
+
+    function cancelPress(element) {
+        if (pressTimer) {
+            clearTimeout(pressTimer);
+            pressTimer = null;
+        }
+        if (element) element.style.backgroundColor = '';
+        longPressCategoryId = null;
+    }
+
+    function deleteCategoryById(catId) {
+        const petsToDelete = appData.pets.filter(p => p.categoryId === catId);
+        petsToDelete.forEach(pet => {
+            appData.records = appData.records.filter(r => r.petId !== pet.id);
+            appData.weightRecords = appData.weightRecords.filter(w => w.petId !== pet.id);
+            appData.lifeEvents = appData.lifeEvents.filter(e => e.petId !== pet.id);
+            appData.taskRecords = appData.taskRecords.filter(t => t.petId !== pet.id);
+        });
+        appData.categories = appData.categories.filter(c => c.id !== catId);
+        appData.pets = appData.pets.filter(p => p.categoryId !== catId);
+        saveData();
+        renderPetsPage();
+        refreshAllPetSelects();
+        showToast('家族已删除');
+    }
+
     function renderPetsPage() { 
         const container = document.getElementById('categoryListContainer'); 
         if (!appData.categories.length) { container.innerHTML = '<div class="card">暂无家族，点击"家族"创建</div>'; return; } 
         let html = ''; 
         appData.categories.forEach(cat => { 
-            html += `<div class="card"><div style="display:flex; justify-content:space-between; margin-bottom: 12px;"><h3><i data-lucide="${cat.icon || 'cat'}"></i> ${cat.name}</h3><button class="btn-delete" onclick="app.deleteCategory('${cat.id}')"><i data-lucide="trash-2"></i> 删除家族</button></div>`; 
+            html += `<div class="card category-card-item" data-cat-id="${cat.id}" 
+                        ontouchstart="app.startPress('${cat.id}', this)"
+                        ontouchend="app.cancelPress(this)"
+                        ontouchmove="app.cancelPress(this)"
+                        onmousedown="app.startPress('${cat.id}', this)"
+                        onmouseup="app.cancelPress(this)"
+                        onmouseleave="app.cancelPress(this)">
+                        <div style="display:flex; justify-content:space-between; margin-bottom: 12px;">
+                            <h3><i data-lucide="${cat.icon || 'cat'}"></i> ${cat.name}</h3>
+                        </div>`; 
             const pets = appData.pets.filter(p => p.categoryId === cat.id); 
-            if (pets.length) { pets.forEach(p => { html += `<div class="pet-item" data-pet-id="${p.id}" onclick="app.showPetDetail('${p.id}')" oncontextmenu="app.showPetContextMenu(event,'${p.id}');return false;"><div class="avatar">${p.avatar ? `<img src="${p.avatar}">` : `<i data-lucide="${cat.icon || 'cat'}"></i>`}</div><div class="pet-info" style="flex:1;"><b>${p.name}</b><br><small>${p.birthday || '未设置生日'}</small></div></div>`; }); } 
-            else { html += '<div style="padding:16px;text-align:center;color:var(--text-sub);">暂无宠物</div>'; } 
+            if (pets.length) { 
+                pets.forEach(p => { 
+                    html += `<div class="pet-item" data-pet-id="${p.id}" onclick="app.showPetDetail('${p.id}')" oncontextmenu="app.showPetContextMenu(event,'${p.id}');return false;"><div class="avatar">${p.avatar ? `<img src="${p.avatar}">` : `<i data-lucide="${cat.icon || 'cat'}"></i>`}</div><div class="pet-info" style="flex:1;"><b>${p.name}</b><br><small>${p.birthday || '未设置生日'}</small></div></div>`; 
+                }); 
+            } else { html += '<div style="padding:16px;text-align:center;color:var(--text-sub);">暂无宠物</div>'; } 
             html += `<div style="margin-top: 12px;"><button class="btn-secondary" onclick="app.showAddPet('${cat.id}')"><i data-lucide="plus"></i> 添加宠物</button></div></div>`; 
         }); 
         container.innerHTML = html; 
@@ -2049,9 +2109,9 @@
         filterRecords, setDateFilter, setPetFilter, setCategoryFilter, clearDateRange, clearSearch,
         toggleTemplatePanel, applyTemplate, openTemplateManageModal, closeTemplateManageModal,
         openAddTemplateModal, closeAddTemplateModal, saveTemplate, editTemplate, deleteTemplate,
-        // 事项类型管理
         openTaskTypeManageModal, closeTaskTypeManageModal, openAddTaskTypeModal, closeAddTaskTypeModal,
-        saveTaskType, editTaskType, deleteTaskType
+        saveTaskType, editTaskType, deleteTaskType,
+        startPress, cancelPress
     };
 
     loadData();
