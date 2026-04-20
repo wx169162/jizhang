@@ -211,7 +211,6 @@
         .category-card:active { transform: scale(0.95); }
         .category-card.active { border: 2px solid var(--primary-dark); background: var(--primary-light); }
         
-        /* 日程提醒卡片样式 */
         .reminder-item {
             display: flex;
             align-items: center;
@@ -271,6 +270,41 @@
             cursor: pointer;
         }
         .reminder-complete:active { transform: scale(0.95); }
+        
+        /* 体重记录列表样式 */
+        .weight-record-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .weight-record-info {
+            flex: 1;
+        }
+        .weight-record-date {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .weight-record-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-left: 8px;
+        }
+        .weight-record-note {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-top: 2px;
+        }
+        .weight-record-delete {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            cursor: pointer;
+            padding: 8px;
+        }
+        .weight-record-delete:active { transform: scale(0.9); color: #dc2626; }
         
         input, select, textarea { 
             width: 100%; 
@@ -416,6 +450,15 @@
         
         .form-row { margin-bottom: 12px; }
         .form-row label { display: block; margin-bottom: 4px; font-size: 13px; color: var(--text-sub); }
+        
+        .empty-chart {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 160px;
+            color: var(--text-sub);
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -441,7 +484,6 @@
         <div style="font-size: 32px; font-weight: 700; color: var(--primary-dark);" id="periodTotalAmount">¥0.00</div>
     </div>
     
-    <!-- 日程提醒卡片 -->
     <div class="card" id="scheduleReminderCard">
         <h3 style="font-size: 16px; margin-bottom: 12px;"><i data-lucide="calendar"></i> 日程提醒</h3>
         <div id="scheduleReminderList"></div>
@@ -475,7 +517,7 @@
 <!-- 悬浮记账按钮 -->
 <button class="fab" onclick="app.openQuickRecordModal()"><i data-lucide="plus"></i></button>
 
-<!-- 记录页（愿望清单 / 体重记录 / 日程记录） -->
+<!-- 记录页 -->
 <div id="pageRecord" class="page">
     <div class="header"><h2>记录</h2></div>
     <div class="tabs">
@@ -497,14 +539,21 @@
             <div class="form-row"><label>宠物</label><select id="weightRecordPetSelect"></select></div>
             <div class="form-row"><label>日期</label><input type="date" id="weightRecordDate"></div>
             <div class="form-row"><label>体重 (kg)</label><input type="number" id="weightRecordValue" step="0.01"></div>
-            <div class="form-row"><label>备注</label><input type="text" id="weightRecordNote"></div>
+            <div class="form-row"><label>备注</label><input type="text" id="weightRecordNote" placeholder="可选，如：驱虫后、饭前等"></div>
             <div class="modal-buttons">
                 <button class="btn" onclick="app.addWeightRecord()"><i data-lucide="plus"></i> 保存</button>
             </div>
         </div>
         <div class="card">
             <h3>体重变化趋势</h3>
-            <div style="height:200px;"><canvas id="weightTrendChart"></canvas></div>
+            <div style="height:200px;">
+                <canvas id="weightTrendChart" style="display: none;"></canvas>
+                <div id="weightChartEmpty" class="empty-chart" style="display: none;">暂无体重数据，添加记录后显示图表</div>
+            </div>
+        </div>
+        <div class="card">
+            <h3>体重记录列表</h3>
+            <div id="weightRecordsList"></div>
         </div>
     </div>
     <div id="scheduleRecordContent" style="display: none;">
@@ -587,7 +636,7 @@
     <div class="card"><h3>定期记账</h3><div id="recurringList"></div></div>
     <div class="card"><h3>预算设置</h3><div class="form-row"><label>月度预算</label><input type="number" id="monthlyBudget" step="0.01" placeholder="输入预算金额"><button class="btn btn-small" style="margin-top: 8px;" onclick="app.saveBudget()">保存预算</button></div><div id="budgetDisplay" style="margin-top: 12px;"></div></div>
     <div class="card"><h3>数据</h3><div style="display: flex; flex-wrap: wrap; gap: 8px;"><button class="data-btn" onclick="app.exportData()"><i data-lucide="download"></i> 导出数据</button><label class="data-btn" style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;"><i data-lucide="upload"></i> 导入数据<input type="file" id="importFileInput" accept=".json" onchange="app.importData(this)" style="display: none;"></label><button class="data-btn" onclick="app.resetAllData()" style="background: #dc2626;"><i data-lucide="alert-triangle"></i> 重置</button></div></div>
-    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v3.1 · 正式版</div>
+    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v3.2 · 正式版</div>
 </div>
 
 <!-- 底部导航 -->
@@ -628,8 +677,8 @@
     };
     
     let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    const STORAGE_KEY = 'pet_v31_full';
-    const OLD_STORAGE_KEYS = ['pet_v30_full', 'pet_v29_full', 'pet_v28_full'];
+    const STORAGE_KEY = 'pet_v32_full';
+    const OLD_STORAGE_KEYS = ['pet_v31_full', 'pet_v30_full', 'pet_v29_full'];
 
     const TASK_INTERVALS = {
         '驱虫': 90,
@@ -718,7 +767,6 @@
         else return '小于1个月';
     }
 
-    // 刷新所有宠物下拉框（修复bug的关键）
     function refreshAllPetSelects() {
         const petOptions = '<option value="">无</option>' + appData.pets.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
         
@@ -846,6 +894,154 @@
         });
         container.innerHTML = html;
         lucide.createIcons();
+    }
+
+    // 体重记录
+    function renderWeightRecordsList() {
+        const petId = document.getElementById('weightRecordPetSelect').value;
+        const container = document.getElementById('weightRecordsList');
+        if (!container) return;
+        
+        if (!petId) {
+            container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-sub);">请先选择宠物</div>';
+            return;
+        }
+        
+        const records = appData.weightRecords.filter(w => w.petId === petId).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+        
+        if (records.length === 0) {
+            container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-sub);">暂无体重记录</div>';
+            return;
+        }
+        
+        let html = '';
+        records.forEach(record => {
+            html += `
+                <div class="weight-record-item">
+                    <div class="weight-record-info">
+                        <div>
+                            <span class="weight-record-date">${formatYMD(record.date)}</span>
+                            <span class="weight-record-value">${record.weight} kg</span>
+                        </div>
+                        ${record.note ? `<div class="weight-record-note">📝 ${escapeHtml(record.note)}</div>` : ''}
+                    </div>
+                    <button class="weight-record-delete" onclick="app.deleteWeightRecord('${record.id}')">
+                        <i data-lucide="trash-2" style="width: 18px;"></i>
+                    </button>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+        lucide.createIcons();
+    }
+    
+    function renderWeightTrendChart() {
+        const petId = document.getElementById('weightRecordPetSelect').value;
+        const canvas = document.getElementById('weightTrendChart');
+        const emptyDiv = document.getElementById('weightChartEmpty');
+        
+        if (!petId) {
+            canvas.style.display = 'none';
+            emptyDiv.style.display = 'flex';
+            emptyDiv.innerHTML = '请先选择宠物';
+            return;
+        }
+        
+        const records = appData.weightRecords.filter(w => w.petId === petId).sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+        
+        if (records.length === 0) {
+            canvas.style.display = 'none';
+            emptyDiv.style.display = 'flex';
+            emptyDiv.innerHTML = '暂无体重数据，添加记录后显示图表';
+            return;
+        }
+        
+        canvas.style.display = 'block';
+        emptyDiv.style.display = 'none';
+        
+        const ctx = canvas.getContext('2d');
+        if (weightTrendChart) weightTrendChart.destroy();
+        
+        weightTrendChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: records.map(r => formatYMD(r.date)),
+                datasets: [{
+                    label: '体重 (kg)',
+                    data: records.map(r => r.weight),
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    tension: 0.2,
+                    fill: true,
+                    pointBackgroundColor: '#8b5cf6',
+                    pointBorderColor: '#fff',
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: (ctx) => `${ctx.raw} kg` } }
+                },
+                scales: { y: { title: { display: true, text: 'kg', font: { size: 11 } } } }
+            }
+        });
+    }
+    
+    function addWeightRecord() {
+        const petId = document.getElementById('weightRecordPetSelect').value;
+        if (!petId) return showToast('请选择宠物', false);
+        
+        const date = document.getElementById('weightRecordDate').value;
+        if (!date) return showToast('请选择日期', false);
+        
+        const weight = parseFloat(document.getElementById('weightRecordValue').value);
+        if (!weight || weight <= 0) return showToast('请输入有效体重', false);
+        
+        const note = document.getElementById('weightRecordNote').value || '';
+        
+        // 检查同一天是否已有记录
+        const existing = appData.weightRecords.find(w => w.petId === petId && w.date === date);
+        if (existing) {
+            if (confirm(`${date} 已有体重记录 ${existing.weight}kg，是否覆盖？`)) {
+                existing.weight = weight;
+                existing.note = note;
+                saveData();
+                showToast('已更新');
+            } else {
+                return;
+            }
+        } else {
+            appData.weightRecords.push({
+                id: Date.now() + Math.random(),
+                petId: petId,
+                date: date,
+                weight: weight,
+                note: note
+            });
+            saveData();
+            showToast('体重已记录');
+        }
+        
+        document.getElementById('weightRecordValue').value = '';
+        document.getElementById('weightRecordNote').value = '';
+        document.getElementById('weightRecordDate').value = getToday();
+        
+        renderWeightRecordsList();
+        renderWeightTrendChart();
+    }
+    
+    function deleteWeightRecord(id) {
+        if (confirm('删除这条体重记录？')) {
+            appData.weightRecords = appData.weightRecords.filter(w => w.id != id);
+            saveData();
+            renderWeightRecordsList();
+            renderWeightTrendChart();
+            showToast('已删除');
+        }
     }
 
     // 愿望清单
@@ -1035,11 +1231,10 @@
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.querySelector(`.nav-item[data-page="${pageId}"]`)?.classList.add('active');
         
-        // 每次切换页面都刷新下拉框
         refreshAllPetSelects();
         
         if (pageId === 'home') { renderHome(); renderScheduleReminders(); renderWishlistPreview(); }
-        else if (pageId === 'record') { renderWishlistFull(); renderWeightTrendChart(); renderRecentTasks(); }
+        else if (pageId === 'record') { renderWishlistFull(); renderWeightRecordsList(); renderWeightTrendChart(); renderRecentTasks(); }
         else if (pageId === 'pets') renderPetsPage();
         else if (pageId === 'stats') renderStatsPage();
         else if (pageId === 'settings') renderSettings();
@@ -1053,7 +1248,17 @@
         document.getElementById('wishRecordContent').style.display = tab === 'wish' ? 'block' : 'none';
         document.getElementById('weightRecordContent').style.display = tab === 'weight' ? 'block' : 'none';
         document.getElementById('scheduleRecordContent').style.display = tab === 'schedule' ? 'block' : 'none';
-        if (tab === 'weight') { refreshAllPetSelects(); renderWeightTrendChart(); }
+        if (tab === 'weight') { 
+            refreshAllPetSelects();
+            // 监听宠物选择变化
+            const weightSelect = document.getElementById('weightRecordPetSelect');
+            weightSelect.onchange = () => {
+                renderWeightRecordsList();
+                renderWeightTrendChart();
+            };
+            renderWeightRecordsList();
+            renderWeightTrendChart();
+        }
         if (tab === 'schedule') { refreshAllPetSelects(); renderRecentTasks(); }
     }
 
@@ -1135,28 +1340,6 @@
             if (document.getElementById('pageHome').classList.contains('active')) renderHome(); 
             showToast('已删除'); 
         } 
-    }
-
-    function addWeightRecord() { 
-        const petId = document.getElementById('weightRecordPetSelect').value; 
-        if (!petId) return showToast('请选择宠物', false); 
-        const weight = parseFloat(document.getElementById('weightRecordValue').value); 
-        if (!weight) return showToast('请输入体重', false); 
-        appData.weightRecords.push({ id: Date.now() + Math.random(), petId, date: document.getElementById('weightRecordDate').value, weight, note: document.getElementById('weightRecordNote').value || '' }); 
-        saveData(); 
-        showToast('体重已记录'); 
-        document.getElementById('weightRecordValue').value = ''; 
-        document.getElementById('weightRecordNote').value = ''; 
-        renderWeightTrendChart(); 
-    }
-    
-    function renderWeightTrendChart() { 
-        const petId = document.getElementById('weightRecordPetSelect').value; 
-        if (!petId) return; 
-        const records = appData.weightRecords.filter(w => w.petId === petId).sort((a, b) => (a.date || '').localeCompare(b.date || '')); 
-        const ctx = document.getElementById('weightTrendChart').getContext('2d'); 
-        if (weightTrendChart) weightTrendChart.destroy(); 
-        weightTrendChart = new Chart(ctx, { type: 'line', data: { labels: records.map(r => r.date), datasets: [{ label: '体重(kg)', data: records.map(r => r.weight), borderColor: '#8b5cf6', tension: 0.2, fill: false }] } }); 
     }
 
     function renderPetsPage() { 
@@ -1268,7 +1451,7 @@
     window.app = {
         showPage, toggleViewMode, prevPeriod, nextPeriod, filterByCategory, clearFilter,
         openQuickRecordModal, closeQuickRecordModal, saveQuickRecord,
-        addWeightRecord, setRecordTab,
+        addWeightRecord, deleteWeightRecord, setRecordTab,
         showContextMenu, contextEdit, contextDelete, closeEditModal, saveEditRecord,
         showAddCategory, closeAddCategory, saveCategory, deleteCategory,
         showAddPet, editPet, closePetEdit, selectAvatar, previewAvatar, savePet,
