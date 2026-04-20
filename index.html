@@ -89,6 +89,100 @@
             display: none;
         }
         
+        /* 筛选栏样式 */
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .filter-toggle {
+            background: var(--primary-light);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+        .filter-toggle:active { transform: scale(0.96); }
+        .filter-panel {
+            margin-top: 8px;
+            margin-bottom: 12px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-light);
+        }
+        .filter-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .filter-chip {
+            background: var(--primary-light);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .filter-chip.active {
+            background: var(--primary-dark);
+            color: white;
+        }
+        .filter-chip .amount {
+            font-size: 11px;
+            margin-left: 4px;
+            opacity: 0.8;
+        }
+        .date-range {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .date-range input {
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 20px;
+            width: auto;
+        }
+        .search-bar {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            padding: 8px 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .search-bar i {
+            color: var(--text-sub);
+            flex-shrink: 0;
+        }
+        .search-bar input {
+            flex: 1;
+            border: none;
+            padding: 6px 0;
+            background: transparent;
+            font-size: 14px;
+        }
+        .search-bar input:focus { outline: none; }
+        .clear-search {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            cursor: pointer;
+            padding: 4px;
+        }
+        
         .btn { 
             background: var(--primary-dark); 
             color: white; 
@@ -184,9 +278,7 @@
             gap: 10px;
             margin-top: 16px;
         }
-        .modal-buttons button {
-            flex: 1;
-        }
+        .modal-buttons button { flex: 1; }
         
         .nav-bar { 
             position: fixed; 
@@ -293,149 +385,12 @@
             padding: 10px 0;
             border-bottom: 1px solid var(--border-light);
         }
-        .weight-record-info {
-            flex: 1;
-        }
-        .weight-record-date {
-            font-size: 14px;
-            font-weight: 500;
-        }
-        .weight-record-value {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--primary-dark);
-            margin-left: 8px;
-        }
-        .weight-record-note {
-            font-size: 12px;
-            color: var(--text-sub);
-            margin-top: 2px;
-        }
-        .weight-record-delete {
-            background: none;
-            border: none;
-            color: var(--text-sub);
-            cursor: pointer;
-            padding: 8px;
-        }
+        .weight-record-info { flex: 1; }
+        .weight-record-date { font-size: 14px; font-weight: 500; }
+        .weight-record-value { font-size: 16px; font-weight: 600; color: var(--primary-dark); margin-left: 8px; }
+        .weight-record-note { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+        .weight-record-delete { background: none; border: none; color: var(--text-sub); cursor: pointer; padding: 8px; }
         .weight-record-delete:active { transform: scale(0.9); color: #dc2626; }
-        
-        .search-bar {
-            background: var(--card-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 30px;
-            padding: 8px 16px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .search-bar i {
-            color: var(--text-sub);
-            flex-shrink: 0;
-        }
-        .search-bar input {
-            flex: 1;
-            border: none;
-            padding: 6px 0;
-            background: transparent;
-            font-size: 14px;
-        }
-        .search-bar input:focus {
-            outline: none;
-        }
-        .filter-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-        .filter-chip {
-            background: var(--primary-light);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .filter-chip.active {
-            background: var(--primary-dark);
-            color: white;
-        }
-        .date-range {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .date-range input {
-            padding: 6px 10px;
-            font-size: 12px;
-            border-radius: 20px;
-            width: auto;
-        }
-        .clear-search {
-            background: none;
-            border: none;
-            color: var(--text-sub);
-            cursor: pointer;
-            padding: 4px;
-        }
-        
-        .category-chip {
-            background: var(--primary-light);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .category-chip.active {
-            background: var(--primary-dark);
-            color: white;
-        }
-        .category-chip .amount {
-            font-size: 11px;
-            margin-left: 4px;
-            opacity: 0.8;
-        }
-        
-        input, select, textarea { 
-            width: 100%; 
-            padding: 10px 12px; 
-            border: 1px solid var(--border-light); 
-            border-radius: 14px; 
-            background: var(--card-bg); 
-            font-size: 15px; 
-            font-family: inherit; 
-        }
-        input:focus, select:focus, textarea:focus { 
-            outline: none; 
-            border-color: var(--primary-dark); 
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
-        }
-        
-        .avatar { width: 48px; height: 48px; border-radius: 24px; background: var(--primary-light); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .pet-item { 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            padding: 10px 0; 
-            border-bottom: 1px solid var(--border-light); 
-            cursor: pointer; 
-        }
-        .pet-item:active { transform: scale(0.98); background: var(--primary-light); border-radius: 12px; padding: 10px; margin: 0 -10px; }
-        
-        .tabs { display: flex; gap: 4px; margin-bottom: 14px; }
-        .tab { flex: 1; padding: 8px; border: none; background: transparent; border-radius: 20px; font-weight: 500; cursor: pointer; }
-        .tab:active { transform: scale(0.96); }
-        .tab.active { background: var(--primary-dark); color: white; }
         
         .record-card { 
             background: var(--card-bg); 
@@ -452,21 +407,10 @@
         .context-menu-item:active { background: var(--primary-light); }
         .context-menu-item.delete { color: #dc2626; }
         
-        .analysis-layout {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
+        .analysis-layout { display: flex; gap: 16px; flex-wrap: wrap; }
         .pie-container { flex: 1; min-width: 150px; }
         .detail-container { flex: 1; min-width: 150px; max-height: 180px; overflow-y: auto; padding-left: 12px; border-left: 1px solid var(--border-light); }
-        .pie-detail-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border-light);
-            cursor: pointer;
-        }
+        .pie-detail-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-light); cursor: pointer; }
         .pie-detail-color { width: 12px; height: 12px; border-radius: 12px; display: inline-block; margin-right: 8px; }
         
         .pet-selector { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 12px; padding-bottom: 8px; }
@@ -553,6 +497,24 @@
         .form-row { margin-bottom: 12px; }
         .form-row label { display: block; margin-bottom: 4px; font-size: 13px; color: var(--text-sub); }
         
+        .avatar { width: 48px; height: 48px; border-radius: 24px; background: var(--primary-light); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .pet-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 10px 0; 
+            border-bottom: 1px solid var(--border-light); 
+            cursor: pointer; 
+        }
+        .pet-item:active { transform: scale(0.98); background: var(--primary-light); border-radius: 12px; padding: 10px; margin: 0 -10px; }
+        
+        .tabs { display: flex; gap: 4px; margin-bottom: 14px; }
+        .tab { flex: 1; padding: 8px; border: none; background: transparent; border-radius: 20px; font-weight: 500; cursor: pointer; }
+        .tab:active { transform: scale(0.96); }
+        .tab.active { background: var(--primary-dark); color: white; }
+        
         @media (max-width: 400px) {
             .analysis-layout { flex-direction: column; }
             .detail-container { border-left: none; border-top: 1px solid var(--border-light); padding-left: 0; padding-top: 12px; }
@@ -597,38 +559,45 @@
         </div>
     </div>
     
-    <!-- 流水卡片（含家族筛选） -->
+    <!-- 流水卡片 -->
     <div class="card">
-        <h3 style="font-size: 16px; margin-bottom: 12px;"><i data-lucide="list"></i> 流水</h3>
+        <div class="filter-header">
+            <h3 style="font-size: 16px;"><i data-lucide="list"></i> 流水</h3>
+            <button class="filter-toggle" id="filterToggleBtn" onclick="app.toggleFilterPanel()">
+                <i data-lucide="sliders-horizontal"></i> 筛选
+            </button>
+        </div>
         
-        <!-- 家族筛选芯片（合并后的） -->
-        <div class="filter-row" id="categoryFilterRow"></div>
-        
-        <!-- 搜索栏 -->
+        <!-- 搜索栏（始终显示） -->
         <div class="search-bar">
             <i data-lucide="search" style="width: 18px;"></i>
             <input type="text" id="searchKeyword" placeholder="搜索金额/备注/类别..." oninput="app.filterRecords()">
             <button class="clear-search" onclick="app.clearSearch()" id="clearSearchBtn" style="display: none;"><i data-lucide="x"></i></button>
         </div>
         
-        <!-- 日期筛选 -->
-        <div class="filter-row">
-            <div class="filter-chip" data-filter="date" onclick="app.setDateFilter('week')">本周</div>
-            <div class="filter-chip" data-filter="date" onclick="app.setDateFilter('month')">本月</div>
-            <div class="filter-chip" data-filter="date" onclick="app.setDateFilter('year')">今年</div>
-            <div class="filter-chip" data-filter="date" onclick="app.setDateFilter('custom')" id="customDateChip">自定义</div>
+        <!-- 筛选面板（可折叠） -->
+        <div id="filterPanel" style="display: none;">
+            <div class="filter-panel">
+                <!-- 家族筛选 -->
+                <div class="filter-row" id="categoryFilterRow"></div>
+                <!-- 宠物筛选（动态，根据选中的家族变化） -->
+                <div class="filter-row" id="petFilterRow"></div>
+                <!-- 日期筛选 -->
+                <div class="filter-row">
+                    <div class="filter-chip" data-filter="date" onclick="app.setDateFilter('week')">本周</div>
+                    <div class="filter-chip" data-filter="date" onclick="app.setDateFilter('month')">本月</div>
+                    <div class="filter-chip" data-filter="date" onclick="app.setDateFilter('year')">今年</div>
+                    <div class="filter-chip" data-filter="date" onclick="app.setDateFilter('custom')" id="customDateChip">自定义</div>
+                </div>
+                <!-- 自定义日期范围 -->
+                <div id="customDateRange" style="display: none;" class="date-range">
+                    <input type="date" id="dateFrom" onchange="app.filterRecords()">
+                    <span>—</span>
+                    <input type="date" id="dateTo" onchange="app.filterRecords()">
+                    <button class="btn-outline btn-small" onclick="app.clearDateRange()">清除</button>
+                </div>
+            </div>
         </div>
-        
-        <!-- 自定义日期范围 -->
-        <div id="customDateRange" style="display: none; margin-bottom: 12px;" class="date-range">
-            <input type="date" id="dateFrom" onchange="app.filterRecords()">
-            <span>—</span>
-            <input type="date" id="dateTo" onchange="app.filterRecords()">
-            <button class="btn-outline btn-small" onclick="app.clearDateRange()">清除</button>
-        </div>
-        
-        <!-- 宠物筛选 -->
-        <div class="filter-row" id="petFilterRow"></div>
         
         <div id="recordsContainer"></div>
     </div>
@@ -756,7 +725,7 @@
     <div class="card"><h3>定期记账</h3><div id="recurringList"></div></div>
     <div class="card"><h3>预算设置</h3><div class="form-row"><label>月度预算</label><input type="number" id="monthlyBudget" step="0.01" placeholder="输入预算金额"><button class="btn btn-small" style="margin-top: 8px;" onclick="app.saveBudget()">保存预算</button></div><div id="budgetDisplay" style="margin-top: 12px;"></div></div>
     <div class="card"><h3>数据</h3><div style="display: flex; flex-wrap: wrap; gap: 8px;"><button class="data-btn" onclick="app.exportData()"><i data-lucide="download"></i> 导出数据</button><label class="data-btn" style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;"><i data-lucide="upload"></i> 导入数据<input type="file" id="importFileInput" accept=".json" onchange="app.importData(this)" style="display: none;"></label><button class="data-btn" onclick="app.resetAllData()" style="background: #dc2626;"><i data-lucide="alert-triangle"></i> 重置</button></div></div>
-    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v3.4 · 正式版</div>
+    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v3.5 · 正式版</div>
 </div>
 
 <!-- 底部导航 -->
@@ -797,8 +766,8 @@
     };
     
     let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    const STORAGE_KEY = 'pet_v34_full';
-    const OLD_STORAGE_KEYS = ['pet_v33_full', 'pet_v32_full', 'pet_v31_full'];
+    const STORAGE_KEY = 'pet_v35_full';
+    const OLD_STORAGE_KEYS = ['pet_v34_full', 'pet_v33_full', 'pet_v32_full'];
 
     const TASK_INTERVALS = {
         '驱虫': 90,
@@ -810,10 +779,8 @@
         '其他': 30
     };
     
-    let collapseState = {
-        scheduleReminder: true
-    };
-    
+    let collapseState = { scheduleReminder: true };
+    let filterPanelOpen = false;  // 筛选面板展开状态
     let searchFilters = {
         keyword: '',
         dateFilter: 'month',
@@ -838,6 +805,10 @@
             if (savedCollapse) {
                 const parsed = JSON.parse(savedCollapse);
                 collapseState = { ...collapseState, ...parsed };
+            }
+            const savedFilterPanel = localStorage.getItem('pet_filter_panel_open');
+            if (savedFilterPanel !== null) {
+                filterPanelOpen = savedFilterPanel === 'true';
             }
         } catch(e) {}
         
@@ -930,6 +901,20 @@
         }
         lucide.createIcons();
     }
+    
+    function toggleFilterPanel() {
+        filterPanelOpen = !filterPanelOpen;
+        localStorage.setItem('pet_filter_panel_open', filterPanelOpen);
+        const panel = document.getElementById('filterPanel');
+        const btn = document.getElementById('filterToggleBtn');
+        if (panel) {
+            panel.style.display = filterPanelOpen ? 'block' : 'none';
+        }
+        if (btn) {
+            btn.innerHTML = filterPanelOpen ? '<i data-lucide="sliders-horizontal"></i> 收起' : '<i data-lucide="sliders-horizontal"></i> 筛选';
+            lucide.createIcons();
+        }
+    }
 
     function showToast(msg, ok=true) {
         const toast = document.createElement('div');
@@ -976,15 +961,14 @@
         const eventPetSelect = document.getElementById('eventPetSelect');
         if (eventPetSelect) eventPetSelect.innerHTML = appData.pets.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
         
-        renderPetFilterRow();
         renderCategoryFilterRow();
+        renderPetFilterRow();
     }
     
     function renderCategoryFilterRow() {
         const container = document.getElementById('categoryFilterRow');
         if (!container) return;
         
-        // 计算当前视图下的各家族消费金额
         const isMonthView = viewMode === 'month';
         const periodFilter = (r) => {
             if (!r.date) return false;
@@ -997,19 +981,19 @@
         };
         
         let html = '';
+        // 全部家族
+        const allTotal = appData.records.filter(periodFilter).reduce((s, r) => s + (parseFloat(r.amount) || 0), 0);
+        const allActive = (searchFilters.categoryId === '' && searchFilters.petId === '') ? 'active' : '';
+        html += `<div class="filter-chip ${allActive}" onclick="app.setCategoryFilter('')">🏠 全部${allTotal > 0 ? `<span class="amount">¥${allTotal.toFixed(0)}</span>` : ''}</div>`;
+        
         appData.categories.forEach(cat => {
             const catTotal = appData.records.filter(r => r.categoryId === cat.id && periodFilter(r)).reduce((s, r) => s + (parseFloat(r.amount) || 0), 0);
-            const activeClass = searchFilters.categoryId === cat.id ? 'active' : '';
-            html += `<div class="category-chip ${activeClass}" onclick="app.setCategoryFilter('${cat.id}')">
+            const activeClass = (searchFilters.categoryId === cat.id && !searchFilters.petId) ? 'active' : '';
+            html += `<div class="filter-chip ${activeClass}" onclick="app.setCategoryFilter('${cat.id}')">
                 <i data-lucide="${cat.icon || 'cat'}" style="width: 14px;"></i> ${cat.name}
                 ${catTotal > 0 ? `<span class="amount">¥${catTotal.toFixed(0)}</span>` : ''}
             </div>`;
         });
-        if (appData.categories.length > 0) {
-            const allActive = searchFilters.categoryId === '' ? 'active' : '';
-            const allTotal = appData.records.filter(periodFilter).reduce((s, r) => s + (parseFloat(r.amount) || 0), 0);
-            html = `<div class="category-chip ${allActive}" onclick="app.setCategoryFilter('')">🏠 全部 ${allTotal > 0 ? `<span class="amount">¥${allTotal.toFixed(0)}</span>` : ''}</div>` + html;
-        }
         container.innerHTML = html;
         setTimeout(() => lucide.createIcons(), 10);
     }
@@ -1017,23 +1001,41 @@
     function renderPetFilterRow() {
         const container = document.getElementById('petFilterRow');
         if (!container) return;
-        let html = '<div class="filter-chip" data-pet="" onclick="app.setPetFilter(\'\')">全部宠物</div>';
-        appData.pets.forEach(pet => {
+        
+        // 如果没有选中的家族，不显示宠物筛选
+        if (!searchFilters.categoryId) {
+            container.innerHTML = '';
+            return;
+        }
+        
+        const pets = appData.pets.filter(p => p.categoryId === searchFilters.categoryId);
+        if (pets.length === 0) {
+            container.innerHTML = '<div style="padding: 4px 0; font-size: 12px; color: var(--text-sub);">该家族暂无宠物</div>';
+            return;
+        }
+        
+        let html = '';
+        pets.forEach(pet => {
             const activeClass = searchFilters.petId === pet.id ? 'active' : '';
-            html += `<div class="filter-chip ${activeClass}" data-pet="${pet.id}" onclick="app.setPetFilter('${pet.id}')">${pet.name}</div>`;
+            html += `<div class="filter-chip ${activeClass}" onclick="app.setPetFilter('${pet.id}')">😺 ${pet.name}</div>`;
         });
         container.innerHTML = html;
     }
     
     function setCategoryFilter(categoryId) {
         searchFilters.categoryId = categoryId;
+        if (!categoryId) {
+            searchFilters.petId = '';
+        }
         renderCategoryFilterRow();
+        renderPetFilterRow();
         filterRecords();
     }
     
     function setPetFilter(petId) {
         searchFilters.petId = petId;
         renderPetFilterRow();
+        renderCategoryFilterRow(); // 更新家族高亮
         filterRecords();
     }
     
@@ -1073,7 +1075,6 @@
         if (searchFilters.categoryId) {
             filtered = filtered.filter(r => r.categoryId === searchFilters.categoryId);
         }
-        
         if (searchFilters.petId) {
             filtered = filtered.filter(r => r.petId === searchFilters.petId);
         }
@@ -1579,6 +1580,16 @@
         refreshAllPetSelects();
         applyCollapseStates();
         
+        // 恢复筛选面板状态
+        const panel = document.getElementById('filterPanel');
+        const btn = document.getElementById('filterToggleBtn');
+        if (panel) {
+            panel.style.display = filterPanelOpen ? 'block' : 'none';
+        }
+        if (btn) {
+            btn.innerHTML = filterPanelOpen ? '<i data-lucide="sliders-horizontal"></i> 收起' : '<i data-lucide="sliders-horizontal"></i> 筛选';
+        }
+        
         if (pageId === 'home') { renderHome(); renderScheduleReminders(); }
         else if (pageId === 'record') { renderWishlistFull(); renderWeightRecordsList(); renderWeightTrendChart(); renderRecentTasks(); }
         else if (pageId === 'pets') renderPetsPage();
@@ -1610,7 +1621,6 @@
     function renderHome() {
         updatePeriodDisplay();
         
-        // 计算当前视图下的总支出
         const isMonthView = viewMode === 'month';
         const periodFilter = (r) => {
             if (!r.date) return false;
@@ -1624,10 +1634,7 @@
         const total = appData.records.filter(periodFilter).reduce((s, r) => s + (parseFloat(r.amount) || 0), 0);
         document.getElementById('periodTotalAmount').innerText = `¥${total.toFixed(2)}`;
         
-        // 刷新家族筛选行
-        renderCategoryFilterRow();
-        
-        // 重置搜索筛选（但保留日期筛选为当月）
+        // 重置筛选（保留日期筛选为当月）
         searchFilters.keyword = '';
         searchFilters.categoryId = '';
         searchFilters.petId = '';
@@ -1641,6 +1648,7 @@
         document.getElementById('dateFrom').value = '';
         document.getElementById('dateTo').value = '';
         
+        renderCategoryFilterRow();
         renderPetFilterRow();
         filterRecords();
         setTimeout(() => lucide.createIcons(), 10);
@@ -1818,7 +1826,7 @@
         openWishlistModal, closeWishlistModal, saveWishlist, addWishItemField, removeWishItem,
         openWishlistDetail, closeWishlistDetail, deleteWishlist,
         completeTask, getScheduleReminders, renderScheduleReminders,
-        refreshAllPetSelects, toggleCollapse,
+        refreshAllPetSelects, toggleCollapse, toggleFilterPanel,
         filterRecords, setDateFilter, setPetFilter, setCategoryFilter, clearDateRange, clearSearch
     };
 
