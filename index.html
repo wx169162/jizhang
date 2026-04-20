@@ -58,6 +58,36 @@
             margin-bottom: 14px;
             transition: all 0.25s ease;
             animation: fadeIn 0.4s ease backwards;
+            overflow: hidden;
+        }
+        
+        /* 可折叠卡片头部 */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        .card-header h3 {
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .collapse-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+        .card-body {
+            transition: all 0.2s ease;
+        }
+        .card-body.collapsed {
+            display: none;
         }
         
         .btn { 
@@ -271,7 +301,6 @@
         }
         .reminder-complete:active { transform: scale(0.95); }
         
-        /* 体重记录列表样式 */
         .weight-record-item {
             display: flex;
             justify-content: space-between;
@@ -305,6 +334,71 @@
             padding: 8px;
         }
         .weight-record-delete:active { transform: scale(0.9); color: #dc2626; }
+        
+        /* 搜索栏样式 */
+        .search-bar {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            padding: 8px 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .search-bar i {
+            color: var(--text-sub);
+            flex-shrink: 0;
+        }
+        .search-bar input {
+            flex: 1;
+            border: none;
+            padding: 6px 0;
+            background: transparent;
+            font-size: 14px;
+        }
+        .search-bar input:focus {
+            outline: none;
+        }
+        .filter-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .filter-chip {
+            background: var(--primary-light);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .filter-chip.active {
+            background: var(--primary-dark);
+            color: white;
+        }
+        .date-range {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .date-range input {
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 20px;
+            width: auto;
+        }
+        .clear-search {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            cursor: pointer;
+            padding: 4px;
+        }
         
         input, select, textarea { 
             width: 100%; 
@@ -443,14 +537,6 @@
         }
         .nav-arrows button:active { transform: scale(0.92); }
         
-        @media (max-width: 400px) {
-            .analysis-layout { flex-direction: column; }
-            .detail-container { border-left: none; border-top: 1px solid var(--border-light); padding-left: 0; padding-top: 12px; }
-        }
-        
-        .form-row { margin-bottom: 12px; }
-        .form-row label { display: block; margin-bottom: 4px; font-size: 13px; color: var(--text-sub); }
-        
         .empty-chart {
             display: flex;
             align-items: center;
@@ -458,6 +544,17 @@
             height: 160px;
             color: var(--text-sub);
             font-size: 14px;
+        }
+        
+        .form-row { margin-bottom: 12px; }
+        .form-row label { display: block; margin-bottom: 4px; font-size: 13px; color: var(--text-sub); }
+        
+        @media (max-width: 400px) {
+            .analysis-layout { flex-direction: column; }
+            .detail-container { border-left: none; border-top: 1px solid var(--border-light); padding-left: 0; padding-top: 12px; }
+            .filter-row { flex-direction: column; }
+            .date-range { flex-direction: column; align-items: stretch; }
+            .date-range input { width: 100%; }
         }
     </style>
 </head>
@@ -484,32 +581,81 @@
         <div style="font-size: 32px; font-weight: 700; color: var(--primary-dark);" id="periodTotalAmount">¥0.00</div>
     </div>
     
+    <!-- 日程提醒卡片（可折叠） -->
     <div class="card" id="scheduleReminderCard">
-        <h3 style="font-size: 16px; margin-bottom: 12px;"><i data-lucide="calendar"></i> 日程提醒</h3>
-        <div id="scheduleReminderList"></div>
+        <div class="card-header" onclick="app.toggleCollapse('scheduleReminder')">
+            <h3><i data-lucide="calendar"></i> 日程提醒</h3>
+            <div class="collapse-icon" id="scheduleReminderIcon"><i data-lucide="chevron-down"></i></div>
+        </div>
+        <div class="card-body" id="scheduleReminderBody">
+            <div id="scheduleReminderList"></div>
+        </div>
     </div>
     
+    <!-- 愿望清单卡片（可折叠） -->
     <div class="card" id="wishlistCard">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-            <h3 style="font-size: 16px;"><i data-lucide="gift"></i> 愿望清单</h3>
-            <button class="btn-outline btn-small" onclick="app.openWishlistModal()"><i data-lucide="plus"></i> 新建</button>
+        <div class="card-header" onclick="app.toggleCollapse('wishlist')">
+            <h3><i data-lucide="gift"></i> 愿望清单</h3>
+            <div class="collapse-icon" id="wishlistIcon"><i data-lucide="chevron-down"></i></div>
         </div>
-        <div id="wishlistPreview"></div>
+        <div class="card-body" id="wishlistBody">
+            <div style="margin-bottom: 12px; text-align: right;">
+                <button class="btn-outline btn-small" onclick="app.openWishlistModal()"><i data-lucide="plus"></i> 新建</button>
+            </div>
+            <div id="wishlistPreview"></div>
+        </div>
     </div>
     
-    <div class="card">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-            <h3 style="font-size: 16px;"><i data-lucide="folder"></i> 家族</h3>
-            <button class="btn-outline btn-small" onclick="app.showAddCategory()"><i data-lucide="plus"></i> 家族</button>
+    <!-- 家族卡片（可折叠） -->
+    <div class="card" id="familyCard">
+        <div class="card-header" onclick="app.toggleCollapse('family')">
+            <h3><i data-lucide="folder"></i> 家族</h3>
+            <div class="collapse-icon" id="familyIcon"><i data-lucide="chevron-down"></i></div>
         </div>
-        <div class="category-scroll" id="categoryScroll"></div>
-        <div id="filterBadge" style="display: none; background: var(--primary-light); padding: 4px 12px; border-radius: 20px; margin-top: 8px;">
-            <span id="filterText"></span>
-            <i data-lucide="x" style="width: 16px; cursor: pointer;" onclick="app.clearFilter()"></i>
+        <div class="card-body" id="familyBody">
+            <div style="margin-bottom: 12px; text-align: right;">
+                <button class="btn-outline btn-small" onclick="app.showAddCategory()"><i data-lucide="plus"></i> 家族</button>
+            </div>
+            <div class="category-scroll" id="categoryScroll"></div>
+            <div id="filterBadge" style="display: none; background: var(--primary-light); padding: 4px 12px; border-radius: 20px; margin-top: 8px;">
+                <span id="filterText"></span>
+                <i data-lucide="x" style="width: 16px; cursor: pointer;" onclick="app.clearFilter()"></i>
+            </div>
         </div>
     </div>
+    
+    <!-- 流水卡片（带搜索） -->
     <div class="card">
         <h3 style="font-size: 16px; margin-bottom: 12px;"><i data-lucide="list"></i> 流水</h3>
+        
+        <!-- 搜索栏 -->
+        <div class="search-bar">
+            <i data-lucide="search" style="width: 18px;"></i>
+            <input type="text" id="searchKeyword" placeholder="搜索金额/备注/类别..." oninput="app.filterRecords()">
+            <button class="clear-search" onclick="app.clearSearch()" id="clearSearchBtn" style="display: none;"><i data-lucide="x"></i></button>
+        </div>
+        
+        <!-- 筛选行 -->
+        <div class="filter-row">
+            <div class="filter-chip" data-filter="date" onclick="app.setDateFilter('week')">本周</div>
+            <div class="filter-chip" data-filter="date" onclick="app.setDateFilter('month')">本月</div>
+            <div class="filter-chip" data-filter="date" onclick="app.setDateFilter('year')">今年</div>
+            <div class="filter-chip" data-filter="date" onclick="app.setDateFilter('custom')" id="customDateChip">自定义</div>
+        </div>
+        
+        <!-- 自定义日期范围 -->
+        <div id="customDateRange" style="display: none; margin-bottom: 12px;" class="date-range">
+            <input type="date" id="dateFrom" onchange="app.filterRecords()">
+            <span>—</span>
+            <input type="date" id="dateTo" onchange="app.filterRecords()">
+            <button class="btn-outline btn-small" onclick="app.clearDateRange()">清除</button>
+        </div>
+        
+        <!-- 宠物筛选 -->
+        <div class="filter-row" id="petFilterRow" style="flex-wrap: wrap;">
+            <div class="filter-chip" data-pet="" onclick="app.setPetFilter('')">全部宠物</div>
+        </div>
+        
         <div id="recordsContainer"></div>
     </div>
 </div>
@@ -636,7 +782,7 @@
     <div class="card"><h3>定期记账</h3><div id="recurringList"></div></div>
     <div class="card"><h3>预算设置</h3><div class="form-row"><label>月度预算</label><input type="number" id="monthlyBudget" step="0.01" placeholder="输入预算金额"><button class="btn btn-small" style="margin-top: 8px;" onclick="app.saveBudget()">保存预算</button></div><div id="budgetDisplay" style="margin-top: 12px;"></div></div>
     <div class="card"><h3>数据</h3><div style="display: flex; flex-wrap: wrap; gap: 8px;"><button class="data-btn" onclick="app.exportData()"><i data-lucide="download"></i> 导出数据</button><label class="data-btn" style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;"><i data-lucide="upload"></i> 导入数据<input type="file" id="importFileInput" accept=".json" onchange="app.importData(this)" style="display: none;"></label><button class="data-btn" onclick="app.resetAllData()" style="background: #dc2626;"><i data-lucide="alert-triangle"></i> 重置</button></div></div>
-    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v3.2 · 正式版</div>
+    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v3.3 · 正式版</div>
 </div>
 
 <!-- 底部导航 -->
@@ -677,8 +823,8 @@
     };
     
     let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    const STORAGE_KEY = 'pet_v32_full';
-    const OLD_STORAGE_KEYS = ['pet_v31_full', 'pet_v30_full', 'pet_v29_full'];
+    const STORAGE_KEY = 'pet_v33_full';
+    const OLD_STORAGE_KEYS = ['pet_v32_full', 'pet_v31_full', 'pet_v30_full'];
 
     const TASK_INTERVALS = {
         '驱虫': 90,
@@ -689,8 +835,33 @@
         '梳毛': 7,
         '其他': 30
     };
+    
+    // 折叠状态存储
+    let collapseState = {
+        scheduleReminder: true,
+        wishlist: true,
+        family: true
+    };
+    
+    // 搜索筛选状态
+    let searchFilters = {
+        keyword: '',
+        dateFilter: 'month', // 'week', 'month', 'year', 'custom', null
+        dateFrom: '',
+        dateTo: '',
+        petId: ''
+    };
 
     function migrateOldData() {
+        // 尝试加载旧的折叠状态
+        try {
+            const savedCollapse = localStorage.getItem('pet_collapse_state');
+            if (savedCollapse) {
+                const parsed = JSON.parse(savedCollapse);
+                collapseState = { ...collapseState, ...parsed };
+            }
+        } catch(e) {}
+        
         for (let oldKey of OLD_STORAGE_KEYS) {
             try {
                 const oldData = localStorage.getItem(oldKey);
@@ -742,6 +913,44 @@
     function saveData() { 
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch(e){} 
     }
+    
+    function saveCollapseState() {
+        localStorage.setItem('pet_collapse_state', JSON.stringify(collapseState));
+    }
+    
+    function toggleCollapse(cardId) {
+        collapseState[cardId] = !collapseState[cardId];
+        saveCollapseState();
+        const body = document.getElementById(cardId + 'Body');
+        const icon = document.getElementById(cardId + 'Icon');
+        if (body) {
+            if (collapseState[cardId]) {
+                body.classList.remove('collapsed');
+                if (icon) icon.innerHTML = '<i data-lucide="chevron-down"></i>';
+            } else {
+                body.classList.add('collapsed');
+                if (icon) icon.innerHTML = '<i data-lucide="chevron-right"></i>';
+            }
+        }
+        lucide.createIcons();
+    }
+    
+    function applyCollapseStates() {
+        for (const [cardId, isExpanded] of Object.entries(collapseState)) {
+            const body = document.getElementById(cardId + 'Body');
+            const icon = document.getElementById(cardId + 'Icon');
+            if (body) {
+                if (isExpanded) {
+                    body.classList.remove('collapsed');
+                    if (icon) icon.innerHTML = '<i data-lucide="chevron-down"></i>';
+                } else {
+                    body.classList.add('collapsed');
+                    if (icon) icon.innerHTML = '<i data-lucide="chevron-right"></i>';
+                }
+            }
+        }
+        lucide.createIcons();
+    }
 
     function showToast(msg, ok=true) {
         const toast = document.createElement('div');
@@ -787,6 +996,168 @@
         
         const eventPetSelect = document.getElementById('eventPetSelect');
         if (eventPetSelect) eventPetSelect.innerHTML = appData.pets.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+        
+        // 刷新宠物筛选行
+        renderPetFilterRow();
+    }
+    
+    function renderPetFilterRow() {
+        const container = document.getElementById('petFilterRow');
+        if (!container) return;
+        let html = '<div class="filter-chip" data-pet="" onclick="app.setPetFilter(\'\')">全部宠物</div>';
+        appData.pets.forEach(pet => {
+            const activeClass = searchFilters.petId === pet.id ? 'active' : '';
+            html += `<div class="filter-chip ${activeClass}" data-pet="${pet.id}" onclick="app.setPetFilter('${pet.id}')">${pet.name}</div>`;
+        });
+        container.innerHTML = html;
+    }
+    
+    // 搜索筛选函数
+    function filterRecords() {
+        const keyword = document.getElementById('searchKeyword')?.value.toLowerCase() || '';
+        searchFilters.keyword = keyword;
+        
+        // 显示/隐藏清除按钮
+        const clearBtn = document.getElementById('clearSearchBtn');
+        if (clearBtn) clearBtn.style.display = keyword ? 'block' : 'none';
+        
+        renderFilteredRecords();
+    }
+    
+    function setDateFilter(type) {
+        searchFilters.dateFilter = type;
+        const today = new Date();
+        let from = '', to = '';
+        
+        switch(type) {
+            case 'week':
+                const weekStart = new Date(today);
+                weekStart.setDate(today.getDate() - today.getDay());
+                from = weekStart.toISOString().slice(0,10);
+                to = getToday();
+                break;
+            case 'month':
+                from = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-01`;
+                to = getToday();
+                break;
+            case 'year':
+                from = `${today.getFullYear()}-01-01`;
+                to = getToday();
+                break;
+            case 'custom':
+                document.getElementById('customDateRange').style.display = 'flex';
+                break;
+            default:
+                document.getElementById('customDateRange').style.display = 'none';
+                searchFilters.dateFrom = '';
+                searchFilters.dateTo = '';
+                renderFilteredRecords();
+                return;
+        }
+        
+        if (type !== 'custom') {
+            document.getElementById('customDateRange').style.display = 'none';
+            searchFilters.dateFrom = from;
+            searchFilters.dateTo = to;
+        }
+        
+        // 更新筛选芯片样式
+        document.querySelectorAll('.filter-chip[data-filter="date"]').forEach(chip => {
+            chip.classList.remove('active');
+        });
+        const activeChip = document.querySelector(`.filter-chip[onclick*="${type}"]`);
+        if (activeChip) activeChip.classList.add('active');
+        
+        renderFilteredRecords();
+    }
+    
+    function setPetFilter(petId) {
+        searchFilters.petId = petId;
+        renderPetFilterRow();
+        renderFilteredRecords();
+    }
+    
+    function clearDateRange() {
+        searchFilters.dateFilter = null;
+        searchFilters.dateFrom = '';
+        searchFilters.dateTo = '';
+        document.getElementById('customDateRange').style.display = 'none';
+        document.querySelectorAll('.filter-chip[data-filter="date"]').forEach(chip => {
+            chip.classList.remove('active');
+        });
+        renderFilteredRecords();
+    }
+    
+    function clearSearch() {
+        document.getElementById('searchKeyword').value = '';
+        searchFilters.keyword = '';
+        document.getElementById('clearSearchBtn').style.display = 'none';
+        renderFilteredRecords();
+    }
+    
+    function renderFilteredRecords() {
+        // 获取自定义日期范围的值
+        const dateFrom = document.getElementById('dateFrom')?.value || '';
+        const dateTo = document.getElementById('dateTo')?.value || '';
+        if (searchFilters.dateFilter === 'custom') {
+            searchFilters.dateFrom = dateFrom;
+            searchFilters.dateTo = dateTo;
+        }
+        
+        let filtered = [...appData.records];
+        
+        // 关键词搜索
+        if (searchFilters.keyword) {
+            const kw = searchFilters.keyword.toLowerCase();
+            filtered = filtered.filter(r => {
+                return r.amount.toString().includes(kw) ||
+                       (r.note && r.note.toLowerCase().includes(kw)) ||
+                       r.expenseCategory.toLowerCase().includes(kw) ||
+                       (appData.pets.find(p => p.id === r.petId)?.name || '').toLowerCase().includes(kw);
+            });
+        }
+        
+        // 日期范围筛选
+        if (searchFilters.dateFrom) {
+            filtered = filtered.filter(r => r.date >= searchFilters.dateFrom);
+        }
+        if (searchFilters.dateTo) {
+            filtered = filtered.filter(r => r.date <= searchFilters.dateTo);
+        }
+        
+        // 宠物筛选
+        if (searchFilters.petId) {
+            filtered = filtered.filter(r => r.petId === searchFilters.petId);
+        }
+        
+        // 按日期排序
+        filtered.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+        
+        // 渲染
+        const container = document.getElementById('recordsContainer');
+        if (!container) return;
+        
+        if (filtered.length === 0) {
+            container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-sub);">暂无匹配的流水</div>';
+            return;
+        }
+        
+        const byDay = {};
+        filtered.forEach(r => { if (!byDay[r.date]) byDay[r.date] = []; byDay[r.date].push(r); });
+        
+        let html = '';
+        Object.keys(byDay).forEach(date => {
+            const dayTotal = byDay[date].reduce((s, r) => s + (parseFloat(r.amount) || 0), 0);
+            html += `<div><div style="display:flex; justify-content:space-between; padding:6px 2px;"><span>${formatYMD(date)} ${getWeekday(date)}</span><span>¥${dayTotal.toFixed(2)}</span></div>`;
+            byDay[date].forEach(r => {
+                const cat = appData.categories.find(c => c.id === r.categoryId);
+                const pet = appData.pets.find(p => p.id === r.petId);
+                html += `<div class="record-card" data-record-id="${r.id}" oncontextmenu="app.showContextMenu(event,'${r.id}');return false;"><div style="display:flex; justify-content:space-between;"><span>${r.expenseCategory} ${pet ? '· ' + pet.name : ''}</span><span>¥${parseFloat(r.amount).toFixed(2)}</span></div><div style="border-top:1px dashed var(--border-light); margin:8px 0;"></div><div style="display:flex; justify-content:space-between; color:var(--text-sub);"><span>${r.note || ''}</span><span>${cat?.name || ''}</span></div></div>`;
+            });
+            html += '</div>';
+        });
+        container.innerHTML = html;
+        setTimeout(() => lucide.createIcons(), 10);
     }
 
     // 日程提醒
@@ -935,6 +1306,8 @@
         lucide.createIcons();
     }
     
+    let weightTrendChart = null;
+    
     function renderWeightTrendChart() {
         const petId = document.getElementById('weightRecordPetSelect').value;
         const canvas = document.getElementById('weightTrendChart');
@@ -1003,7 +1376,6 @@
         
         const note = document.getElementById('weightRecordNote').value || '';
         
-        // 检查同一天是否已有记录
         const existing = appData.weightRecords.find(w => w.petId === petId && w.date === date);
         if (existing) {
             if (confirm(`${date} 已有体重记录 ${existing.weight}kg，是否覆盖？`)) {
@@ -1049,7 +1421,7 @@
         const container = document.getElementById('wishlistPreview');
         if (!container) return;
         if (!appData.wishlists.length) {
-            container.innerHTML = '<div style="padding: 12px; text-align: center; color: var(--text-sub);">暂无愿望清单</div>';
+            container.innerHTML = '<div style="padding: 12px 0; text-align: center; color: var(--text-sub);">暂无愿望清单</div>';
             return;
         }
         let html = '';
@@ -1211,7 +1583,7 @@
     // 核心功能
     let viewMode = 'month', currentYear = new Date().getFullYear(), currentMonth = new Date().getMonth() + 1, filterCategoryId = null;
     let statPeriod = 'month', statYear = new Date().getFullYear(), statMonth = new Date().getMonth() + 1, statDay = new Date().getDate();
-    let pieChart = null, trendChart = null, weightTrendChart = null;
+    let pieChart = null, trendChart = null;
     let statTab = 'expense', recordTab = 'wish';
     let tempAvatar = null;
     let contextRecordId = null;
@@ -1232,6 +1604,7 @@
         document.querySelector(`.nav-item[data-page="${pageId}"]`)?.classList.add('active');
         
         refreshAllPetSelects();
+        applyCollapseStates();
         
         if (pageId === 'home') { renderHome(); renderScheduleReminders(); renderWishlistPreview(); }
         else if (pageId === 'record') { renderWishlistFull(); renderWeightRecordsList(); renderWeightTrendChart(); renderRecentTasks(); }
@@ -1250,7 +1623,6 @@
         document.getElementById('scheduleRecordContent').style.display = tab === 'schedule' ? 'block' : 'none';
         if (tab === 'weight') { 
             refreshAllPetSelects();
-            // 监听宠物选择变化
             const weightSelect = document.getElementById('weightRecordPetSelect');
             weightSelect.onchange = () => {
                 renderWeightRecordsList();
@@ -1267,6 +1639,8 @@
         const filtered = appData.records.filter(getPeriodFilter());
         const total = filtered.reduce((s, r) => s + (parseFloat(r.amount) || 0), 0);
         document.getElementById('periodTotalAmount').innerText = `¥${total.toFixed(2)}`;
+        
+        // 渲染家族卡片（不受折叠影响）
         const scroll = document.getElementById('categoryScroll');
         if (appData.categories.length) {
             scroll.innerHTML = appData.categories.map(cat => {
@@ -1274,23 +1648,25 @@
                 return `<div class="category-card ${filterCategoryId === cat.id ? 'active' : ''}" onclick="app.filterByCategory('${cat.id}')"><div><i data-lucide="${cat.icon || 'cat'}"></i></div><div style="font-weight:600;">${cat.name}</div><div>¥${catTotal.toFixed(0)}</div></div>`;
             }).join('');
         } else { scroll.innerHTML = '<div style="padding:16px;">点击"家族"添加</div>'; }
+        
         const badge = document.getElementById('filterBadge');
         if (filterCategoryId) { const cat = appData.categories.find(c => c.id === filterCategoryId); document.getElementById('filterText').innerHTML = `<i data-lucide="${cat?.icon || 'cat'}"></i> 只看${cat?.name}`; badge.style.display = 'inline-flex'; } else { badge.style.display = 'none'; }
-        const container = document.getElementById('recordsContainer');
-        const byDay = {};
-        filtered.sort((a, b) => (b.date || '').localeCompare(a.date || '')).forEach(r => { if (!byDay[r.date]) byDay[r.date] = []; byDay[r.date].push(r); });
-        let html = '';
-        Object.keys(byDay).forEach(date => {
-            const dayTotal = byDay[date].reduce((s, r) => s + (parseFloat(r.amount) || 0), 0);
-            html += `<div><div style="display:flex; justify-content:space-between; padding:6px 2px;"><span>${formatYMD(date)} ${getWeekday(date)}</span><span>¥${dayTotal.toFixed(2)}</span></div>`;
-            byDay[date].forEach(r => {
-                const cat = appData.categories.find(c => c.id === r.categoryId);
-                const pet = appData.pets.find(p => p.id === r.petId);
-                html += `<div class="record-card" data-record-id="${r.id}" oncontextmenu="app.showContextMenu(event,'${r.id}');return false;"><div style="display:flex; justify-content:space-between;"><span>${r.expenseCategory} ${pet ? '· ' + pet.name : ''}</span><span>¥${parseFloat(r.amount).toFixed(2)}</span></div><div style="border-top:1px dashed var(--border-light); margin:8px 0;"></div><div style="display:flex; justify-content:space-between; color:var(--text-sub);"><span>${r.note || ''}</span><span>${cat?.name || ''}</span></div></div>`;
-            });
-            html += '</div>';
-        });
-        container.innerHTML = html || '<div style="padding:20px;text-align:center;">暂无流水</div>';
+        
+        // 重置搜索筛选
+        searchFilters.keyword = '';
+        searchFilters.dateFilter = 'month';
+        searchFilters.dateFrom = `${currentYear}-${String(currentMonth).padStart(2,'0')}-01`;
+        searchFilters.dateTo = getToday();
+        searchFilters.petId = '';
+        document.getElementById('searchKeyword').value = '';
+        document.getElementById('clearSearchBtn').style.display = 'none';
+        document.getElementById('customDateRange').style.display = 'none';
+        document.getElementById('dateFrom').value = '';
+        document.getElementById('dateTo').value = '';
+        renderPetFilterRow();
+        
+        // 渲染流水（使用筛选后的）
+        renderFilteredRecords();
         setTimeout(() => lucide.createIcons(), 10);
     }
 
@@ -1466,7 +1842,8 @@
         openWishlistModal, closeWishlistModal, saveWishlist, addWishItemField, removeWishItem,
         openWishlistDetail, closeWishlistDetail, deleteWishlist,
         completeTask, getScheduleReminders, renderScheduleReminders,
-        refreshAllPetSelects
+        refreshAllPetSelects, toggleCollapse,
+        filterRecords, setDateFilter, setPetFilter, clearDateRange, clearSearch
     };
 
     loadData();
