@@ -20,12 +20,17 @@
             --primary: #c4b5fd;
             --primary-light: #ede9fe;
             --primary-dark: #8b5cf6;
+            --accent: #f59e0b;
+            --accent-light: #fef3c7;
             --text-main: #1e1e2f;
             --text-sub: #6b7280;
             --border-light: #e9e4f0;
             --shadow: 0 2px 8px rgba(0,0,0,0.02);
             --radius-card: 16px;
+            --radius-btn: 30px;
+            --radius-btn-square: 12px;
             --danger: #fca5a5;
+            --danger-dark: #dc2626;
             --warning: #fde68a;
             --cancel-bg: #fce4ec;
             --cancel-text: #e91e63;
@@ -99,7 +104,7 @@
             background: var(--primary-light);
             border: none;
             padding: 6px 12px;
-            border-radius: 20px;
+            border-radius: var(--radius-btn-square);
             font-size: 12px;
             color: var(--primary-dark);
             display: flex;
@@ -185,7 +190,7 @@
         /* 模板样式 */
         .template-section {
             background: var(--primary-light);
-            border-radius: 16px;
+            border-radius: var(--radius-btn-square);
             margin-bottom: 16px;
             overflow: hidden;
         }
@@ -212,7 +217,7 @@
             background: white;
             border: 1px solid var(--border-light);
             padding: 8px 14px;
-            border-radius: 24px;
+            border-radius: var(--radius-btn-square);
             font-size: 13px;
             cursor: pointer;
             display: flex;
@@ -232,12 +237,13 @@
             padding: 4px 8px;
         }
         
+        /* 按钮统一样式 */
         .btn { 
             background: var(--primary-dark); 
             color: white; 
             border: none; 
-            padding: 10px 16px; 
-            border-radius: 30px; 
+            padding: 10px 20px; 
+            border-radius: var(--radius-btn); 
             font-weight: 500; 
             font-size: 14px; 
             cursor: pointer; 
@@ -249,12 +255,67 @@
         }
         .btn:active { transform: scale(0.96); }
         
-        .btn-cancel { 
-            background: var(--cancel-bg); 
-            color: var(--cancel-text); 
+        /* 次要添加按钮（方块感） */
+        .btn-secondary { 
+            background: var(--primary-light); 
+            color: var(--primary-dark); 
             border: none; 
+            padding: 8px 16px; 
+            border-radius: var(--radius-btn-square); 
+            font-weight: 500; 
+            font-size: 13px; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 6px; 
+            transition: all 0.2s ease;
+        }
+        .btn-secondary:active { transform: scale(0.96); }
+        
+        /* 编辑按钮 */
+        .btn-edit { 
+            background: transparent; 
+            color: var(--text-sub); 
+            border: 1px solid var(--border-light); 
+            padding: 6px 12px; 
+            border-radius: var(--radius-btn-square); 
+            font-weight: 500; 
+            font-size: 12px; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 4px; 
+            transition: all 0.2s ease;
+        }
+        .btn-edit:active { transform: scale(0.96); }
+        
+        /* 删除按钮 */
+        .btn-delete { 
+            background: transparent; 
+            color: var(--danger-dark); 
+            border: 1px solid var(--danger); 
+            padding: 6px 12px; 
+            border-radius: var(--radius-btn-square); 
+            font-weight: 500; 
+            font-size: 12px; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 4px; 
+            transition: all 0.2s ease;
+        }
+        .btn-delete:active { transform: scale(0.96); }
+        
+        /* 取消按钮 */
+        .btn-cancel { 
+            background: transparent; 
+            color: var(--text-sub); 
+            border: 1px solid var(--border-light); 
             padding: 10px 16px; 
-            border-radius: 30px; 
+            border-radius: var(--radius-btn); 
             font-weight: 500; 
             font-size: 14px; 
             cursor: pointer; 
@@ -265,21 +326,13 @@
         }
         .btn-cancel:active { transform: scale(0.96); }
         
-        .btn-outline { 
-            background: transparent; 
-            color: var(--text-main); 
-            border: 1px solid var(--border-light); 
-        }
-        .btn-outline:active { transform: scale(0.96); }
-        
-        .btn-small { padding: 6px 12px; font-size: 12px; }
-        
+        /* 数据按钮 */
         .data-btn {
             background: var(--primary-dark);
             color: white;
             border: none;
             padding: 8px 16px;
-            border-radius: 30px;
+            border-radius: var(--radius-btn);
             font-size: 13px;
             font-weight: 500;
             cursor: pointer;
@@ -358,7 +411,7 @@
             border: none; 
             cursor: pointer; 
             padding: 6px 14px; 
-            border-radius: 30px; 
+            border-radius: var(--radius-btn); 
         }
         .nav-item:active { transform: scale(0.95); }
         .nav-item.active { background: var(--primary-light); color: var(--primary-dark); font-weight: 500; }
@@ -416,13 +469,13 @@
         .reminder-days.overdue { color: var(--overdue-color); }
         .reminder-days.normal { color: var(--normal-color); }
         .reminder-complete {
-            background: var(--primary-light);
+            background: var(--accent);
             border: none;
             padding: 6px 12px;
-            border-radius: 20px;
+            border-radius: var(--radius-btn-square);
             font-size: 12px;
             font-weight: 500;
-            color: var(--primary-dark);
+            color: white;
             cursor: pointer;
         }
         .reminder-complete:active { transform: scale(0.95); }
@@ -469,7 +522,7 @@
         
         .compare-card { display: flex; justify-content: space-between; padding: 12px; background: var(--primary-light); border-radius: 14px; margin-bottom: 8px; }
         
-        .file-input-label { display: inline-block; background: var(--primary-dark); color: white; padding: 8px 16px; border-radius: 30px; font-size: 13px; font-weight: 500; cursor: pointer; }
+        .file-input-label { display: inline-block; background: var(--primary-dark); color: white; padding: 8px 16px; border-radius: var(--radius-btn); font-size: 13px; font-weight: 500; cursor: pointer; }
         .file-input-label:active { transform: scale(0.96); }
         .file-input-label input { display: none; }
         
@@ -592,7 +645,7 @@
 <div id="pageHome" class="page active">
     <div class="header">
         <h1><i data-lucide="paw-print"></i> 小账本</h1>
-        <button class="btn-outline btn-small" onclick="app.showPage('settings')"><i data-lucide="settings"></i></button>
+        <button class="btn-edit" onclick="app.showPage('settings')"><i data-lucide="settings"></i> 设置</button>
     </div>
     
     <div class="card">
@@ -606,7 +659,7 @@
                 </div>
             </div>
         </div>
-        <div style="font-size: 32px; font-weight: 700; color: var(--primary-dark);" id="periodTotalAmount">¥0.00</div>
+        <div style="font-size: 36px; font-weight: 700; color: var(--primary-dark);" id="periodTotalAmount">¥0.00</div>
     </div>
     
     <div class="card" id="scheduleReminderCard">
@@ -647,7 +700,7 @@
                     <input type="date" id="dateFrom" onchange="app.filterRecords()">
                     <span>—</span>
                     <input type="date" id="dateTo" onchange="app.filterRecords()">
-                    <button class="btn-outline btn-small" onclick="app.clearDateRange()">清除</button>
+                    <button class="btn-edit" onclick="app.clearDateRange()">清除</button>
                 </div>
             </div>
         </div>
@@ -669,7 +722,7 @@
         <div class="card">
             <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
                 <h3>我的愿望清单</h3>
-                <button class="btn-outline btn-small" onclick="app.openWishlistModal()"><i data-lucide="plus"></i> 新建</button>
+                <button class="btn-secondary" onclick="app.openWishlistModal()"><i data-lucide="plus"></i> 新建</button>
             </div>
             <div id="wishlistFullList"></div>
         </div>
@@ -724,7 +777,7 @@
 <div id="pagePets" class="page">
     <div class="header">
         <h2>宠物档案</h2>
-        <button class="btn-outline btn-small" onclick="app.showAddCategory()"><i data-lucide="plus"></i> 家族</button>
+        <button class="btn-secondary" onclick="app.showAddCategory()"><i data-lucide="plus"></i> 家族</button>
     </div>
     <div id="categoryListContainer"></div>
 </div>
@@ -737,9 +790,9 @@
     </div>
     <div id="expenseStatContent">
         <div style="display: flex; gap: 6px; margin-bottom: 14px;">
-            <button class="btn-outline btn-small" onclick="app.setStatPeriod('day')">日</button>
-            <button class="btn-outline btn-small" onclick="app.setStatPeriod('month')">月</button>
-            <button class="btn-outline btn-small" onclick="app.setStatPeriod('year')">年</button>
+            <button class="filter-chip" onclick="app.setStatPeriod('day')">日</button>
+            <button class="filter-chip" onclick="app.setStatPeriod('month')">月</button>
+            <button class="filter-chip" onclick="app.setStatPeriod('year')">年</button>
             <input type="date" id="statDatePicker" style="flex:1;">
         </div>
         <div class="card">
@@ -769,12 +822,12 @@
 
 <div id="pageSettings" class="page">
     <div class="header"><h2>设置</h2></div>
-    <div class="card"><h3>支出类别</h3><div id="expenseCategoryList"></div><div style="display: flex; gap: 6px; margin-top: 10px;"><input type="text" id="newExpenseCatName" placeholder="新类别"><button class="btn-small btn" onclick="app.addExpenseCategory()"><i data-lucide="plus"></i></button></div></div>
+    <div class="card"><h3>支出类别</h3><div id="expenseCategoryList"></div><div style="display: flex; gap: 6px; margin-top: 10px;"><input type="text" id="newExpenseCatName" placeholder="新类别"><button class="btn-secondary btn-small" onclick="app.addExpenseCategory()"><i data-lucide="plus"></i> 添加</button></div></div>
     <div class="card"><h3>定期记账</h3><div id="recurringList"></div></div>
-    <div class="card"><h3>预算设置</h3><div class="form-row"><label>月度预算</label><input type="number" id="monthlyBudget" step="0.01"><button class="btn btn-small" style="margin-top: 8px;" onclick="app.saveBudget()">保存预算</button></div><div id="budgetDisplay" style="margin-top: 12px;"></div></div>
-    <div class="card"><h3>记账模板</h3><div id="templatesList"></div><div class="modal-buttons" style="margin-top: 8px;"><button class="btn-outline btn-small" onclick="app.openTemplateModal()"><i data-lucide="plus"></i> 添加模板</button></div></div>
+    <div class="card"><h3>预算设置</h3><div class="form-row"><label>月度预算</label><input type="number" id="monthlyBudget" step="0.01"><button class="btn" style="margin-top: 8px;" onclick="app.saveBudget()">保存预算</button></div><div id="budgetDisplay" style="margin-top: 12px;"></div></div>
+    <div class="card"><h3>记账模板</h3><div id="templatesList"></div><div style="margin-top: 8px;"><button class="btn-secondary btn-small" onclick="app.openTemplateModal()"><i data-lucide="plus"></i> 添加模板</button></div></div>
     <div class="card"><h3>数据</h3><div style="display: flex; flex-wrap: wrap; gap: 8px;"><button class="data-btn" onclick="app.exportData()"><i data-lucide="download"></i> 导出数据</button><label class="data-btn" style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;"><i data-lucide="upload"></i> 导入数据<input type="file" id="importFileInput" accept=".json" onchange="app.importData(this)" style="display: none;"></label><button class="data-btn" onclick="app.resetAllData()" style="background: #dc2626;"><i data-lucide="alert-triangle"></i> 重置</button></div></div>
-    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v3.6 · 正式版</div>
+    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v3.7 · 正式版</div>
 </div>
 
 <div class="nav-bar">
@@ -791,13 +844,12 @@
 <div class="modal" id="lifeEventModal"><div class="modal-content"><h3>📖 记录宠生大事</h3><div class="form-row"><label>宠物</label><select id="eventPetSelect"></select></div><div class="form-row"><label>事件名称</label><input type="text" id="eventTitle" placeholder="如：绝育、生病..."></div><div class="form-row"><label>日期</label><input type="date" id="eventDate"></div><div class="form-row"><label>备注</label><input type="text" id="eventNote" placeholder="可选"></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeLifeEventModal()">取消</button><button class="btn" onclick="app.saveLifeEvent()">保存</button></div></div></div>
 <div class="modal" id="editRecordModal"><div class="modal-content"><h3>编辑记录</h3><input type="hidden" id="editRecordId"><div class="form-row"><label>金额</label><input type="number" id="editAmountInput" step="0.01"></div><div class="form-row"><label>日期</label><input type="date" id="editDateInput"></div><div class="form-row"><label>所属宠物</label><select id="editPetSelect"></select></div><div class="form-row"><label>家族</label><select id="editCategorySelect"></select></div><div class="form-row"><label>类别</label><select id="editExpenseCategorySelect"></select></div><div class="form-row"><label>支付</label><select id="editPaymentSelect"><option>微信</option><option>支付宝</option><option>现金</option></select></div><div class="form-row"><label>备注</label><textarea id="editNoteInput" rows="2"></textarea></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeEditModal()">取消</button><button class="btn" onclick="app.saveEditRecord()">保存</button></div></div></div>
 <div class="modal" id="deletePetModal"><div class="modal-content"><h3>删除宠物</h3><p style="margin-bottom: 16px;">请选择处理方式：</p><button class="btn" style="margin-bottom: 8px; background: #dc2626;" onclick="app.confirmDeletePet('both')">删除宠物及其所有账单</button><button class="btn-cancel" onclick="app.confirmDeletePet('keep')">保留账单，仅解除关联</button><div class="modal-buttons" style="margin-top: 12px;"><button class="btn-cancel" onclick="app.closeDeletePetModal()">取消</button></div></div></div>
-<div class="modal" id="wishlistModal"><div class="modal-content"><h3 id="wishlistModalTitle">🎁 新建愿望清单</h3><input type="hidden" id="editWishlistId"><div class="form-row"><label>清单名称</label><input type="text" id="wishlistName" placeholder="如：养猫预备金"></div><div class="form-row"><label>关联宠物</label><select id="wishlistPetSelect"><option value="">无</option></select></div><div style="margin: 12px 0;"><label style="font-weight: 500;">愿望项目</label><div id="wishItemsContainer"></div><button class="btn-outline btn-small" style="margin-top: 8px;" onclick="app.addWishItemField()"><i data-lucide="plus"></i> 添加项目</button></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeWishlistModal()">取消</button><button class="btn" onclick="app.saveWishlist()">保存</button></div></div></div>
+<div class="modal" id="wishlistModal"><div class="modal-content"><h3 id="wishlistModalTitle">🎁 新建愿望清单</h3><input type="hidden" id="editWishlistId"><div class="form-row"><label>清单名称</label><input type="text" id="wishlistName" placeholder="如：养猫预备金"></div><div class="form-row"><label>关联宠物</label><select id="wishlistPetSelect"><option value="">无</option></select></div><div style="margin: 12px 0;"><label style="font-weight: 500;">愿望项目</label><div id="wishItemsContainer"></div><button class="btn-secondary btn-small" style="margin-top: 8px;" onclick="app.addWishItemField()"><i data-lucide="plus"></i> 添加项目</button></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeWishlistModal()">取消</button><button class="btn" onclick="app.saveWishlist()">保存</button></div></div></div>
 
-<!-- 记账弹窗（含模板） -->
+<!-- 记账弹窗 -->
 <div class="modal" id="quickRecordModal">
     <div class="modal-content">
         <h3>记账</h3>
-        <!-- 模板区（可折叠） -->
         <div class="template-section" id="templateSection">
             <div class="template-header" onclick="app.toggleTemplatePanel()">
                 <span id="templateHeaderText">▶ 快捷模板</span>
@@ -828,7 +880,7 @@
         <h3>记账模板</h3>
         <div id="templateManageList"></div>
         <div class="modal-buttons" style="margin-top: 16px;">
-            <button class="btn-outline" onclick="app.openAddTemplateModal()"><i data-lucide="plus"></i> 添加模板</button>
+            <button class="btn-secondary" onclick="app.openAddTemplateModal()"><i data-lucide="plus"></i> 添加模板</button>
             <button class="btn-cancel" onclick="app.closeTemplateManageModal()">关闭</button>
         </div>
     </div>
@@ -869,12 +921,12 @@
         lifeEvents: [],
         taskRecords: [],
         wishlists: [],
-        templates: []  // 记账模板
+        templates: []
     };
     
     let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    const STORAGE_KEY = 'pet_v36_full';
-    const OLD_STORAGE_KEYS = ['pet_v35_full', 'pet_v34_full', 'pet_v33_full'];
+    const STORAGE_KEY = 'pet_v37_full';
+    const OLD_STORAGE_KEYS = ['pet_v36_full', 'pet_v35_full', 'pet_v34_full'];
 
     const TASK_INTERVALS = {
         '驱虫': 90, '疫苗': 365, '洗澡': 30, '体检': 180, '剪指甲': 14, '梳毛': 7, '其他': 30
@@ -882,7 +934,7 @@
     
     let collapseState = { scheduleReminder: true };
     let filterPanelOpen = false;
-    let templatePanelOpen = false;  // 记账弹窗模板区展开状态
+    let templatePanelOpen = false;
     let searchFilters = { keyword: '', dateFilter: 'month', dateFrom: '', dateTo: '', categoryId: '', petId: '' };
     
     let weightTrendChart = null;
@@ -1006,7 +1058,6 @@
         }
     }
     
-    // 模板相关
     function toggleTemplatePanel() {
         templatePanelOpen = !templatePanelOpen;
         localStorage.setItem('pet_template_panel_open', templatePanelOpen);
@@ -1038,12 +1089,10 @@
         const t = appData.templates[idx];
         if (!t) return;
         document.getElementById('quickAmount').value = t.amount || '';
-        if (t.date) document.getElementById('quickDate').value = t.date;
         if (t.petId) document.getElementById('quickPetSelect').value = t.petId;
         if (t.categoryId) document.getElementById('quickCategorySelect').value = t.categoryId;
         if (t.expenseCategory) document.getElementById('quickExpenseSelect').value = t.expenseCategory;
         if (t.payment) document.getElementById('quickPaymentSelect').value = t.payment;
-        if (t.note) document.getElementById('quickNote').value = t.note;
         showToast(`已应用模板：${t.name}`);
     }
     
@@ -1064,8 +1113,8 @@
                     <div class="detail">${t.expenseCategory || ''} ${petName ? '· ' + petName : ''} ${catName ? '· ' + catName : ''}</div>
                 </div>
                 <div class="template-actions">
-                    <button class="btn-outline btn-small" onclick="app.editTemplate(${idx})">编辑</button>
-                    <button class="btn-outline btn-small" onclick="app.deleteTemplate(${idx})">删除</button>
+                    <button class="btn-edit" onclick="app.editTemplate(${idx})">编辑</button>
+                    <button class="btn-delete" onclick="app.deleteTemplate(${idx})">删除</button>
                 </div>
             </div>`;
         });
@@ -1086,7 +1135,6 @@
         const title = document.getElementById('addTemplateTitle');
         const idField = document.getElementById('editTemplateId');
         
-        // 填充下拉框
         document.getElementById('templateExpenseSelect').innerHTML = appData.expenseCategories.map(ec => `<option>${ec.name}</option>`).join('');
         document.getElementById('templatePetSelect').innerHTML = '<option value="">无</option>' + appData.pets.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
         document.getElementById('templateCategorySelect').innerHTML = '<option value="">无</option>' + appData.categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
@@ -1346,7 +1394,6 @@
         filterRecords();
     }
 
-    // 日程提醒
     function getScheduleReminders() {
         const reminders = [];
         const latestByPetAndType = {};
@@ -1398,7 +1445,6 @@
         lucide.createIcons();
     }
 
-    // 体重记录
     function renderWeightRecordsList() {
         const petId = document.getElementById('weightRecordPetSelect').value;
         const container = document.getElementById('weightRecordsList');
@@ -1461,7 +1507,6 @@
         }
     }
 
-    // 愿望清单
     function renderWishlistFull() {
         const container = document.getElementById('wishlistFullList');
         if (!container) return;
@@ -1517,7 +1562,7 @@
                 <div style="display: flex; gap: 8px;">
                     <input type="number" placeholder="实际 ¥" value="${item.actual || ''}" data-wish-item-actual="${idx}" style="flex: 1;">
                     <label style="display: flex; align-items: center; gap: 4px;"><input type="checkbox" data-wish-item-bought="${idx}" ${item.bought ? 'checked' : ''}> 已买</label>
-                    <button class="btn-outline btn-small" onclick="app.removeWishItem(${idx})">删除</button>
+                    <button class="btn-edit btn-small" onclick="app.removeWishItem(${idx})">删除</button>
                 </div>
             </div>`;
         });
@@ -1525,17 +1570,16 @@
     }
     
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
-    function addWishItemField() { const container = document.getElementById('wishItemsContainer'); const idx = Date.now(); container.insertAdjacentHTML('beforeend', `<div style="margin-bottom: 12px; padding: 8px; background: var(--primary-light); border-radius: 12px;"><div style="display: flex; gap: 8px; margin-bottom: 6px;"><input type="text" placeholder="项目名称" data-wish-item-name="${idx}" style="flex: 2;"><input type="number" placeholder="预估 ¥" data-wish-item-estimate="${idx}" style="flex: 1;"></div><div style="display: flex; gap: 8px;"><input type="number" placeholder="实际 ¥" data-wish-item-actual="${idx}" style="flex: 1;"><label style="display: flex; align-items: center; gap: 4px;"><input type="checkbox" data-wish-item-bought="${idx}"> 已买</label><button class="btn-outline btn-small" onclick="app.removeWishItem(${idx})">删除</button></div></div>`); }
+    function addWishItemField() { const container = document.getElementById('wishItemsContainer'); const idx = Date.now(); container.insertAdjacentHTML('beforeend', `<div style="margin-bottom: 12px; padding: 8px; background: var(--primary-light); border-radius: 12px;"><div style="display: flex; gap: 8px; margin-bottom: 6px;"><input type="text" placeholder="项目名称" data-wish-item-name="${idx}" style="flex: 2;"><input type="number" placeholder="预估 ¥" data-wish-item-estimate="${idx}" style="flex: 1;"></div><div style="display: flex; gap: 8px;"><input type="number" placeholder="实际 ¥" data-wish-item-actual="${idx}" style="flex: 1;"><label style="display: flex; align-items: center; gap: 4px;"><input type="checkbox" data-wish-item-bought="${idx}"> 已买</label><button class="btn-edit btn-small" onclick="app.removeWishItem(${idx})">删除</button></div></div>`); }
     function removeWishItem(idx) { const container = document.getElementById('wishItemsContainer'); const items = container.querySelectorAll('div[style*="margin-bottom: 12px;"]'); for (let item of items) { if (item.innerHTML.includes(`data-wish-item-name="${idx}"`)) { item.remove(); break; } } }
     function collectWishItems() { const items = []; const container = document.getElementById('wishItemsContainer'); const itemDivs = container.querySelectorAll('div[style*="margin-bottom: 12px;"]'); itemDivs.forEach(div => { const nameInput = div.querySelector('input[placeholder="项目名称"]'); const estimateInput = div.querySelector('input[placeholder="预估 ¥"]'); const actualInput = div.querySelector('input[placeholder="实际 ¥"]'); const boughtCheck = div.querySelector('input[type="checkbox"]'); const name = nameInput?.value.trim(); if (name) { items.push({ name: name, estimate: parseFloat(estimateInput?.value) || 0, actual: parseFloat(actualInput?.value) || 0, bought: boughtCheck?.checked || false }); } }); return items; }
     function saveWishlist() { const id = document.getElementById('editWishlistId').value; const name = document.getElementById('wishlistName').value.trim(); const petId = document.getElementById('wishlistPetSelect').value; const items = collectWishItems(); if (!name) { showToast('请输入清单名称', false); return; } if (id) { const index = appData.wishlists.findIndex(w => w.id === id); if (index !== -1) { appData.wishlists[index] = { ...appData.wishlists[index], name, petId: petId || null, items }; } } else { appData.wishlists.push({ id: Date.now() + Math.random() + '', name, petId: petId || null, items, createdAt: getToday() }); } saveData(); closeWishlistModal(); renderWishlistFull(); showToast('愿望清单已保存'); }
-    function openWishlistDetail(wishId) { const wish = appData.wishlists.find(w => w.id === wishId); if (!wish) return; const totalEstimate = wish.items.reduce((sum, i) => sum + (i.estimate || 0), 0); const totalActual = wish.items.reduce((sum, i) => sum + (i.actual || 0), 0); const percent = totalEstimate > 0 ? (totalActual / totalEstimate * 100) : 0; let itemsHtml = ''; wish.items.forEach(item => { itemsHtml += `<div class="wish-item"><div class="wish-content"><div style="font-weight: 500;">${item.name}</div><div style="font-size: 13px;">预估 ¥${item.estimate.toFixed(2)} · 实际 ¥${item.actual.toFixed(2)}</div></div><span class="${item.bought ? 'wish-status-bought' : 'wish-status-pending'}">${item.bought ? '✅ 已买' : '⏳ 待买'}</span></div>`; }); const html = `<div style="cursor: pointer; text-align: right; margin-bottom: 8px;" onclick="app.closeWishlistDetail()">✕</div><h3>🎁 ${wish.name}</h3><div class="wish-progress" style="margin: 12px 0;"><div class="wish-progress-fill" style="width: ${percent}%;"></div></div><div style="display: flex; justify-content: space-between; margin-bottom: 16px;"><span>预估: ¥${totalEstimate.toFixed(2)}</span><span>已花: ¥${totalActual.toFixed(2)}</span><span>剩余: ¥${(totalEstimate - totalActual).toFixed(2)}</span></div><h4>📋 项目清单</h4>${itemsHtml || '<div style="text-align:center; padding:12px;">暂无项目</div>'}<div class="modal-buttons" style="margin-top: 16px;"><button class="btn-outline" onclick="app.openWishlistModal('${wish.id}');app.closeWishlistDetail()"><i data-lucide="edit"></i> 编辑</button><button class="btn-cancel" onclick="app.deleteWishlist('${wish.id}')"><i data-lucide="trash-2"></i> 删除</button></div>`; const modal = document.createElement('div'); modal.className = 'modal show'; modal.id = 'wishlistDetailModal'; modal.innerHTML = `<div class="modal-content" style="max-width: 400px;">${html}</div>`; document.body.appendChild(modal); modal.onclick = (e) => { if (e.target === modal) modal.remove(); }; lucide.createIcons(); }
+    function openWishlistDetail(wishId) { const wish = appData.wishlists.find(w => w.id === wishId); if (!wish) return; const totalEstimate = wish.items.reduce((sum, i) => sum + (i.estimate || 0), 0); const totalActual = wish.items.reduce((sum, i) => sum + (i.actual || 0), 0); const percent = totalEstimate > 0 ? (totalActual / totalEstimate * 100) : 0; let itemsHtml = ''; wish.items.forEach(item => { itemsHtml += `<div class="wish-item"><div class="wish-content"><div style="font-weight: 500;">${item.name}</div><div style="font-size: 13px;">预估 ¥${item.estimate.toFixed(2)} · 实际 ¥${item.actual.toFixed(2)}</div></div><span class="${item.bought ? 'wish-status-bought' : 'wish-status-pending'}">${item.bought ? '✅ 已买' : '⏳ 待买'}</span></div>`; }); const html = `<div style="cursor: pointer; text-align: right; margin-bottom: 8px;" onclick="app.closeWishlistDetail()">✕</div><h3>🎁 ${wish.name}</h3><div class="wish-progress" style="margin: 12px 0;"><div class="wish-progress-fill" style="width: ${percent}%;"></div></div><div style="display: flex; justify-content: space-between; margin-bottom: 16px;"><span>预估: ¥${totalEstimate.toFixed(2)}</span><span>已花: ¥${totalActual.toFixed(2)}</span><span>剩余: ¥${(totalEstimate - totalActual).toFixed(2)}</span></div><h4>📋 项目清单</h4>${itemsHtml || '<div style="text-align:center; padding:12px;">暂无项目</div>'}<div class="modal-buttons" style="margin-top: 16px;"><button class="btn-edit" onclick="app.openWishlistModal('${wish.id}');app.closeWishlistDetail()">编辑</button><button class="btn-delete" onclick="app.deleteWishlist('${wish.id}')">删除</button></div>`; const modal = document.createElement('div'); modal.className = 'modal show'; modal.id = 'wishlistDetailModal'; modal.innerHTML = `<div class="modal-content" style="max-width: 400px;">${html}</div>`; document.body.appendChild(modal); modal.onclick = (e) => { if (e.target === modal) modal.remove(); }; lucide.createIcons(); }
     function closeWishlistDetail() { document.getElementById('wishlistDetailModal')?.remove(); }
     function deleteWishlist(wishId) { if (confirm('确定删除吗？')) { appData.wishlists = appData.wishlists.filter(w => w.id !== wishId); saveData(); renderWishlistFull(); closeWishlistDetail(); showToast('已删除'); } }
     function closeWishlistModal() { document.getElementById('wishlistModal').classList.remove('show'); }
     function refreshWishSelect() { const select = document.getElementById('quickWishSelect'); if (select) { select.innerHTML = '<option value="">无</option>' + appData.wishlists.map(w => `<option value="${w.id}">${w.name}</option>`).join(''); } }
 
-    // 快捷记账
     function openQuickRecordModal() {
         const modal = document.getElementById('quickRecordModal');
         document.getElementById('quickAmount').value = '';
@@ -1547,7 +1591,6 @@
         document.getElementById('quickNote').value = '';
         refreshWishSelect();
         
-        // 恢复模板面板状态
         const panel = document.getElementById('templatePanel');
         const headerText = document.getElementById('templateHeaderText');
         if (panel) panel.style.display = templatePanelOpen ? 'block' : 'none';
@@ -1588,7 +1631,6 @@
         showToast('记账成功');
     }
 
-    // 核心功能
     function toggleViewMode() { viewMode = viewMode === 'month' ? 'year' : 'month'; updatePeriodDisplay(); renderHome(); }
     function updatePeriodDisplay() { document.getElementById('periodDisplay').innerText = viewMode === 'month' ? `${currentYear}.${String(currentMonth).padStart(2, '0')}` : `${currentYear}`; }
     function prevPeriod() { if (viewMode === 'month') { currentMonth--; if (currentMonth < 1) { currentMonth = 12; currentYear--; } } else { currentYear--; } updatePeriodDisplay(); renderHome(); }
@@ -1706,11 +1748,11 @@
         if (!appData.categories.length) { container.innerHTML = '<div class="card">暂无家族，点击"家族"创建</div>'; return; } 
         let html = ''; 
         appData.categories.forEach(cat => { 
-            html += `<div class="card"><div style="display:flex; justify-content:space-between; margin-bottom: 12px;"><h3><i data-lucide="${cat.icon || 'cat'}"></i> ${cat.name}</h3><button class="btn-outline btn-small" onclick="app.deleteCategory('${cat.id}')"><i data-lucide="trash-2"></i></button></div>`; 
+            html += `<div class="card"><div style="display:flex; justify-content:space-between; margin-bottom: 12px;"><h3><i data-lucide="${cat.icon || 'cat'}"></i> ${cat.name}</h3><button class="btn-secondary" onclick="app.deleteCategory('${cat.id}')"><i data-lucide="trash-2"></i> 删除</button></div>`; 
             const pets = appData.pets.filter(p => p.categoryId === cat.id); 
             if (pets.length) { pets.forEach(p => { html += `<div class="pet-item" data-pet-id="${p.id}" onclick="app.showPetDetail('${p.id}')" oncontextmenu="app.showPetContextMenu(event,'${p.id}');return false;"><div class="avatar">${p.avatar ? `<img src="${p.avatar}">` : `<i data-lucide="${cat.icon || 'cat'}"></i>`}</div><div class="pet-info" style="flex:1;"><b>${p.name}</b><br><small>${p.birthday || '未设置生日'}</small></div></div>`; }); } 
             else { html += '<div style="padding:16px;text-align:center;color:var(--text-sub);">暂无宠物</div>'; } 
-            html += `<div style="margin-top: 12px;"><button class="btn-outline btn-small" onclick="app.showAddPet('${cat.id}')"><i data-lucide="plus"></i> 添加宠物</button></div></div>`; 
+            html += `<div style="margin-top: 12px;"><button class="btn-secondary" onclick="app.showAddPet('${cat.id}')"><i data-lucide="plus"></i> 添加宠物</button></div></div>`; 
         }); 
         container.innerHTML = html; 
         lucide.createIcons(); 
@@ -1724,12 +1766,12 @@
         const lifeEvents = appData.lifeEvents.filter(e => e.petId === petId).sort((a, b) => (b.date || '').localeCompare(a.date || '')); 
         const taskRecords = appData.taskRecords.filter(t => t.petId === petId).sort((a, b) => (b.date || '').localeCompare(a.date || '')); 
         let eventsHtml = ''; 
-        if (lifeEvents.length) { lifeEvents.forEach(event => { eventsHtml += `<div class="life-event-item"><div><div class="life-event-date">${formatYMD(event.date)}</div><div>📌 ${event.title}</div>${event.note ? `<div style="font-size:12px;color:var(--text-sub);">${event.note}</div>` : ''}</div><button class="delete-event-btn" onclick="app.deleteLifeEvent('${event.id}')"><i data-lucide="trash-2" style="width:16px;"></i></button></div>`; }); } 
+        if (lifeEvents.length) { lifeEvents.forEach(event => { eventsHtml += `<div class="life-event-item"><div><div class="life-event-date">${formatYMD(event.date)}</div><div>📌 ${event.title}</div>${event.note ? `<div style="font-size:12px;color:var(--text-sub);">${event.note}</div>` : ''}</div><button class="btn-delete" onclick="app.deleteLifeEvent('${event.id}')"><i data-lucide="trash-2" style="width:16px;"></i> 删除</button></div>`; }); } 
         else { eventsHtml = '<div style="text-align:center; padding:12px;">暂无记录</div>'; } 
         let tasksHtml = ''; 
-        if (taskRecords.length) { taskRecords.forEach(task => { tasksHtml += `<div class="life-event-item"><div><div class="life-event-date">${formatYMD(task.date)}</div><div><span class="task-badge">${task.type}</span></div>${task.note ? `<div style="font-size:12px;color:var(--text-sub);">${task.note}</div>` : ''}</div><button class="delete-event-btn" onclick="app.deleteTaskRecord('${task.id}')"><i data-lucide="trash-2" style="width:16px;"></i></button></div>`; }); } 
+        if (taskRecords.length) { taskRecords.forEach(task => { tasksHtml += `<div class="life-event-item"><div><div class="life-event-date">${formatYMD(task.date)}</div><div><span class="task-badge">${task.type}</span></div>${task.note ? `<div style="font-size:12px;color:var(--text-sub);">${task.note}</div>` : ''}</div><button class="btn-delete" onclick="app.deleteTaskRecord('${task.id}')"><i data-lucide="trash-2" style="width:16px;"></i> 删除</button></div>`; }); } 
         else { tasksHtml = '<div style="text-align:center; padding:12px;">暂无记录</div>'; } 
-        const html = `<div style="cursor:pointer; text-align:right; margin-bottom:8px;" onclick="app.closePetDetail()">✕</div><div class="pet-detail-header"><div class="avatar pet-detail-avatar">${pet.avatar ? `<img src="${pet.avatar}">` : `<i data-lucide="${category?.icon || 'cat'}"></i>`}</div><div class="pet-detail-name">${pet.name}</div></div><div class="pet-detail-info"><div><div class="pet-detail-info-label">生日</div><div>${pet.birthday || '未设置'}</div></div><div><div class="pet-detail-info-label">年龄</div><div>${calculateAge(pet.birthday)}</div></div><div><div class="pet-detail-info-label">身价</div><div>¥${petSpending.toFixed(2)}</div></div><div><div class="pet-detail-info-label">家族</div><div>${category?.name || '未知'}</div></div></div><h4 style="margin-bottom:8px;">📖 宠生大事 <button class="btn-outline btn-small" onclick="app.openLifeEventModal('${pet.id}')">+ 记录</button></h4><div style="max-height:150px; overflow-y:auto; margin-bottom:16px;">${eventsHtml}</div><h4 style="margin-bottom:8px;">📋 日程记录 <button class="btn-outline btn-small" onclick="app.openScheduleRecordFromPet('${pet.id}')">+ 记录</button></h4><div style="max-height:150px; overflow-y:auto;">${tasksHtml}</div><div class="modal-buttons" style="margin-top:16px;"><button class="btn-outline" onclick="app.closePetDetail();app.editPet('${pet.id}')">编辑资料</button><button class="btn-outline" onclick="app.closePetDetail();app.showDeletePetOptions('${pet.id}')" style="color:#dc2626;">删除宠物</button></div>`; 
+        const html = `<div style="cursor:pointer; text-align:right; margin-bottom:8px;" onclick="app.closePetDetail()">✕</div><div class="pet-detail-header"><div class="avatar pet-detail-avatar">${pet.avatar ? `<img src="${pet.avatar}">` : `<i data-lucide="${category?.icon || 'cat'}"></i>`}</div><div class="pet-detail-name">${pet.name}</div></div><div class="pet-detail-info"><div><div class="pet-detail-info-label">生日</div><div>${pet.birthday || '未设置'}</div></div><div><div class="pet-detail-info-label">年龄</div><div>${calculateAge(pet.birthday)}</div></div><div><div class="pet-detail-info-label">身价</div><div>¥${petSpending.toFixed(2)}</div></div><div><div class="pet-detail-info-label">家族</div><div>${category?.name || '未知'}</div></div></div><h4 style="margin-bottom:8px;">📖 宠生大事 <button class="btn-secondary btn-small" onclick="app.openLifeEventModal('${pet.id}')">+ 记录</button></h4><div style="max-height:150px; overflow-y:auto; margin-bottom:16px;">${eventsHtml}</div><h4 style="margin-bottom:8px;">📋 日程记录 <button class="btn-secondary btn-small" onclick="app.openScheduleRecordFromPet('${pet.id}')">+ 记录</button></h4><div style="max-height:150px; overflow-y:auto;">${tasksHtml}</div><div class="modal-buttons" style="margin-top:16px;"><button class="btn-edit" onclick="app.closePetDetail();app.editPet('${pet.id}')">编辑资料</button><button class="btn-delete" onclick="app.closePetDetail();app.showDeletePetOptions('${pet.id}')">删除宠物</button></div>`; 
         const contentDiv = document.getElementById('petDetailContent'); 
         contentDiv.setAttribute('data-current-pet', petId); 
         contentDiv.innerHTML = html; 
@@ -1788,7 +1830,7 @@
     function renderYearCompare(year) { const thisYear = appData.records.filter(r => new Date(r.date).getFullYear() == year); const lastYear = appData.records.filter(r => new Date(r.date).getFullYear() == year - 1); const thisTotal = thisYear.reduce((s, r) => s + (parseFloat(r.amount) || 0), 0); const lastTotal = lastYear.reduce((s, r) => s + (parseFloat(r.amount) || 0), 0); const change = lastTotal ? ((thisTotal - lastTotal) / lastTotal * 100).toFixed(1) : 0; let html = `<div class="compare-card"><div>${year}年总支出</div><div><strong>¥${thisTotal.toFixed(2)}</strong></div></div>`; if (lastTotal > 0) { html += `<div class="compare-card"><div>相比${year - 1}年</div><div class="${change > 0 ? 'up' : 'down'}" style="color:${change > 0 ? '#dc2626' : '#10b981'};">${change > 0 ? '↑' : '↓'} ${Math.abs(change)}%</div></div>`; } html += `<div style="margin-top:12px;"><strong>各宠物支出对比</strong></div>`; appData.pets.forEach(pet => { const petThis = thisYear.filter(r => r.petId === pet.id).reduce((s, r) => s + (parseFloat(r.amount) || 0), 0); const petLast = lastYear.filter(r => r.petId === pet.id).reduce((s, r) => s + (parseFloat(r.amount) || 0), 0); if (petThis > 0 || petLast > 0) { const petChange = petLast ? ((petThis - petLast) / petLast * 100).toFixed(1) : 100; html += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-light);"><span>${pet.name}</span><span>¥${petThis.toFixed(2)}</span>${petLast > 0 ? `<span style="color:${petChange > 0 ? '#dc2626' : '#10b981'};">${petChange > 0 ? '↑' : '↓'} ${Math.abs(petChange)}%</span>` : '<span style="font-size:12px;">新增</span>'}</div>`; } }); document.getElementById('yearCompareContainer').innerHTML = html; }
     function renderBudget() { const budget = appData.monthlyBudget || 0; document.getElementById('monthlyBudget').value = budget; const currentMonth = new Date().getMonth() + 1; const currentYear = new Date().getFullYear(); const monthSpending = appData.records.filter(r => { if (!r.date) return false; const d = new Date(r.date); return d.getFullYear() === currentYear && d.getMonth() + 1 === currentMonth; }).reduce((s, r) => s + (parseFloat(r.amount) || 0), 0); let html = `<div>本月预算: ¥${budget.toFixed(2)}</div><div>本月已用: ¥${monthSpending.toFixed(2)}</div>`; if (budget > 0) { const percent = (monthSpending / budget * 100).toFixed(1); html += `<div>预算使用: ${percent}%</div>`; if (monthSpending > budget) { html += `<div style="color:#dc2626;">⚠️ 已超预算 ¥${(monthSpending - budget).toFixed(2)}</div>`; } else { html += `<div style="color:#10b981;">✅ 剩余预算 ¥${(budget - monthSpending).toFixed(2)}</div>`; } } document.getElementById('budgetDisplay').innerHTML = html; }
     function saveBudget() { const budget = parseFloat(document.getElementById('monthlyBudget').value); appData.monthlyBudget = budget; saveData(); renderBudget(); showToast('预算已保存'); }
-    function renderSettings() { document.getElementById('expenseCategoryList').innerHTML = appData.expenseCategories.map((ec, i) => `<div style="display:flex; justify-content:space-between; padding:6px 0;"><span>${ec.name}</span><button class="btn-outline btn-small" onclick="app.removeExpenseCategory(${i})"><i data-lucide="trash-2"></i></button></div>`).join(''); const recurringHtml = appData.recurringRecords.map((r, i) => `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-light);"><div>${r.record.expenseCategory} - ¥${r.record.amount}<br><small>${r.period} | 上次: ${r.lastDate}</small></div><button class="btn-outline btn-small" onclick="app.deleteRecurring(${i})"><i data-lucide="trash-2"></i></button></div>`).join(''); document.getElementById('recurringList').innerHTML = recurringHtml || '<div>暂无定期记账</div>'; renderBudget(); renderTemplatesManageList(); lucide.createIcons(); }
+    function renderSettings() { document.getElementById('expenseCategoryList').innerHTML = appData.expenseCategories.map((ec, i) => `<div class="template-item"><div class="template-info"><span>${ec.name}</span></div><button class="btn-delete" onclick="app.removeExpenseCategory(${i})">删除</button></div>`).join(''); const recurringHtml = appData.recurringRecords.map((r, i) => `<div class="template-item"><div class="template-info"><div>${r.record.expenseCategory} - ¥${r.record.amount}</div><div class="detail">${r.period} | 上次: ${r.lastDate}</div></div><button class="btn-delete" onclick="app.deleteRecurring(${i})">删除</button></div>`).join(''); document.getElementById('recurringList').innerHTML = recurringHtml || '<div style="padding:20px;text-align:center;">暂无定期记账</div>'; renderBudget(); renderTemplatesManageList(); lucide.createIcons(); }
     function deleteRecurring(index) { appData.recurringRecords.splice(index, 1); saveData(); renderSettings(); showToast('已删除'); }
     function exportData() { const dataStr = JSON.stringify(appData, null, 2); const blob = new Blob([dataStr], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `xiaozhangben_backup_${new Date().toISOString().slice(0, 10)}.json`; a.click(); URL.revokeObjectURL(url); showToast('导出成功'); }
     function importData(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const imported = JSON.parse(e.target.result); if (imported.categories && imported.pets && imported.records) { appData = imported; if (!appData.lifeEvents) appData.lifeEvents = []; if (!appData.taskRecords) appData.taskRecords = []; if (!appData.wishlists) appData.wishlists = []; if (!appData.templates) appData.templates = []; if (!appData.expenseCategories || !appData.expenseCategories.length) appData.expenseCategories = [{ name: '食品' }, { name: '医疗' }, { name: '玩具' }, { name: '美容' }, { name: '日用' }]; saveData(); showToast('导入成功！刷新页面'); setTimeout(() => location.reload(), 1500); } else { showToast('文件格式错误', false); } } catch (err) { showToast('解析失败', false); } }; reader.readAsText(file); input.value = ''; }
@@ -1818,7 +1860,6 @@
         completeTask, getScheduleReminders, renderScheduleReminders,
         refreshAllPetSelects, toggleCollapse, toggleFilterPanel,
         filterRecords, setDateFilter, setPetFilter, setCategoryFilter, clearDateRange, clearSearch,
-        // 模板相关
         toggleTemplatePanel, applyTemplate, openTemplateManageModal, closeTemplateManageModal,
         openAddTemplateModal, closeAddTemplateModal, saveTemplate, editTemplate, deleteTemplate
     };
