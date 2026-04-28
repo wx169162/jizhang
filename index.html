@@ -183,8 +183,8 @@
         .template-info .name { font-weight: 500; }
         .template-info .detail { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
         .template-actions { display: flex; gap: 8px; }
-        .wish-item-input-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-        .wish-item-input-group input, .wish-item-input-group select { flex: 1; min-width: 0; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--border-light); background: white; font-size: 13px; }
+        .wish-item-input-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
+        .wish-item-input-group input, .wish-item-input-group select { flex: 1; min-width: 100px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border-light); background: white; font-size: 13px; }
         .task-type-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-light); }
         .task-type-info { flex: 1; }
         .task-type-name { font-weight: 500; }
@@ -377,7 +377,7 @@
     <div class="card"><h3>预算设置</h3><div class="form-row"><label>月度预算</label><input type="number" id="monthlyBudget" step="0.01"><button class="btn" style="margin-top: 8px;" onclick="app.saveBudget()">保存预算</button></div><div id="budgetDisplay" style="margin-top: 12px;"></div></div>
     <div class="card"><h3>记账模板</h3><div id="templatesList"></div><div style="margin-top: 8px;"><button class="btn-secondary btn-small" onclick="app.openTemplateModal()"><i data-lucide="plus"></i> 添加模板</button></div></div>
     <div class="card"><h3>数据</h3><div style="display: flex; flex-wrap: wrap; gap: 8px;"><button class="data-btn" onclick="app.exportData()"><i data-lucide="download"></i> 导出数据</button><label class="data-btn" style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;"><i data-lucide="upload"></i> 导入数据<input type="file" id="importFileInput" accept=".json" onchange="app.importData(this)" style="display: none;"></label><button class="data-btn" onclick="app.resetAllData()" style="background: #dc2626;"><i data-lucide="alert-triangle"></i> 重置</button></div></div>
-    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v3.8.1 · 正式版</div>
+    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v3.8.2 · 正式版</div>
 </div>
 
 <div class="nav-bar">
@@ -393,7 +393,24 @@
 <div class="modal" id="lifeEventModal"><div class="modal-content"><h3>📖 记录宠生大事</h3><div class="form-row"><label>宠物</label><select id="eventPetSelect"></select></div><div class="form-row"><label>事件名称</label><input type="text" id="eventTitle" placeholder="如：绝育、生病..."></div><div class="form-row"><label>日期</label><input type="date" id="eventDate"></div><div class="form-row"><label>备注</label><input type="text" id="eventNote" placeholder="可选"></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeLifeEventModal()">取消</button><button class="btn" onclick="app.saveLifeEvent()">保存</button></div></div></div>
 <div class="modal" id="editRecordModal"><div class="modal-content"><h3>编辑记录</h3><input type="hidden" id="editRecordId"><div class="form-row"><label>金额</label><input type="number" id="editAmountInput" step="0.01"></div><div class="form-row"><label>日期</label><input type="date" id="editDateInput"></div><div class="form-row"><label>所属宠物</label><select id="editPetSelect"></select></div><div class="form-row"><label>家族</label><select id="editCategorySelect"></select></div><div class="form-row"><label>类别</label><select id="editExpenseCategorySelect"></select></div><div class="form-row"><label>支付</label><select id="editPaymentSelect"><option>微信</option><option>支付宝</option><option>现金</option></select></div><div class="form-row"><label>备注</label><textarea id="editNoteInput" rows="2"></textarea></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeEditModal()">取消</button><button class="btn" onclick="app.saveEditRecord()">保存</button></div></div></div>
 <div class="modal" id="deletePetModal"><div class="modal-content"><h3>删除宠物</h3><p style="margin-bottom: 16px;">请选择处理方式：</p><button class="btn" style="margin-bottom: 8px; background: #dc2626;" onclick="app.confirmDeletePet('both')">删除宠物及其所有账单</button><button class="btn-cancel" onclick="app.confirmDeletePet('keep')">保留账单，仅解除关联</button><div class="modal-buttons" style="margin-top: 12px;"><button class="btn-cancel" onclick="app.closeDeletePetModal()">取消</button></div></div></div>
-<div class="modal" id="wishlistModal"><div class="modal-content"><h3 id="wishlistModalTitle">🎁 新建愿望清单</h3><input type="hidden" id="editWishlistId"><div class="form-row"><label>清单名称</label><input type="text" id="wishlistName" placeholder="如：养猫预备金"></div><div class="form-row"><label>关联宠物</label><select id="wishlistPetSelect"><option value="">无</option></select></div><div style="margin: 12px 0;"><label style="font-weight: 500;">愿望项目</label><div id="wishItemsContainer"></div><button class="btn-secondary btn-small" style="margin-top: 8px;" onclick="app.addWishItemField()"><i data-lucide="plus"></i> 添加项目</button></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeWishlistModal()">取消</button><button class="btn" onclick="app.saveWishlist()">保存</button></div></div></div>
+
+<!-- 愿望清单弹窗 - 修改版：支持选择家族和宠物 -->
+<div class="modal" id="wishlistModal">
+    <div class="modal-content">
+        <h3 id="wishlistModalTitle">🎁 新建愿望清单</h3>
+        <input type="hidden" id="editWishlistId">
+        <div class="form-row"><label>清单名称</label><input type="text" id="wishlistName" placeholder="如：养猫预备金"></div>
+        <div style="margin: 12px 0;">
+            <label style="font-weight: 500;">愿望项目</label>
+            <div id="wishItemsContainer"></div>
+            <button class="btn-secondary btn-small" style="margin-top: 8px;" onclick="app.addWishItemField()"><i data-lucide="plus"></i> 添加项目</button>
+        </div>
+        <div class="modal-buttons">
+            <button class="btn-cancel" onclick="app.closeWishlistModal()">取消</button>
+            <button class="btn" onclick="app.saveWishlist()">保存</button>
+        </div>
+    </div>
+</div>
 
 <div class="modal" id="quickRecordModal">
     <div class="modal-content">
@@ -496,8 +513,8 @@
     };
 
     let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    const STORAGE_KEY = 'pet_v381_full';
-    const OLD_STORAGE_KEYS = ['pet_v38_full', 'pet_v37_full', 'pet_v36_full'];
+    const STORAGE_KEY = 'pet_v382_full';
+    const OLD_STORAGE_KEYS = ['pet_v381_full', 'pet_v38_full', 'pet_v37_full', 'pet_v36_full'];
 
     const DEFAULT_TASK_TYPES = [
         { name: '驱虫', interval: 90 },
@@ -965,8 +982,6 @@
         if (quickPetSelect) quickPetSelect.innerHTML = petOptions;
         const editPetSelect = document.getElementById('editPetSelect');
         if (editPetSelect) editPetSelect.innerHTML = petOptions;
-        const wishlistPetSelect = document.getElementById('wishlistPetSelect');
-        if (wishlistPetSelect) wishlistPetSelect.innerHTML = '<option value="">无</option>' + appData.pets.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
         const eventPetSelect = document.getElementById('eventPetSelect');
         if (eventPetSelect) eventPetSelect.innerHTML = appData.pets.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
         const templatePetSelect = document.getElementById('templatePetSelect');
@@ -1225,7 +1240,7 @@
         }
     }
 
-    // ========== 愿望清单（改进版：支持选择支出类别，点击已买自动记账） ==========
+    // ========== 愿望清单 - 支持选择家族和宠物，自动记账 ==========
     function renderWishlistFull() {
         const container = document.getElementById('wishlistFullList');
         if (!container) return;
@@ -1235,7 +1250,7 @@
             const totalEstimate = wish.items.reduce((sum, item) => sum + (item.estimate || 0), 0);
             const totalActual = wish.items.reduce((sum, item) => sum + (item.actual || 0), 0);
             const percent = totalEstimate > 0 ? (totalActual / totalEstimate * 100) : 0;
-            html += `<div class="card" style="margin-bottom: 12px;" onclick="app.openWishlistDetail('${wish.id}')"><div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span style="font-weight: 500;">🎁 ${wish.name}</span><span style="font-size: 13px;">¥${totalActual} / ¥${totalEstimate}</span></div><div class="wish-progress"><div class="wish-progress-fill" style="width: ${percent}%;"></div></div><div style="margin-top: 6px; font-size: 12px; color: var(--text-sub);">剩余 ¥${(totalEstimate - totalActual).toFixed(2)}${wish.petId ? ` · 🐾 ${appData.pets.find(p => p.id === wish.petId)?.name || ''}` : ''}</div></div>`;
+            html += `<div class="card" style="margin-bottom: 12px;" onclick="app.openWishlistDetail('${wish.id}')"><div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span style="font-weight: 500;">🎁 ${wish.name}</span><span style="font-size: 13px;">¥${totalActual} / ¥${totalEstimate}</span></div><div class="wish-progress"><div class="wish-progress-fill" style="width: ${percent}%;"></div></div><div style="margin-top: 6px; font-size: 12px; color: var(--text-sub);">剩余 ¥${(totalEstimate - totalActual).toFixed(2)}</div></div>`;
         });
         container.innerHTML = html;
     }
@@ -1245,15 +1260,13 @@
         const title = document.getElementById('wishlistModalTitle');
         const idField = document.getElementById('editWishlistId');
         const nameField = document.getElementById('wishlistName');
-        const petSelect = document.getElementById('wishlistPetSelect');
-        refreshAllPetSelects();
+        
         if (wishId) {
             const wish = appData.wishlists.find(w => w.id === wishId);
             if (wish) {
                 title.innerText = '✏️ 编辑愿望清单';
                 idField.value = wish.id;
                 nameField.value = wish.name;
-                petSelect.value = wish.petId || '';
                 renderWishItems(wish.items);
                 modal.classList.add('show');
                 return;
@@ -1262,7 +1275,6 @@
         title.innerText = '🎁 新建愿望清单';
         idField.value = '';
         nameField.value = '';
-        petSelect.value = '';
         renderWishItems([]);
         modal.classList.add('show');
     }
@@ -1270,25 +1282,34 @@
     function renderWishItems(items = []) {
         const container = document.getElementById('wishItemsContainer');
         if (!container) return;
-        const expenseOptions = appData.expenseCategories.map(ec => `<option value="${escapeHtml(ec.name)}">${escapeHtml(ec.name)}</option>`).join('');
+        const categoryOptions = '<option value="">选择家族</option>' + appData.categories.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
         if (items.length === 0) {
-            container.innerHTML = `<div style="padding: 12px; text-align: center; color: var(--text-sub);">暂无项目，点击下方按钮添加</div>
-            <div id="wishItemsStore" style="display:none;"></div>`;
+            container.innerHTML = `<div style="padding: 12px; text-align: center; color: var(--text-sub);">暂无项目，点击下方按钮添加</div>`;
             return;
         }
         let html = '';
         items.forEach((item, idx) => {
-            const selectedExpense = item.expenseCategory || '';
-            html += `<div style="margin-bottom: 12px; padding: 8px; background: var(--primary-light); border-radius: 12px;" data-wish-item-index="${idx}">
+            // 生成宠物下拉框（根据已选家族动态更新，这里先预设）
+            const petOptions = '<option value="">不指定（归入家族）</option>' + (item.categoryId ? appData.pets.filter(p => p.categoryId === item.categoryId).map(p => `<option value="${p.id}" ${item.petId === p.id ? 'selected' : ''}>${escapeHtml(p.name)}</option>`).join('') : '<option value="">请先选择家族</option>');
+            html += `<div style="margin-bottom: 16px; padding: 12px; background: var(--primary-light); border-radius: 14px;" data-wish-item-index="${idx}">
                 <div class="wish-item-input-group">
                     <input type="text" placeholder="项目名称" value="${escapeHtml(item.name)}" data-wish-item-name="${idx}" style="flex: 2;">
                     <input type="number" placeholder="预估 ¥" value="${item.estimate || ''}" data-wish-item-estimate="${idx}" style="flex: 1;">
                 </div>
-                <div class="wish-item-input-group" style="margin-top: 8px;">
+                <div class="wish-item-input-group">
                     <input type="number" placeholder="实际 ¥" value="${item.actual || ''}" data-wish-item-actual="${idx}" style="flex: 1;">
-                    <select data-wish-item-expense="${idx}" style="flex: 1;">
-                        <option value="">选择类别</option>
-                        ${expenseOptions}
+                    <select data-wish-item-expense="${idx}" style="flex: 1;" onchange="app.updateWishItemPets(${idx}, this.value)">
+                        <option value="">选择支出类别</option>
+                        ${appData.expenseCategories.map(ec => `<option value="${escapeHtml(ec.name)}" ${item.expenseCategory === ec.name ? 'selected' : ''}>${escapeHtml(ec.name)}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="wish-item-input-group">
+                    <select data-wish-item-category="${idx}" style="flex: 1;" onchange="app.updateWishItemPets(${idx}, null, this.value)">
+                        <option value="">选择家族</option>
+                        ${appData.categories.map(c => `<option value="${c.id}" ${item.categoryId === c.id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}
+                    </select>
+                    <select data-wish-item-pet="${idx}" style="flex: 1;">
+                        ${petOptions}
                     </select>
                     <label style="display: flex; align-items: center; gap: 4px;"><input type="checkbox" data-wish-item-bought="${idx}" ${item.bought ? 'checked' : ''}> 已买</label>
                     <button class="btn-edit btn-small" onclick="app.removeWishItem(${idx})">删除</button>
@@ -1296,13 +1317,20 @@
             </div>`;
         });
         container.innerHTML = html;
-        // 设置已保存的 expenseCategory 值
-        items.forEach((item, idx) => {
-            const select = container.querySelector(`select[data-wish-item-expense="${idx}"]`);
-            if (select && item.expenseCategory) {
-                select.value = item.expenseCategory;
+    }
+
+    // 辅助函数：当家族改变时，更新对应的宠物下拉框
+    function updateWishItemPets(idx, expenseCat, categoryId) {
+        const container = document.getElementById('wishItemsContainer');
+        const itemDiv = container.querySelector(`div[data-wish-item-index="${idx}"]`);
+        if (!itemDiv) return;
+        if (categoryId) {
+            const petSelect = itemDiv.querySelector(`select[data-wish-item-pet="${idx}"]`);
+            if (petSelect) {
+                const pets = appData.pets.filter(p => p.categoryId === categoryId);
+                petSelect.innerHTML = '<option value="">不指定（归入家族）</option>' + pets.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
             }
-        });
+        }
     }
 
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
@@ -1310,17 +1338,26 @@
     function addWishItemField() {
         const container = document.getElementById('wishItemsContainer');
         const idx = Date.now();
+        const categoryOptions = '<option value="">选择家族</option>' + appData.categories.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
         const expenseOptions = appData.expenseCategories.map(ec => `<option value="${escapeHtml(ec.name)}">${escapeHtml(ec.name)}</option>`).join('');
-        container.insertAdjacentHTML('beforeend', `<div style="margin-bottom: 12px; padding: 8px; background: var(--primary-light); border-radius: 12px;" data-wish-item-index="${idx}">
+        container.insertAdjacentHTML('beforeend', `<div style="margin-bottom: 16px; padding: 12px; background: var(--primary-light); border-radius: 14px;" data-wish-item-index="${idx}">
             <div class="wish-item-input-group">
                 <input type="text" placeholder="项目名称" data-wish-item-name="${idx}" style="flex: 2;">
                 <input type="number" placeholder="预估 ¥" data-wish-item-estimate="${idx}" style="flex: 1;">
             </div>
-            <div class="wish-item-input-group" style="margin-top: 8px;">
+            <div class="wish-item-input-group">
                 <input type="number" placeholder="实际 ¥" data-wish-item-actual="${idx}" style="flex: 1;">
                 <select data-wish-item-expense="${idx}" style="flex: 1;">
-                    <option value="">选择类别</option>
+                    <option value="">选择支出类别</option>
                     ${expenseOptions}
+                </select>
+            </div>
+            <div class="wish-item-input-group">
+                <select data-wish-item-category="${idx}" style="flex: 1;" onchange="app.updateWishItemPets(${idx}, null, this.value)">
+                    ${categoryOptions}
+                </select>
+                <select data-wish-item-pet="${idx}" style="flex: 1;">
+                    <option value="">不指定（归入家族）</option>
                 </select>
                 <label style="display: flex; align-items: center; gap: 4px;"><input type="checkbox" data-wish-item-bought="${idx}"> 已买</label>
                 <button class="btn-edit btn-small" onclick="app.removeWishItem(${idx})">删除</button>
@@ -1330,25 +1367,23 @@
     
     function removeWishItem(idx) {
         const container = document.getElementById('wishItemsContainer');
-        const items = container.querySelectorAll('div[style*="margin-bottom: 12px;"]');
-        for (let item of items) {
-            if (item.innerHTML.includes(`data-wish-item-name="${idx}"`) || item.getAttribute('data-wish-item-index') == idx) {
-                item.remove();
-                break;
-            }
-        }
+        const item = container.querySelector(`div[data-wish-item-index="${idx}"]`);
+        if (item) item.remove();
     }
     
     function collectWishItems() {
         const items = [];
         const container = document.getElementById('wishItemsContainer');
-        const itemDivs = container.querySelectorAll('div[style*="margin-bottom: 12px;"]');
+        const itemDivs = container.querySelectorAll('div[data-wish-item-index]');
         itemDivs.forEach(div => {
-            const nameInput = div.querySelector('input[placeholder="项目名称"]');
-            const estimateInput = div.querySelector('input[placeholder="预估 ¥"]');
-            const actualInput = div.querySelector('input[placeholder="实际 ¥"]');
-            const expenseSelect = div.querySelector('select[data-wish-item-expense]');
-            const boughtCheck = div.querySelector('input[type="checkbox"]');
+            const idx = div.getAttribute('data-wish-item-index');
+            const nameInput = div.querySelector(`input[data-wish-item-name="${idx}"]`);
+            const estimateInput = div.querySelector(`input[data-wish-item-estimate="${idx}"]`);
+            const actualInput = div.querySelector(`input[data-wish-item-actual="${idx}"]`);
+            const expenseSelect = div.querySelector(`select[data-wish-item-expense="${idx}"]`);
+            const categorySelect = div.querySelector(`select[data-wish-item-category="${idx}"]`);
+            const petSelect = div.querySelector(`select[data-wish-item-pet="${idx}"]`);
+            const boughtCheck = div.querySelector(`input[data-wish-item-bought="${idx}"]`);
             const name = nameInput?.value.trim();
             if (name) {
                 items.push({
@@ -1356,6 +1391,8 @@
                     estimate: parseFloat(estimateInput?.value) || 0,
                     actual: parseFloat(actualInput?.value) || 0,
                     expenseCategory: expenseSelect?.value || '',
+                    categoryId: categorySelect?.value || '',
+                    petId: petSelect?.value || '',
                     bought: boughtCheck?.checked || false
                 });
             }
@@ -1366,71 +1403,20 @@
     function saveWishlist() {
         const id = document.getElementById('editWishlistId').value;
         const name = document.getElementById('wishlistName').value.trim();
-        const petId = document.getElementById('wishlistPetSelect').value;
         const items = collectWishItems();
         if (!name) { showToast('请输入清单名称', false); return; }
         if (id) {
             const index = appData.wishlists.findIndex(w => w.id === id);
             if (index !== -1) {
-                appData.wishlists[index] = { ...appData.wishlists[index], name, petId: petId || null, items };
+                appData.wishlists[index] = { ...appData.wishlists[index], name, items };
             }
         } else {
-            appData.wishlists.push({ id: Date.now() + Math.random() + '', name, petId: petId || null, items, createdAt: getToday() });
+            appData.wishlists.push({ id: Date.now() + Math.random() + '', name, items, createdAt: getToday() });
         }
         saveData();
         closeWishlistModal();
         renderWishlistFull();
         showToast('愿望清单已保存');
-    }
-    
-    // 自动记账：当勾选已买时，如果金额 > 0 且选择了类别，则自动生成记账记录
-    function autoRecordFromWish(wishId, itemIndex, item) {
-        if (!item.bought) return;
-        if (!item.actual || item.actual <= 0) {
-            showToast('请先填写实际金额', false);
-            return;
-        }
-        if (!item.expenseCategory) {
-            showToast('请先选择支出类别', false);
-            return;
-        }
-        const wish = appData.wishlists.find(w => w.id === wishId);
-        if (!wish) return;
-        // 检查是否已经为这个项目记过账（避免重复记账）
-        const alreadyRecorded = appData.records.some(r => r.wishAutoId === `${wishId}_${itemIndex}`);
-        if (alreadyRecorded) {
-            showToast('该项目已自动记账过，无需重复', false);
-            return;
-        }
-        // 获取宠物信息（如果愿望清单关联了宠物）
-        let petId = wish.petId || '';
-        let categoryId = '';
-        if (petId) {
-            const pet = appData.pets.find(p => p.id === petId);
-            if (pet) categoryId = pet.categoryId;
-        }
-        // 如果没有关联宠物，尝试找到第一个可用的家族
-        if (!categoryId && appData.categories.length > 0) {
-            categoryId = appData.categories[0].id;
-        }
-        const newRecord = {
-            id: Date.now() + Math.random(),
-            amount: item.actual,
-            date: getToday(),
-            petId: petId,
-            categoryId: categoryId,
-            expenseCategory: item.expenseCategory,
-            payment: '微信',
-            note: `来自愿望清单：${item.name}`,
-            wishlistId: wishId,
-            wishAutoId: `${wishId}_${itemIndex}`  // 标记防止重复记账
-        };
-        appData.records.push(newRecord);
-        saveData();
-        showToast(`已自动记账：${item.name} ¥${item.actual.toFixed(2)} (${item.expenseCategory})`);
-        // 刷新首页和统计页
-        if (document.getElementById('pageHome').classList.contains('active')) renderHome();
-        if (document.getElementById('pageStats').classList.contains('active')) renderStatsPage();
     }
     
     function openWishlistDetail(wishId) {
@@ -1441,19 +1427,17 @@
         const percent = totalEstimate > 0 ? (totalActual / totalEstimate * 100) : 0;
         let itemsHtml = '';
         wish.items.forEach((item, idx) => {
-            const expenseOptions = appData.expenseCategories.map(ec => `<option value="${escapeHtml(ec.name)}" ${item.expenseCategory === ec.name ? 'selected' : ''}>${escapeHtml(ec.name)}</option>`).join('');
-            itemsHtml += `<div class="wish-item" data-wish-item-index="${idx}">
+            const category = appData.categories.find(c => c.id === item.categoryId);
+            const pet = appData.pets.find(p => p.id === item.petId);
+            itemsHtml += `<div class="wish-item">
                 <div class="wish-content" style="flex:2;">
                     <div style="font-weight: 500;">${escapeHtml(item.name)}</div>
                     <div style="font-size: 13px;">预估 ¥${item.estimate.toFixed(2)} · 实际 ¥${item.actual.toFixed(2)}</div>
-                    <select id="wishItemExpense_${idx}" style="margin-top: 6px; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 12px;">
-                        <option value="">选择支出类别</option>
-                        ${expenseOptions}
-                    </select>
+                    <div style="font-size: 12px; color: var(--text-sub);">${item.expenseCategory || '未选类别'} · ${category ? category.name : '未选家族'} ${pet ? '· ' + pet.name : ''}</div>
                 </div>
                 <div style="text-align: right;">
                     <span class="${item.bought ? 'wish-status-bought' : 'wish-status-pending'}">${item.bought ? '✅ 已买' : '⏳ 待买'}</span>
-                    <button class="btn-secondary btn-small" style="margin-top: 8px; display: block;" onclick="app.markWishItemBought('${wish.id}', ${idx})">标记已买</button>
+                    ${!item.bought ? `<button class="btn-secondary btn-small" style="margin-top: 8px; display: block;" onclick="app.markWishItemBought('${wish.id}', ${idx})">标记已买</button>` : ''}
                 </div>
             </div>`;
         });
@@ -1485,38 +1469,27 @@
         if (!wish) return;
         const item = wish.items[itemIndex];
         if (!item) return;
-        // 获取用户选择的支出类别
-        const selectEl = document.getElementById(`wishItemExpense_${itemIndex}`);
-        const selectedExpense = selectEl ? selectEl.value : item.expenseCategory || '';
-        if (!selectedExpense) {
-            showToast('请先选择支出类别', false);
-            return;
-        }
         if (!item.actual || item.actual <= 0) {
             showToast('请先填写实际金额', false);
             return;
         }
-        // 更新 item 的类别和已买状态
-        item.expenseCategory = selectedExpense;
-        item.bought = true;
-        // 自动记账
+        if (!item.expenseCategory) {
+            showToast('请先选择支出类别', false);
+            return;
+        }
+        if (!item.categoryId) {
+            showToast('请先选择家族', false);
+            return;
+        }
+        // 检查是否重复记账
         const alreadyRecorded = appData.records.some(r => r.wishAutoId === `${wishId}_${itemIndex}`);
         if (!alreadyRecorded) {
-            let petId = wish.petId || '';
-            let categoryId = '';
-            if (petId) {
-                const pet = appData.pets.find(p => p.id === petId);
-                if (pet) categoryId = pet.categoryId;
-            }
-            if (!categoryId && appData.categories.length > 0) {
-                categoryId = appData.categories[0].id;
-            }
             const newRecord = {
                 id: Date.now() + Math.random(),
                 amount: item.actual,
                 date: getToday(),
-                petId: petId,
-                categoryId: categoryId,
+                petId: item.petId || '',
+                categoryId: item.categoryId,
                 expenseCategory: item.expenseCategory,
                 payment: '微信',
                 note: `来自愿望清单：${item.name}`,
@@ -1526,8 +1499,8 @@
             appData.records.push(newRecord);
             showToast(`已自动记账：${item.name} ¥${item.actual.toFixed(2)} (${item.expenseCategory})`);
         }
+        item.bought = true;
         saveData();
-        // 刷新页面
         renderWishlistFull();
         closeWishlistDetail();
         openWishlistDetail(wishId);
@@ -1594,7 +1567,7 @@
             if (wish) {
                 const matchingItem = wish.items.find(item => item.name === newRecord.expenseCategory);
                 if (matchingItem) { matchingItem.actual = (matchingItem.actual || 0) + amt; matchingItem.bought = true; }
-                else { wish.items.push({ name: newRecord.expenseCategory, estimate: 0, actual: amt, bought: true, expenseCategory: newRecord.expenseCategory }); }
+                else { wish.items.push({ name: newRecord.expenseCategory, estimate: 0, actual: amt, bought: true, expenseCategory: newRecord.expenseCategory, categoryId: newRecord.categoryId, petId: newRecord.petId }); }
                 saveData(); renderWishlistFull();
             }
         }
@@ -1883,6 +1856,7 @@
         addTaskRecord, deleteTaskRecord, renderRecentTasks, openScheduleRecordFromPet,
         openWishlistModal, closeWishlistModal, saveWishlist, addWishItemField, removeWishItem,
         openWishlistDetail, closeWishlistDetail, deleteWishlist, markWishItemBought,
+        updateWishItemPets,
         completeTask, getScheduleReminders, renderScheduleReminders,
         refreshAllPetSelects, toggleCollapse, toggleFilterPanel,
         filterRecords, setDateFilter, setPetFilter, setCategoryFilter, clearDateRange, clearSearch,
