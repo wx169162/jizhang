@@ -12,7 +12,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    
     <style>
         :root {
             --bg-page: #faf8f5;
@@ -44,484 +43,106 @@
         body { font-family: 'Inter', sans-serif; background: var(--bg-page); color: var(--text-main); min-height: 100vh; padding-bottom: 80px; }
         .page { display: none; padding: 14px 14px 20px; max-width: 480px; margin: 0 auto; animation: fadeIn 0.3s ease; }
         .page.active { display: block; }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--radius-card);
-            padding: 16px 14px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-light);
-            margin-bottom: 14px;
-            transition: all 0.25s ease;
-            animation: fadeIn 0.4s ease backwards;
-            overflow: hidden;
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            user-select: none;
-        }
-        .card-header h3 {
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .collapse-icon {
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.2s;
-        }
-        .card-body {
-            transition: all 0.2s ease;
-        }
-        .card-body.collapsed {
-            display: none;
-        }
-        
-        .filter-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .filter-toggle {
-            background: var(--primary-light);
-            border: none;
-            padding: 6px 12px;
-            border-radius: var(--radius-btn-square);
-            font-size: 12px;
-            color: var(--primary-dark);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .card { background: var(--card-bg); border-radius: var(--radius-card); padding: 16px 14px; box-shadow: var(--shadow); border: 1px solid var(--border-light); margin-bottom: 14px; transition: all 0.25s ease; animation: fadeIn 0.4s ease backwards; overflow: hidden; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+        .card-header h3 { font-size: 16px; display: flex; align-items: center; gap: 6px; }
+        .collapse-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+        .card-body { transition: all 0.2s ease; }
+        .card-body.collapsed { display: none; }
+        .filter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .filter-toggle { background: var(--primary-light); border: none; padding: 6px 12px; border-radius: var(--radius-btn-square); font-size: 12px; color: var(--primary-dark); display: flex; align-items: center; gap: 4px; cursor: pointer; }
         .filter-toggle:active { transform: scale(0.96); }
-        .filter-panel {
-            margin-top: 8px;
-            margin-bottom: 12px;
-            padding-top: 8px;
-            border-top: 1px solid var(--border-light);
-        }
-        .filter-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-        .filter-chip {
-            background: var(--primary-light);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .filter-chip.active {
-            background: var(--primary-dark);
-            color: white;
-        }
-        .filter-chip .amount {
-            font-size: 11px;
-            margin-left: 4px;
-            opacity: 0.8;
-        }
-        .date-range {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 12px;
-        }
-        .date-range input {
-            padding: 6px 10px;
-            font-size: 12px;
-            border-radius: 20px;
-            width: auto;
-        }
-        .search-bar {
-            background: var(--card-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 30px;
-            padding: 8px 16px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .search-bar i {
-            color: var(--text-sub);
-            flex-shrink: 0;
-        }
-        .search-bar input {
-            flex: 1;
-            border: none;
-            padding: 6px 0;
-            background: transparent;
-            font-size: 14px;
-        }
+        .filter-panel { margin-top: 8px; margin-bottom: 12px; padding-top: 8px; border-top: 1px solid var(--border-light); }
+        .filter-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+        .filter-chip { background: var(--primary-light); padding: 6px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+        .filter-chip.active { background: var(--primary-dark); color: white; }
+        .filter-chip .amount { font-size: 11px; margin-left: 4px; opacity: 0.8; }
+        .date-range { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+        .date-range input { padding: 6px 10px; font-size: 12px; border-radius: 20px; width: auto; }
+        .search-bar { background: var(--card-bg); border: 1px solid var(--border-light); border-radius: 30px; padding: 8px 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .search-bar i { color: var(--text-sub); flex-shrink: 0; }
+        .search-bar input { flex: 1; border: none; padding: 6px 0; background: transparent; font-size: 14px; }
         .search-bar input:focus { outline: none; }
-        .clear-search {
-            background: none;
-            border: none;
-            color: var(--text-sub);
-            cursor: pointer;
-            padding: 4px;
-        }
-        
-        /* 模板样式 */
-        .template-section {
-            background: var(--primary-light);
-            border-radius: var(--radius-btn-square);
-            margin-bottom: 16px;
-            overflow: hidden;
-        }
-        .template-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 12px;
-            cursor: pointer;
-            background: var(--primary-light);
-        }
-        .template-header span {
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--primary-dark);
-        }
-        .template-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            padding: 0 12px 12px 12px;
-        }
-        .template-btn {
-            background: white;
-            border: 1px solid var(--border-light);
-            padding: 8px 14px;
-            border-radius: var(--radius-btn-square);
-            font-size: 13px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 70px;
-        }
+        .clear-search { background: none; border: none; color: var(--text-sub); cursor: pointer; padding: 4px; }
+        .template-section { background: var(--primary-light); border-radius: var(--radius-btn-square); margin-bottom: 16px; overflow: hidden; }
+        .template-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; cursor: pointer; background: var(--primary-light); }
+        .template-header span { font-size: 13px; font-weight: 500; color: var(--primary-dark); }
+        .template-grid { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 12px 12px 12px; }
+        .template-btn { background: white; border: 1px solid var(--border-light); padding: 8px 14px; border-radius: var(--radius-btn-square); font-size: 13px; cursor: pointer; display: flex; flex-direction: column; align-items: center; min-width: 70px; }
         .template-btn:active { transform: scale(0.96); }
         .template-name { font-weight: 500; }
         .template-amount { font-size: 11px; color: var(--primary-dark); }
-        .manage-templates-btn {
-            background: none;
-            border: none;
-            color: var(--primary-dark);
-            font-size: 12px;
-            cursor: pointer;
-            padding: 4px 8px;
-        }
-        
-        /* 按钮统一样式 */
-        .btn { 
-            background: var(--primary-dark); 
-            color: white; 
-            border: none; 
-            padding: 10px 20px; 
-            border-radius: var(--radius-btn); 
-            font-weight: 500; 
-            font-size: 14px; 
-            cursor: pointer; 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 6px; 
-            transition: all 0.2s ease;
-        }
+        .manage-templates-btn { background: none; border: none; color: var(--primary-dark); font-size: 12px; cursor: pointer; padding: 4px 8px; }
+        .btn { background: var(--primary-dark); color: white; border: none; padding: 10px 20px; border-radius: var(--radius-btn); font-weight: 500; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s ease; }
         .btn:active { transform: scale(0.96); }
-        
-        .btn-secondary { 
-            background: var(--primary-light); 
-            color: var(--primary-dark); 
-            border: none; 
-            padding: 8px 16px; 
-            border-radius: var(--radius-btn-square); 
-            font-weight: 500; 
-            font-size: 13px; 
-            cursor: pointer; 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 6px; 
-            transition: all 0.2s ease;
-        }
+        .btn-secondary { background: var(--primary-light); color: var(--primary-dark); border: none; padding: 8px 16px; border-radius: var(--radius-btn-square); font-weight: 500; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s ease; }
         .btn-secondary:active { transform: scale(0.96); }
-        
-        .btn-edit { 
-            background: transparent; 
-            color: var(--text-sub); 
-            border: 1px solid var(--border-light); 
-            padding: 6px 12px; 
-            border-radius: var(--radius-btn-square); 
-            font-weight: 500; 
-            font-size: 12px; 
-            cursor: pointer; 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 4px; 
-            transition: all 0.2s ease;
-        }
+        .btn-edit { background: transparent; color: var(--text-sub); border: 1px solid var(--border-light); padding: 6px 12px; border-radius: var(--radius-btn-square); font-weight: 500; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s ease; }
         .btn-edit:active { transform: scale(0.96); }
-        
-        .btn-delete { 
-            background: var(--danger-light); 
-            color: var(--danger-dark); 
-            border: none; 
-            padding: 6px 12px; 
-            border-radius: var(--radius-btn-square); 
-            font-weight: 500; 
-            font-size: 12px; 
-            cursor: pointer; 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 4px; 
-            transition: all 0.2s ease;
-        }
+        .btn-delete { background: var(--danger-light); color: var(--danger-dark); border: none; padding: 6px 12px; border-radius: var(--radius-btn-square); font-weight: 500; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s ease; }
         .btn-delete:active { transform: scale(0.96); }
-        
-        .btn-cancel { 
-            background: transparent; 
-            color: var(--text-sub); 
-            border: 1px solid var(--border-light); 
-            padding: 10px 16px; 
-            border-radius: var(--radius-btn); 
-            font-weight: 500; 
-            font-size: 14px; 
-            cursor: pointer; 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 6px; 
-        }
+        .btn-cancel { background: transparent; color: var(--text-sub); border: 1px solid var(--border-light); padding: 10px 16px; border-radius: var(--radius-btn); font-weight: 500; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-cancel:active { transform: scale(0.96); }
-        
-        .data-btn {
-            background: var(--primary-dark);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: var(--radius-btn);
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
+        .data-btn { background: var(--primary-dark); color: white; border: none; padding: 8px 16px; border-radius: var(--radius-btn); font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
         .data-btn:active { transform: scale(0.96); }
-        
-        .fab {
-            position: fixed;
-            bottom: 85px;
-            right: 20px;
-            width: 56px;
-            height: 56px;
-            border-radius: 28px;
-            background: var(--primary-dark);
-            color: white;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 99;
-            transition: all 0.2s ease;
-        }
+        .fab { position: fixed; bottom: 85px; right: 20px; width: 56px; height: 56px; border-radius: 28px; background: var(--primary-dark); color: white; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 99; transition: all 0.2s ease; }
         .fab:active { transform: scale(0.92); }
-        
         .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 1000; display: none; align-items: center; justify-content: center; }
         .modal.show { display: flex; animation: fadeIn 0.2s ease; }
-        .modal-content { 
-            background: var(--card-bg); 
-            border-radius: 24px; 
-            padding: 20px; 
-            width: 90%; 
-            max-width: 380px; 
-            max-height: 80vh; 
-            overflow-y: auto; 
-            animation: slideUp 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
-        }
-        
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 16px;
-        }
+        .modal-content { background: var(--card-bg); border-radius: 24px; padding: 20px; width: 90%; max-width: 380px; max-height: 80vh; overflow-y: auto; animation: slideUp 0.3s cubic-bezier(0.34, 1.2, 0.64, 1); }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 16px; }
         .modal-buttons button { flex: 1; }
-        
-        .nav-bar { 
-            position: fixed; 
-            bottom: 0; 
-            left: 0; 
-            right: 0; 
-            background: rgba(255,255,255,0.95); 
-            backdrop-filter: blur(8px); 
-            display: flex; 
-            justify-content: space-around; 
-            align-items: center;
-            padding: 8px 12px 16px; 
-            border-top: 1px solid var(--border-light); 
-            max-width: 480px; 
-            margin: 0 auto; 
-            z-index: 100;
-            width: 100%;
-        }
-        
-        .nav-item { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 2px; 
-            font-size: 11px; 
-            color: var(--text-sub); 
-            background: none; 
-            border: none; 
-            cursor: pointer; 
-            padding: 6px 14px; 
-            border-radius: var(--radius-btn); 
-        }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); display: flex; justify-content: space-around; align-items: center; padding: 8px 12px 16px; border-top: 1px solid var(--border-light); max-width: 480px; margin: 0 auto; z-index: 100; width: 100%; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; color: var(--text-sub); background: none; border: none; cursor: pointer; padding: 6px 14px; border-radius: var(--radius-btn); }
         .nav-item:active { transform: scale(0.95); }
         .nav-item.active { background: var(--primary-light); color: var(--primary-dark); font-weight: 500; }
-        
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         h1 { font-size: 24px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
         h2 { font-size: 20px; font-weight: 600; }
-        
-        .reminder-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-light);
-        }
+        .reminder-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-light); }
         .reminder-item:last-child { border-bottom: none; }
-        .reminder-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-        }
-        .reminder-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 20px;
-            background: var(--primary-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
+        .reminder-left { display: flex; align-items: center; gap: 12px; flex: 1; }
+        .reminder-avatar { width: 40px; height: 40px; border-radius: 20px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
         .reminder-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .reminder-avatar i { width: 24px; height: 24px; color: var(--primary-dark); }
         .reminder-info { flex: 1; }
-        .reminder-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text-main);
-            margin-bottom: 4px;
-        }
-        .reminder-date {
-            font-size: 12px;
-            color: var(--text-sub);
-        }
-        .reminder-days {
-            font-size: 15px;
-            font-weight: 600;
-            text-align: right;
-            margin-right: 12px;
-            min-width: 70px;
-        }
+        .reminder-title { font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 4px; }
+        .reminder-date { font-size: 12px; color: var(--text-sub); }
+        .reminder-days { font-size: 15px; font-weight: 600; text-align: right; margin-right: 12px; min-width: 70px; }
         .reminder-days.upcoming { color: var(--upcoming-color); }
         .reminder-days.overdue { color: var(--overdue-color); }
         .reminder-days.normal { color: var(--normal-color); }
-        .reminder-complete {
-            background: var(--accent);
-            border: none;
-            padding: 6px 12px;
-            border-radius: var(--radius-btn-square);
-            font-size: 12px;
-            font-weight: 500;
-            color: white;
-            cursor: pointer;
-        }
+        .reminder-complete { background: var(--accent); border: none; padding: 6px 12px; border-radius: var(--radius-btn-square); font-size: 12px; font-weight: 500; color: white; cursor: pointer; }
         .reminder-complete:active { transform: scale(0.95); }
-        
-        .weight-record-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border-light);
-        }
+        .weight-record-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-light); }
         .weight-record-info { flex: 1; }
         .weight-record-date { font-size: 14px; font-weight: 500; }
         .weight-record-value { font-size: 16px; font-weight: 600; color: var(--primary-dark); margin-left: 8px; }
         .weight-record-note { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
         .weight-record-delete { background: none; border: none; color: var(--text-sub); cursor: pointer; padding: 8px; }
         .weight-record-delete:active { transform: scale(0.9); color: #dc2626; }
-        
-        .record-card { 
-            background: var(--card-bg); 
-            border-radius: 14px; 
-            padding: 12px; 
-            margin: 8px 0; 
-            border: 1px solid var(--border-light); 
-        }
+        .record-card { background: var(--card-bg); border-radius: 14px; padding: 12px; margin: 8px 0; border: 1px solid var(--border-light); }
         .record-card:active { transform: scale(0.98); background: var(--primary-light); }
-        
         .context-menu { position: fixed; background: white; border-radius: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); z-index: 2000; padding: 6px; display: none; animation: fadeIn 0.15s ease; }
         .context-menu.show { display: block; }
         .context-menu-item { padding: 10px 18px; cursor: pointer; border-radius: 10px; display: flex; align-items: center; gap: 8px; }
         .context-menu-item:active { background: var(--primary-light); }
         .context-menu-item.delete { color: #dc2626; }
-        
         .analysis-layout { display: flex; gap: 16px; flex-wrap: wrap; }
         .pie-container { flex: 1; min-width: 150px; }
         .detail-container { flex: 1; min-width: 150px; max-height: 180px; overflow-y: auto; padding-left: 12px; border-left: 1px solid var(--border-light); }
         .pie-detail-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-light); cursor: pointer; }
         .pie-detail-color { width: 12px; height: 12px; border-radius: 12px; display: inline-block; margin-right: 8px; }
-        
         .pet-selector { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 12px; padding-bottom: 8px; }
         .pet-chip { padding: 6px 14px; border-radius: 20px; background: var(--card-bg); border: 1px solid var(--border-light); font-size: 13px; cursor: pointer; white-space: nowrap; }
         .pet-chip:active { transform: scale(0.95); }
         .pet-chip.active { background: var(--primary-dark); color: white; border-color: var(--primary-dark); }
-        
         .compare-card { display: flex; justify-content: space-between; padding: 12px; background: var(--primary-light); border-radius: 14px; margin-bottom: 8px; }
-        
         .file-input-label { display: inline-block; background: var(--primary-dark); color: white; padding: 8px 16px; border-radius: var(--radius-btn); font-size: 13px; font-weight: 500; cursor: pointer; }
         .file-input-label:active { transform: scale(0.96); }
         .file-input-label input { display: none; }
-        
         .pet-detail-header { text-align: center; margin-bottom: 20px; }
         .pet-detail-avatar { width: 80px; height: 80px; margin: 0 auto 12px; }
         .pet-detail-name { font-size: 20px; font-weight: 600; }
@@ -529,129 +150,46 @@
         .pet-detail-info-item { text-align: center; }
         .pet-detail-info-label { font-size: 12px; color: var(--text-sub); }
         .pet-detail-info-value { font-size: 16px; font-weight: 600; color: var(--primary-dark); }
-        
-        .life-event-item, .task-item, .wish-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-light);
-        }
+        .life-event-item, .task-item, .wish-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-light); }
         .life-event-content, .task-content, .wish-content { flex: 1; }
         .life-event-date, .task-date { font-size: 12px; color: var(--text-sub); margin-bottom: 4px; }
         .life-event-title { font-weight: 500; }
         .task-badge { background: var(--primary-light); padding: 4px 8px; border-radius: 12px; font-size: 11px; color: var(--primary-dark); display: inline-block; }
-        
         .wish-progress { height: 6px; background: var(--border-light); border-radius: 3px; margin: 8px 0; overflow: hidden; }
         .wish-progress-fill { height: 100%; background: var(--primary-dark); border-radius: 3px; transition: width 0.3s; }
         .wish-status-bought { color: #10b981; }
         .wish-status-pending { color: var(--text-sub); }
-        
-        .period-selector {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .period-display {
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 20px;
-            transition: background 0.2s;
-        }
+        .period-selector { display: flex; align-items: center; gap: 12px; }
+        .period-display { font-size: 18px; font-weight: 600; cursor: pointer; padding: 4px 8px; border-radius: 20px; transition: background 0.2s; }
         .period-display:active { background: var(--primary-light); }
-        .nav-arrows {
-            display: flex;
-            gap: 8px;
-        }
-        .nav-arrows button {
-            background: var(--primary-light);
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 16px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
+        .nav-arrows { display: flex; gap: 8px; }
+        .nav-arrows button { background: var(--primary-light); border: none; width: 32px; height: 32px; border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
         .nav-arrows button:active { transform: scale(0.92); }
-        
-        .empty-chart {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 160px;
-            color: var(--text-sub);
-            font-size: 14px;
-        }
-        
+        .empty-chart { display: flex; align-items: center; justify-content: center; height: 160px; color: var(--text-sub); font-size: 14px; }
         .form-row { margin-bottom: 12px; }
         .form-row label { display: block; margin-bottom: 4px; font-size: 13px; color: var(--text-sub); }
-        
         .avatar { width: 48px; height: 48px; border-radius: 24px; background: var(--primary-light); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        
-        /* 家族卡片长按提示 */
-        .category-card-item {
-            transition: background 0.1s ease;
-        }
-        .category-card-item:active {
-            background: var(--primary-light);
-        }
-        
-        .pet-item { 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            padding: 10px 0; 
-            border-bottom: 1px solid var(--border-light); 
-            cursor: pointer; 
-        }
+        .category-card-item { transition: background 0.1s ease; }
+        .category-card-item:active { background: var(--primary-light); }
+        .pet-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-light); cursor: pointer; }
         .pet-item:active { transform: scale(0.98); background: var(--primary-light); border-radius: 12px; padding: 10px; margin: 0 -10px; }
-        
         .tabs { display: flex; gap: 4px; margin-bottom: 14px; }
         .tab { flex: 1; padding: 8px; border: none; background: transparent; border-radius: 20px; font-weight: 500; cursor: pointer; }
         .tab:active { transform: scale(0.96); }
         .tab.active { background: var(--primary-dark); color: white; }
-        
-        .template-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border-light);
-        }
+        .template-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-light); }
         .template-info { flex: 1; }
         .template-info .name { font-weight: 500; }
         .template-info .detail { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
         .template-actions { display: flex; gap: 8px; }
-        
-        /* 愿望清单输入框修复 */
-        .wish-item-input-group {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .wish-item-input-group input {
-            flex: 1;
-            min-width: 0;
-        }
-        
-        /* 事项类型管理样式 */
-        .task-type-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-light);
-        }
+        .wish-item-input-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .wish-item-input-group input, .wish-item-input-group select { flex: 1; min-width: 0; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--border-light); background: white; font-size: 13px; }
+        .task-type-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-light); }
         .task-type-info { flex: 1; }
         .task-type-name { font-weight: 500; }
         .task-type-interval { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
         .task-type-actions { display: flex; gap: 8px; }
-        
         @media (max-width: 400px) {
             .analysis-layout { flex-direction: column; }
             .detail-container { border-left: none; border-top: 1px solid var(--border-light); padding-left: 0; padding-top: 12px; }
@@ -659,19 +197,17 @@
             .date-range { flex-direction: column; align-items: stretch; }
             .date-range input { width: 100%; }
             .template-grid { justify-content: center; }
-            .wish-item-input-group { flex-direction: column; }
+            .wish-item-input-group { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
 <body>
 
-<!-- 首页 -->
 <div id="pageHome" class="page active">
     <div class="header">
         <h1><i data-lucide="paw-print"></i> 小账本</h1>
         <button class="btn-edit" onclick="app.showPage('settings')"><i data-lucide="settings"></i> 设置</button>
     </div>
-    
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <span style="color: var(--text-sub);">总支出</span>
@@ -685,7 +221,6 @@
         </div>
         <div style="font-size: 36px; font-weight: 700; color: var(--primary-dark);" id="periodTotalAmount">¥0.00</div>
     </div>
-    
     <div class="card" id="scheduleReminderCard">
         <div class="card-header" onclick="app.toggleCollapse('scheduleReminder')">
             <h3><i data-lucide="calendar"></i> 日程提醒</h3>
@@ -695,7 +230,6 @@
             <div id="scheduleReminderList"></div>
         </div>
     </div>
-    
     <div class="card">
         <div class="filter-header">
             <h3 style="font-size: 16px;"><i data-lucide="list"></i> 流水</h3>
@@ -703,13 +237,11 @@
                 <i data-lucide="sliders-horizontal"></i> 筛选
             </button>
         </div>
-        
         <div class="search-bar">
             <i data-lucide="search" style="width: 18px;"></i>
             <input type="text" id="searchKeyword" placeholder="搜索金额/备注/类别..." oninput="app.filterRecords()">
             <button class="clear-search" onclick="app.clearSearch()" id="clearSearchBtn" style="display: none;"><i data-lucide="x"></i></button>
         </div>
-        
         <div id="filterPanel" style="display: none;">
             <div class="filter-panel">
                 <div class="filter-row" id="categoryFilterRow"></div>
@@ -728,7 +260,6 @@
                 </div>
             </div>
         </div>
-        
         <div id="recordsContainer"></div>
     </div>
 </div>
@@ -856,7 +387,6 @@
     <button class="nav-item" data-page="stats" onclick="app.showPage('stats')"><i data-lucide="chart-pie"></i>统计</button>
 </div>
 
-<!-- 弹窗 -->
 <div class="modal" id="addCategoryModal"><div class="modal-content"><h3>新建家族</h3><div class="form-row"><input type="text" id="newCategoryName" placeholder="名称"></div><div class="form-row"><input type="text" id="newCategoryIcon" placeholder="图标" value="cat"></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeAddCategory()">取消</button><button class="btn" onclick="app.saveCategory()">创建</button></div></div></div>
 <div class="modal" id="petEditModal"><div class="modal-content"><h3 id="petEditTitle">添加宠物</h3><input type="hidden" id="editPetId"><input type="hidden" id="editPetCategoryId"><div style="display: flex; justify-content: center; margin-bottom: 16px;"><div class="avatar" id="petAvatarPreview" onclick="app.selectAvatar()"><i data-lucide="camera"></i></div><input type="file" id="petAvatarInput" accept="image/*" style="display: none;" onchange="app.previewAvatar()"></div><div class="form-row"><label>名字</label><input type="text" id="petNameInput"></div><div class="form-row"><label>生日</label><input type="date" id="petBirthdayInput"></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closePetEdit()">取消</button><button class="btn" onclick="app.savePet()">保存</button></div></div></div>
 <div class="modal" id="petDetailModal"><div class="modal-content" id="petDetailContent"></div></div>
@@ -865,7 +395,6 @@
 <div class="modal" id="deletePetModal"><div class="modal-content"><h3>删除宠物</h3><p style="margin-bottom: 16px;">请选择处理方式：</p><button class="btn" style="margin-bottom: 8px; background: #dc2626;" onclick="app.confirmDeletePet('both')">删除宠物及其所有账单</button><button class="btn-cancel" onclick="app.confirmDeletePet('keep')">保留账单，仅解除关联</button><div class="modal-buttons" style="margin-top: 12px;"><button class="btn-cancel" onclick="app.closeDeletePetModal()">取消</button></div></div></div>
 <div class="modal" id="wishlistModal"><div class="modal-content"><h3 id="wishlistModalTitle">🎁 新建愿望清单</h3><input type="hidden" id="editWishlistId"><div class="form-row"><label>清单名称</label><input type="text" id="wishlistName" placeholder="如：养猫预备金"></div><div class="form-row"><label>关联宠物</label><select id="wishlistPetSelect"><option value="">无</option></select></div><div style="margin: 12px 0;"><label style="font-weight: 500;">愿望项目</label><div id="wishItemsContainer"></div><button class="btn-secondary btn-small" style="margin-top: 8px;" onclick="app.addWishItemField()"><i data-lucide="plus"></i> 添加项目</button></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeWishlistModal()">取消</button><button class="btn" onclick="app.saveWishlist()">保存</button></div></div></div>
 
-<!-- 记账弹窗 -->
 <div class="modal" id="quickRecordModal">
     <div class="modal-content">
         <h3>记账</h3>
@@ -893,7 +422,6 @@
     </div>
 </div>
 
-<!-- 模板管理弹窗 -->
 <div class="modal" id="templateManageModal">
     <div class="modal-content">
         <h3>记账模板</h3>
@@ -905,7 +433,6 @@
     </div>
 </div>
 
-<!-- 添加/编辑模板弹窗 -->
 <div class="modal" id="addTemplateModal">
     <div class="modal-content">
         <h3 id="addTemplateTitle">添加模板</h3>
@@ -923,7 +450,6 @@
     </div>
 </div>
 
-<!-- 事项类型管理弹窗 -->
 <div class="modal" id="taskTypeManageModal">
     <div class="modal-content">
         <h3>事项类型管理</h3>
@@ -935,7 +461,6 @@
     </div>
 </div>
 
-<!-- 添加/编辑事项类型弹窗 -->
 <div class="modal" id="addTaskTypeModal">
     <div class="modal-content">
         <h3 id="addTaskTypeTitle">添加事项</h3>
@@ -954,7 +479,7 @@
 <script>
 (function(){
     'use strict';
-    
+
     const DEFAULT_DATA = {
         categories: [],
         pets: [],
@@ -969,7 +494,7 @@
         templates: [],
         taskTypes: []
     };
-    
+
     let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
     const STORAGE_KEY = 'pet_v381_full';
     const OLD_STORAGE_KEYS = ['pet_v38_full', 'pet_v37_full', 'pet_v36_full'];
@@ -983,12 +508,12 @@
         { name: '梳毛', interval: 7 },
         { name: '其他', interval: 30 }
     ];
-    
+
     let collapseState = { scheduleReminder: true };
     let filterPanelOpen = false;
     let templatePanelOpen = false;
     let searchFilters = { keyword: '', dateFilter: 'month', dateFrom: '', dateTo: '', categoryId: '', petId: '' };
-    
+
     let weightTrendChart = null;
     let pieChart = null, trendChart = null;
     let viewMode = 'month', currentYear = new Date().getFullYear(), currentMonth = new Date().getMonth() + 1;
@@ -1003,21 +528,21 @@
         if (customType) return customType.interval;
         return 30;
     }
-    
+
     function getAllTaskTypes() {
         if (appData.taskTypes.length === 0) {
             return DEFAULT_TASK_TYPES;
         }
         return appData.taskTypes;
     }
-    
+
     function renderTaskTypeSelect() {
         const select = document.getElementById('taskTypeSelect');
         if (!select) return;
         const types = getAllTaskTypes();
         select.innerHTML = types.map(t => `<option value="${escapeHtml(t.name)}">${escapeHtml(t.name)}</option>`).join('');
     }
-    
+
     function renderTaskTypeList() {
         const container = document.getElementById('taskTypeList');
         if (!container) return;
@@ -1041,21 +566,21 @@
         });
         container.innerHTML = html;
     }
-    
+
     function openTaskTypeManageModal() {
         renderTaskTypeList();
         document.getElementById('taskTypeManageModal').classList.add('show');
     }
-    
+
     function closeTaskTypeManageModal() {
         document.getElementById('taskTypeManageModal').classList.remove('show');
     }
-    
+
     function openAddTaskTypeModal(idx = null) {
         const modal = document.getElementById('addTaskTypeModal');
         const title = document.getElementById('addTaskTypeTitle');
         const idField = document.getElementById('editTaskTypeId');
-        
+
         if (idx !== null) {
             const t = getAllTaskTypes()[idx];
             if (t) {
@@ -1073,21 +598,21 @@
         document.getElementById('taskTypeInterval').value = '';
         modal.classList.add('show');
     }
-    
+
     function closeAddTaskTypeModal() {
         document.getElementById('addTaskTypeModal').classList.remove('show');
     }
-    
+
     function saveTaskType() {
         const idx = document.getElementById('editTaskTypeId').value;
         const name = document.getElementById('taskTypeName').value.trim();
         const interval = parseInt(document.getElementById('taskTypeInterval').value);
-        
+
         if (!name) { showToast('请输入事项名称', false); return; }
         if (!interval || interval <= 0) { showToast('请输入有效间隔天数', false); return; }
-        
+
         const newType = { name: name, interval: interval };
-        
+
         if (idx !== '') {
             const types = getAllTaskTypes();
             if (types[parseInt(idx)]) {
@@ -1111,11 +636,11 @@
         renderScheduleReminders();
         renderRecentTasks();
     }
-    
+
     function editTaskType(idx) {
         openAddTaskTypeModal(idx);
     }
-    
+
     function deleteTaskType(idx) {
         if (confirm('删除这个事项类型？已有的记录不会删除，但将不再显示此类型。')) {
             const types = getAllTaskTypes();
@@ -1144,7 +669,7 @@
             const savedTemplatePanel = localStorage.getItem('pet_template_panel_open');
             if (savedTemplatePanel !== null) templatePanelOpen = savedTemplatePanel === 'true';
         } catch(e) {}
-        
+
         for (let oldKey of OLD_STORAGE_KEYS) {
             try {
                 const oldData = localStorage.getItem(oldKey);
@@ -1172,7 +697,7 @@
         if (!appData.templates) appData.templates = [];
         if (!appData.taskTypes) appData.taskTypes = [];
     }
-    
+
     function loadData() {
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
@@ -1198,11 +723,11 @@
             appData.expenseCategories = [{ name: '食品' }, { name: '医疗' }, { name: '玩具' }, { name: '美容' }, { name: '日用' }];
         }
     }
-    
+
     function saveData() { 
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch(e){} 
     }
-    
+
     function saveCollapseState() { localStorage.setItem('pet_collapse_state', JSON.stringify(collapseState)); }
     function toggleCollapse(cardId) {
         collapseState[cardId] = !collapseState[cardId];
@@ -1220,7 +745,7 @@
         }
         lucide.createIcons();
     }
-    
+
     function applyCollapseStates() {
         for (const [cardId, isExpanded] of Object.entries(collapseState)) {
             const body = document.getElementById(cardId + 'Body');
@@ -1237,7 +762,7 @@
         }
         lucide.createIcons();
     }
-    
+
     function toggleFilterPanel() {
         filterPanelOpen = !filterPanelOpen;
         localStorage.setItem('pet_filter_panel_open', filterPanelOpen);
@@ -1249,7 +774,7 @@
             lucide.createIcons();
         }
     }
-    
+
     function toggleTemplatePanel() {
         templatePanelOpen = !templatePanelOpen;
         localStorage.setItem('pet_template_panel_open', templatePanelOpen);
@@ -1259,7 +784,7 @@
         if (headerText) headerText.innerHTML = templatePanelOpen ? '▼ 快捷模板' : '▶ 快捷模板';
         if (templatePanelOpen) renderTemplateGrid();
     }
-    
+
     function renderTemplateGrid() {
         const container = document.getElementById('templateGrid');
         if (!container) return;
@@ -1276,7 +801,7 @@
         });
         container.innerHTML = html;
     }
-    
+
     function applyTemplate(idx) {
         const t = appData.templates[idx];
         if (!t) return;
@@ -1287,7 +812,7 @@
         if (t.payment) document.getElementById('quickPaymentSelect').value = t.payment;
         showToast(`已应用模板：${t.name}`);
     }
-    
+
     function renderTemplatesManageList() {
         const container = document.getElementById('templateManageList');
         if (!container) return;
@@ -1312,26 +837,26 @@
         });
         container.innerHTML = html;
     }
-    
+
     function openTemplateManageModal() {
         renderTemplatesManageList();
         document.getElementById('templateManageModal').classList.add('show');
     }
-    
+
     function closeTemplateManageModal() {
         document.getElementById('templateManageModal').classList.remove('show');
     }
-    
+
     function openAddTemplateModal(idx = null) {
         const modal = document.getElementById('addTemplateModal');
         const title = document.getElementById('addTemplateTitle');
         const idField = document.getElementById('editTemplateId');
-        
+
         document.getElementById('templateExpenseSelect').innerHTML = appData.expenseCategories.map(ec => `<option>${ec.name}</option>`).join('');
         document.getElementById('templatePetSelect').innerHTML = '<option value="">无</option>' + appData.pets.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
         document.getElementById('templateCategorySelect').innerHTML = '<option value="">无</option>' + appData.categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
         document.getElementById('templatePaymentSelect').innerHTML = '<option>微信</option><option>支付宝</option><option>现金</option>';
-        
+
         if (idx !== null) {
             const t = appData.templates[idx];
             if (t) {
@@ -1357,18 +882,18 @@
         document.getElementById('templatePaymentSelect').value = '微信';
         modal.classList.add('show');
     }
-    
+
     function closeAddTemplateModal() {
         document.getElementById('addTemplateModal').classList.remove('show');
     }
-    
+
     function saveTemplate() {
         const idx = document.getElementById('editTemplateId').value;
         const name = document.getElementById('templateName').value.trim();
         const amount = parseFloat(document.getElementById('templateAmount').value);
         if (!name) { showToast('请输入模板名称', false); return; }
         if (!amount || amount <= 0) { showToast('请输入有效金额', false); return; }
-        
+
         const template = {
             name: name,
             amount: amount,
@@ -1378,7 +903,7 @@
             payment: document.getElementById('templatePaymentSelect').value,
             note: ''
         };
-        
+
         if (idx !== '') {
             appData.templates[parseInt(idx)] = template;
             showToast('模板已更新');
@@ -1391,11 +916,11 @@
         renderTemplatesManageList();
         renderTemplateGrid();
     }
-    
+
     function editTemplate(idx) {
         openAddTemplateModal(idx);
     }
-    
+
     function deleteTemplate(idx) {
         if (confirm('删除这个模板？')) {
             appData.templates.splice(idx, 1);
@@ -1417,7 +942,7 @@
     const getToday = () => new Date().toISOString().slice(0,10);
     const formatYMD = (d) => { if(!d) return ''; return d.replace(/-/g, '.'); };
     const getWeekday = (d) => ['周日','周一','周二','周三','周四','周五','周六'][new Date(d).getDay()];
-    
+
     function calculateAge(birthday) {
         if (!birthday) return '未设置';
         const birth = new Date(birthday);
@@ -1452,7 +977,7 @@
         renderPetFilterRow();
         renderTaskTypeSelect();
     }
-    
+
     function renderCategoryFilterRow() {
         const container = document.getElementById('categoryFilterRow');
         if (!container) return;
@@ -1478,7 +1003,7 @@
         container.innerHTML = html;
         setTimeout(() => lucide.createIcons(), 10);
     }
-    
+
     function renderPetFilterRow() {
         const container = document.getElementById('petFilterRow');
         if (!container) return;
@@ -1492,7 +1017,7 @@
         });
         container.innerHTML = html;
     }
-    
+
     function setCategoryFilter(categoryId) {
         searchFilters.categoryId = categoryId;
         if (!categoryId) searchFilters.petId = '';
@@ -1500,14 +1025,14 @@
         renderPetFilterRow();
         filterRecords();
     }
-    
+
     function setPetFilter(petId) {
         searchFilters.petId = petId;
         renderPetFilterRow();
         renderCategoryFilterRow();
         filterRecords();
     }
-    
+
     function filterRecords() {
         const keyword = document.getElementById('searchKeyword')?.value.toLowerCase() || '';
         searchFilters.keyword = keyword;
@@ -1548,7 +1073,7 @@
         container.innerHTML = html;
         setTimeout(() => lucide.createIcons(), 10);
     }
-    
+
     function setDateFilter(type) {
         searchFilters.dateFilter = type;
         const today = new Date();
@@ -1570,7 +1095,7 @@
         if (activeChip) activeChip.classList.add('active');
         filterRecords();
     }
-    
+
     function clearDateRange() {
         searchFilters.dateFilter = null;
         searchFilters.dateFrom = '';
@@ -1579,7 +1104,7 @@
         document.querySelectorAll('.filter-chip[data-filter="date"]').forEach(chip => chip.classList.remove('active'));
         filterRecords();
     }
-    
+
     function clearSearch() {
         document.getElementById('searchKeyword').value = '';
         searchFilters.keyword = '';
@@ -1608,7 +1133,7 @@
         reminders.sort((a, b) => a.daysLeft - b.daysLeft);
         return reminders;
     }
-    
+
     function completeTask(petId, taskType) {
         const today = getToday();
         const existing = appData.taskRecords.some(t => t.petId === petId && t.type === taskType && t.date === today);
@@ -1619,7 +1144,7 @@
         renderRecentTasks();
         showToast(`已记录 ${taskType}`);
     }
-    
+
     function renderScheduleReminders() {
         const reminders = getScheduleReminders();
         const container = document.getElementById('scheduleReminderList');
@@ -1652,7 +1177,7 @@
         container.innerHTML = html;
         lucide.createIcons();
     }
-    
+
     function renderWeightTrendChart() {
         const petId = document.getElementById('weightRecordPetSelect').value;
         const canvas = document.getElementById('weightTrendChart');
@@ -1665,7 +1190,7 @@
         if (weightTrendChart) weightTrendChart.destroy();
         weightTrendChart = new Chart(ctx, { type: 'line', data: { labels: records.map(r => formatYMD(r.date)), datasets: [{ label: '体重 (kg)', data: records.map(r => r.weight), borderColor: '#8b5cf6', backgroundColor: 'rgba(139, 92, 246, 0.1)', tension: 0.2, fill: true, pointBackgroundColor: '#8b5cf6', pointBorderColor: '#fff', pointRadius: 4, pointHoverRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `${ctx.raw} kg` } } }, scales: { y: { title: { display: true, text: 'kg', font: { size: 11 } } } } } });
     }
-    
+
     function addWeightRecord() {
         const petId = document.getElementById('weightRecordPetSelect').value;
         if (!petId) return showToast('请选择宠物', false);
@@ -1689,7 +1214,7 @@
         renderWeightRecordsList();
         renderWeightTrendChart();
     }
-    
+
     function deleteWeightRecord(id) {
         if (confirm('删除这条体重记录？')) {
             appData.weightRecords = appData.weightRecords.filter(w => w.id != id);
@@ -1700,6 +1225,7 @@
         }
     }
 
+    // ========== 愿望清单（改进版：支持选择支出类别，点击已买自动记账） ==========
     function renderWishlistFull() {
         const container = document.getElementById('wishlistFullList');
         if (!container) return;
@@ -1713,7 +1239,7 @@
         });
         container.innerHTML = html;
     }
-    
+
     function openWishlistModal(wishId = null) {
         const modal = document.getElementById('wishlistModal');
         const title = document.getElementById('wishlistModalTitle');
@@ -1740,38 +1266,292 @@
         renderWishItems([]);
         modal.classList.add('show');
     }
-    
+
     function renderWishItems(items = []) {
         const container = document.getElementById('wishItemsContainer');
         if (!container) return;
-        if (items.length === 0) { container.innerHTML = '<div style="padding: 12px; text-align: center; color: var(--text-sub);">暂无项目，点击下方按钮添加</div>'; return; }
+        const expenseOptions = appData.expenseCategories.map(ec => `<option value="${escapeHtml(ec.name)}">${escapeHtml(ec.name)}</option>`).join('');
+        if (items.length === 0) {
+            container.innerHTML = `<div style="padding: 12px; text-align: center; color: var(--text-sub);">暂无项目，点击下方按钮添加</div>
+            <div id="wishItemsStore" style="display:none;"></div>`;
+            return;
+        }
         let html = '';
         items.forEach((item, idx) => {
-            html += `<div style="margin-bottom: 12px; padding: 8px; background: var(--primary-light); border-radius: 12px;">
+            const selectedExpense = item.expenseCategory || '';
+            html += `<div style="margin-bottom: 12px; padding: 8px; background: var(--primary-light); border-radius: 12px;" data-wish-item-index="${idx}">
                 <div class="wish-item-input-group">
                     <input type="text" placeholder="项目名称" value="${escapeHtml(item.name)}" data-wish-item-name="${idx}" style="flex: 2;">
                     <input type="number" placeholder="预估 ¥" value="${item.estimate || ''}" data-wish-item-estimate="${idx}" style="flex: 1;">
                 </div>
                 <div class="wish-item-input-group" style="margin-top: 8px;">
                     <input type="number" placeholder="实际 ¥" value="${item.actual || ''}" data-wish-item-actual="${idx}" style="flex: 1;">
+                    <select data-wish-item-expense="${idx}" style="flex: 1;">
+                        <option value="">选择类别</option>
+                        ${expenseOptions}
+                    </select>
                     <label style="display: flex; align-items: center; gap: 4px;"><input type="checkbox" data-wish-item-bought="${idx}" ${item.bought ? 'checked' : ''}> 已买</label>
                     <button class="btn-edit btn-small" onclick="app.removeWishItem(${idx})">删除</button>
                 </div>
             </div>`;
         });
         container.innerHTML = html;
+        // 设置已保存的 expenseCategory 值
+        items.forEach((item, idx) => {
+            const select = container.querySelector(`select[data-wish-item-expense="${idx}"]`);
+            if (select && item.expenseCategory) {
+                select.value = item.expenseCategory;
+            }
+        });
+    }
+
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+    
+    function addWishItemField() {
+        const container = document.getElementById('wishItemsContainer');
+        const idx = Date.now();
+        const expenseOptions = appData.expenseCategories.map(ec => `<option value="${escapeHtml(ec.name)}">${escapeHtml(ec.name)}</option>`).join('');
+        container.insertAdjacentHTML('beforeend', `<div style="margin-bottom: 12px; padding: 8px; background: var(--primary-light); border-radius: 12px;" data-wish-item-index="${idx}">
+            <div class="wish-item-input-group">
+                <input type="text" placeholder="项目名称" data-wish-item-name="${idx}" style="flex: 2;">
+                <input type="number" placeholder="预估 ¥" data-wish-item-estimate="${idx}" style="flex: 1;">
+            </div>
+            <div class="wish-item-input-group" style="margin-top: 8px;">
+                <input type="number" placeholder="实际 ¥" data-wish-item-actual="${idx}" style="flex: 1;">
+                <select data-wish-item-expense="${idx}" style="flex: 1;">
+                    <option value="">选择类别</option>
+                    ${expenseOptions}
+                </select>
+                <label style="display: flex; align-items: center; gap: 4px;"><input type="checkbox" data-wish-item-bought="${idx}"> 已买</label>
+                <button class="btn-edit btn-small" onclick="app.removeWishItem(${idx})">删除</button>
+            </div>
+        </div>`);
     }
     
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
-    function addWishItemField() { const container = document.getElementById('wishItemsContainer'); const idx = Date.now(); container.insertAdjacentHTML('beforeend', `<div style="margin-bottom: 12px; padding: 8px; background: var(--primary-light); border-radius: 12px;"><div class="wish-item-input-group"><input type="text" placeholder="项目名称" data-wish-item-name="${idx}" style="flex: 2;"><input type="number" placeholder="预估 ¥" data-wish-item-estimate="${idx}" style="flex: 1;"></div><div class="wish-item-input-group" style="margin-top: 8px;"><input type="number" placeholder="实际 ¥" data-wish-item-actual="${idx}" style="flex: 1;"><label style="display: flex; align-items: center; gap: 4px;"><input type="checkbox" data-wish-item-bought="${idx}"> 已买</label><button class="btn-edit btn-small" onclick="app.removeWishItem(${idx})">删除</button></div></div>`); }
-    function removeWishItem(idx) { const container = document.getElementById('wishItemsContainer'); const items = container.querySelectorAll('div[style*="margin-bottom: 12px;"]'); for (let item of items) { if (item.innerHTML.includes(`data-wish-item-name="${idx}"`)) { item.remove(); break; } } }
-    function collectWishItems() { const items = []; const container = document.getElementById('wishItemsContainer'); const itemDivs = container.querySelectorAll('div[style*="margin-bottom: 12px;"]'); itemDivs.forEach(div => { const nameInput = div.querySelector('input[placeholder="项目名称"]'); const estimateInput = div.querySelector('input[placeholder="预估 ¥"]'); const actualInput = div.querySelector('input[placeholder="实际 ¥"]'); const boughtCheck = div.querySelector('input[type="checkbox"]'); const name = nameInput?.value.trim(); if (name) { items.push({ name: name, estimate: parseFloat(estimateInput?.value) || 0, actual: parseFloat(actualInput?.value) || 0, bought: boughtCheck?.checked || false }); } }); return items; }
-    function saveWishlist() { const id = document.getElementById('editWishlistId').value; const name = document.getElementById('wishlistName').value.trim(); const petId = document.getElementById('wishlistPetSelect').value; const items = collectWishItems(); if (!name) { showToast('请输入清单名称', false); return; } if (id) { const index = appData.wishlists.findIndex(w => w.id === id); if (index !== -1) { appData.wishlists[index] = { ...appData.wishlists[index], name, petId: petId || null, items }; } } else { appData.wishlists.push({ id: Date.now() + Math.random() + '', name, petId: petId || null, items, createdAt: getToday() }); } saveData(); closeWishlistModal(); renderWishlistFull(); showToast('愿望清单已保存'); }
-    function openWishlistDetail(wishId) { const wish = appData.wishlists.find(w => w.id === wishId); if (!wish) return; const totalEstimate = wish.items.reduce((sum, i) => sum + (i.estimate || 0), 0); const totalActual = wish.items.reduce((sum, i) => sum + (i.actual || 0), 0); const percent = totalEstimate > 0 ? (totalActual / totalEstimate * 100) : 0; let itemsHtml = ''; wish.items.forEach(item => { itemsHtml += `<div class="wish-item"><div class="wish-content"><div style="font-weight: 500;">${item.name}</div><div style="font-size: 13px;">预估 ¥${item.estimate.toFixed(2)} · 实际 ¥${item.actual.toFixed(2)}</div></div><span class="${item.bought ? 'wish-status-bought' : 'wish-status-pending'}">${item.bought ? '✅ 已买' : '⏳ 待买'}</span></div>`; }); const html = `<div style="cursor: pointer; text-align: right; margin-bottom: 8px;" onclick="app.closeWishlistDetail()">✕</div><h3>🎁 ${wish.name}</h3><div class="wish-progress" style="margin: 12px 0;"><div class="wish-progress-fill" style="width: ${percent}%;"></div></div><div style="display: flex; justify-content: space-between; margin-bottom: 16px;"><span>预估: ¥${totalEstimate.toFixed(2)}</span><span>已花: ¥${totalActual.toFixed(2)}</span><span>剩余: ¥${(totalEstimate - totalActual).toFixed(2)}</span></div><h4>📋 项目清单</h4>${itemsHtml || '<div style="text-align:center; padding:12px;">暂无项目</div>'}<div class="modal-buttons" style="margin-top: 16px;"><button class="btn-edit" onclick="app.openWishlistModal('${wish.id}');app.closeWishlistDetail()">编辑</button><button class="btn-delete" onclick="app.deleteWishlist('${wish.id}')">删除</button></div>`; const modal = document.createElement('div'); modal.className = 'modal show'; modal.id = 'wishlistDetailModal'; modal.innerHTML = `<div class="modal-content" style="max-width: 400px;">${html}</div>`; document.body.appendChild(modal); modal.onclick = (e) => { if (e.target === modal) modal.remove(); }; lucide.createIcons(); }
+    function removeWishItem(idx) {
+        const container = document.getElementById('wishItemsContainer');
+        const items = container.querySelectorAll('div[style*="margin-bottom: 12px;"]');
+        for (let item of items) {
+            if (item.innerHTML.includes(`data-wish-item-name="${idx}"`) || item.getAttribute('data-wish-item-index') == idx) {
+                item.remove();
+                break;
+            }
+        }
+    }
+    
+    function collectWishItems() {
+        const items = [];
+        const container = document.getElementById('wishItemsContainer');
+        const itemDivs = container.querySelectorAll('div[style*="margin-bottom: 12px;"]');
+        itemDivs.forEach(div => {
+            const nameInput = div.querySelector('input[placeholder="项目名称"]');
+            const estimateInput = div.querySelector('input[placeholder="预估 ¥"]');
+            const actualInput = div.querySelector('input[placeholder="实际 ¥"]');
+            const expenseSelect = div.querySelector('select[data-wish-item-expense]');
+            const boughtCheck = div.querySelector('input[type="checkbox"]');
+            const name = nameInput?.value.trim();
+            if (name) {
+                items.push({
+                    name: name,
+                    estimate: parseFloat(estimateInput?.value) || 0,
+                    actual: parseFloat(actualInput?.value) || 0,
+                    expenseCategory: expenseSelect?.value || '',
+                    bought: boughtCheck?.checked || false
+                });
+            }
+        });
+        return items;
+    }
+    
+    function saveWishlist() {
+        const id = document.getElementById('editWishlistId').value;
+        const name = document.getElementById('wishlistName').value.trim();
+        const petId = document.getElementById('wishlistPetSelect').value;
+        const items = collectWishItems();
+        if (!name) { showToast('请输入清单名称', false); return; }
+        if (id) {
+            const index = appData.wishlists.findIndex(w => w.id === id);
+            if (index !== -1) {
+                appData.wishlists[index] = { ...appData.wishlists[index], name, petId: petId || null, items };
+            }
+        } else {
+            appData.wishlists.push({ id: Date.now() + Math.random() + '', name, petId: petId || null, items, createdAt: getToday() });
+        }
+        saveData();
+        closeWishlistModal();
+        renderWishlistFull();
+        showToast('愿望清单已保存');
+    }
+    
+    // 自动记账：当勾选已买时，如果金额 > 0 且选择了类别，则自动生成记账记录
+    function autoRecordFromWish(wishId, itemIndex, item) {
+        if (!item.bought) return;
+        if (!item.actual || item.actual <= 0) {
+            showToast('请先填写实际金额', false);
+            return;
+        }
+        if (!item.expenseCategory) {
+            showToast('请先选择支出类别', false);
+            return;
+        }
+        const wish = appData.wishlists.find(w => w.id === wishId);
+        if (!wish) return;
+        // 检查是否已经为这个项目记过账（避免重复记账）
+        const alreadyRecorded = appData.records.some(r => r.wishAutoId === `${wishId}_${itemIndex}`);
+        if (alreadyRecorded) {
+            showToast('该项目已自动记账过，无需重复', false);
+            return;
+        }
+        // 获取宠物信息（如果愿望清单关联了宠物）
+        let petId = wish.petId || '';
+        let categoryId = '';
+        if (petId) {
+            const pet = appData.pets.find(p => p.id === petId);
+            if (pet) categoryId = pet.categoryId;
+        }
+        // 如果没有关联宠物，尝试找到第一个可用的家族
+        if (!categoryId && appData.categories.length > 0) {
+            categoryId = appData.categories[0].id;
+        }
+        const newRecord = {
+            id: Date.now() + Math.random(),
+            amount: item.actual,
+            date: getToday(),
+            petId: petId,
+            categoryId: categoryId,
+            expenseCategory: item.expenseCategory,
+            payment: '微信',
+            note: `来自愿望清单：${item.name}`,
+            wishlistId: wishId,
+            wishAutoId: `${wishId}_${itemIndex}`  // 标记防止重复记账
+        };
+        appData.records.push(newRecord);
+        saveData();
+        showToast(`已自动记账：${item.name} ¥${item.actual.toFixed(2)} (${item.expenseCategory})`);
+        // 刷新首页和统计页
+        if (document.getElementById('pageHome').classList.contains('active')) renderHome();
+        if (document.getElementById('pageStats').classList.contains('active')) renderStatsPage();
+    }
+    
+    function openWishlistDetail(wishId) {
+        const wish = appData.wishlists.find(w => w.id === wishId);
+        if (!wish) return;
+        const totalEstimate = wish.items.reduce((sum, i) => sum + (i.estimate || 0), 0);
+        const totalActual = wish.items.reduce((sum, i) => sum + (i.actual || 0), 0);
+        const percent = totalEstimate > 0 ? (totalActual / totalEstimate * 100) : 0;
+        let itemsHtml = '';
+        wish.items.forEach((item, idx) => {
+            const expenseOptions = appData.expenseCategories.map(ec => `<option value="${escapeHtml(ec.name)}" ${item.expenseCategory === ec.name ? 'selected' : ''}>${escapeHtml(ec.name)}</option>`).join('');
+            itemsHtml += `<div class="wish-item" data-wish-item-index="${idx}">
+                <div class="wish-content" style="flex:2;">
+                    <div style="font-weight: 500;">${escapeHtml(item.name)}</div>
+                    <div style="font-size: 13px;">预估 ¥${item.estimate.toFixed(2)} · 实际 ¥${item.actual.toFixed(2)}</div>
+                    <select id="wishItemExpense_${idx}" style="margin-top: 6px; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 12px;">
+                        <option value="">选择支出类别</option>
+                        ${expenseOptions}
+                    </select>
+                </div>
+                <div style="text-align: right;">
+                    <span class="${item.bought ? 'wish-status-bought' : 'wish-status-pending'}">${item.bought ? '✅ 已买' : '⏳ 待买'}</span>
+                    <button class="btn-secondary btn-small" style="margin-top: 8px; display: block;" onclick="app.markWishItemBought('${wish.id}', ${idx})">标记已买</button>
+                </div>
+            </div>`;
+        });
+        const html = `<div style="cursor: pointer; text-align: right; margin-bottom: 8px;" onclick="app.closeWishlistDetail()">✕</div>
+            <h3>🎁 ${escapeHtml(wish.name)}</h3>
+            <div class="wish-progress" style="margin: 12px 0;"><div class="wish-progress-fill" style="width: ${percent}%;"></div></div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+                <span>预估: ¥${totalEstimate.toFixed(2)}</span>
+                <span>已花: ¥${totalActual.toFixed(2)}</span>
+                <span>剩余: ¥${(totalEstimate - totalActual).toFixed(2)}</span>
+            </div>
+            <h4>📋 项目清单</h4>
+            ${itemsHtml || '<div style="text-align:center; padding:12px;">暂无项目</div>'}
+            <div class="modal-buttons" style="margin-top: 16px;">
+                <button class="btn-edit" onclick="app.openWishlistModal('${wish.id}');app.closeWishlistDetail()">编辑</button>
+                <button class="btn-delete" onclick="app.deleteWishlist('${wish.id}')">删除</button>
+            </div>`;
+        const modal = document.createElement('div');
+        modal.className = 'modal show';
+        modal.id = 'wishlistDetailModal';
+        modal.innerHTML = `<div class="modal-content" style="max-width: 400px;">${html}</div>`;
+        document.body.appendChild(modal);
+        modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+        lucide.createIcons();
+    }
+    
+    function markWishItemBought(wishId, itemIndex) {
+        const wish = appData.wishlists.find(w => w.id === wishId);
+        if (!wish) return;
+        const item = wish.items[itemIndex];
+        if (!item) return;
+        // 获取用户选择的支出类别
+        const selectEl = document.getElementById(`wishItemExpense_${itemIndex}`);
+        const selectedExpense = selectEl ? selectEl.value : item.expenseCategory || '';
+        if (!selectedExpense) {
+            showToast('请先选择支出类别', false);
+            return;
+        }
+        if (!item.actual || item.actual <= 0) {
+            showToast('请先填写实际金额', false);
+            return;
+        }
+        // 更新 item 的类别和已买状态
+        item.expenseCategory = selectedExpense;
+        item.bought = true;
+        // 自动记账
+        const alreadyRecorded = appData.records.some(r => r.wishAutoId === `${wishId}_${itemIndex}`);
+        if (!alreadyRecorded) {
+            let petId = wish.petId || '';
+            let categoryId = '';
+            if (petId) {
+                const pet = appData.pets.find(p => p.id === petId);
+                if (pet) categoryId = pet.categoryId;
+            }
+            if (!categoryId && appData.categories.length > 0) {
+                categoryId = appData.categories[0].id;
+            }
+            const newRecord = {
+                id: Date.now() + Math.random(),
+                amount: item.actual,
+                date: getToday(),
+                petId: petId,
+                categoryId: categoryId,
+                expenseCategory: item.expenseCategory,
+                payment: '微信',
+                note: `来自愿望清单：${item.name}`,
+                wishlistId: wishId,
+                wishAutoId: `${wishId}_${itemIndex}`
+            };
+            appData.records.push(newRecord);
+            showToast(`已自动记账：${item.name} ¥${item.actual.toFixed(2)} (${item.expenseCategory})`);
+        }
+        saveData();
+        // 刷新页面
+        renderWishlistFull();
+        closeWishlistDetail();
+        openWishlistDetail(wishId);
+        if (document.getElementById('pageHome').classList.contains('active')) renderHome();
+        if (document.getElementById('pageStats').classList.contains('active')) renderStatsPage();
+    }
+    
     function closeWishlistDetail() { document.getElementById('wishlistDetailModal')?.remove(); }
-    function deleteWishlist(wishId) { if (confirm('确定删除吗？')) { appData.wishlists = appData.wishlists.filter(w => w.id !== wishId); saveData(); renderWishlistFull(); closeWishlistDetail(); showToast('已删除'); } }
+    function deleteWishlist(wishId) { 
+        if (confirm('确定删除吗？')) { 
+            appData.wishlists = appData.wishlists.filter(w => w.id !== wishId); 
+            saveData(); 
+            renderWishlistFull(); 
+            closeWishlistDetail(); 
+            showToast('已删除'); 
+        } 
+    }
     function closeWishlistModal() { document.getElementById('wishlistModal').classList.remove('show'); }
-    function refreshWishSelect() { const select = document.getElementById('quickWishSelect'); if (select) { select.innerHTML = '<option value="">无</option>' + appData.wishlists.map(w => `<option value="${w.id}">${w.name}</option>`).join(''); } }
+    function refreshWishSelect() { 
+        const select = document.getElementById('quickWishSelect'); 
+        if (select) { 
+            select.innerHTML = '<option value="">无</option>' + appData.wishlists.map(w => `<option value="${w.id}">${w.name}</option>`).join(''); 
+        } 
+    }
 
     function openQuickRecordModal() {
         const modal = document.getElementById('quickRecordModal');
@@ -1783,13 +1563,13 @@
         document.getElementById('quickPaymentSelect').value = '微信';
         document.getElementById('quickNote').value = '';
         refreshWishSelect();
-        
+
         const panel = document.getElementById('templatePanel');
         const headerText = document.getElementById('templateHeaderText');
         if (panel) panel.style.display = templatePanelOpen ? 'block' : 'none';
         if (headerText) headerText.innerHTML = templatePanelOpen ? '▼ 快捷模板' : '▶ 快捷模板';
         if (templatePanelOpen) renderTemplateGrid();
-        
+
         modal.classList.add('show');
     }
     function closeQuickRecordModal() { document.getElementById('quickRecordModal').classList.remove('show'); }
@@ -1814,7 +1594,7 @@
             if (wish) {
                 const matchingItem = wish.items.find(item => item.name === newRecord.expenseCategory);
                 if (matchingItem) { matchingItem.actual = (matchingItem.actual || 0) + amt; matchingItem.bought = true; }
-                else { wish.items.push({ name: newRecord.expenseCategory, estimate: 0, actual: amt, bought: true }); }
+                else { wish.items.push({ name: newRecord.expenseCategory, estimate: 0, actual: amt, bought: true, expenseCategory: newRecord.expenseCategory }); }
                 saveData(); renderWishlistFull();
             }
         }
@@ -1850,8 +1630,9 @@
 
     function setRecordTab(tab) {
         recordTab = tab;
-        document.querySelectorAll('#pageRecord .tab').forEach(t => t.classList.remove('active'));
-        event.target.classList.add('active');
+        const tabs = document.querySelectorAll('#pageRecord .tab');
+        tabs.forEach(t => t.classList.remove('active'));
+        if (event && event.target) event.target.classList.add('active');
         document.getElementById('wishRecordContent').style.display = tab === 'wish' ? 'block' : 'none';
         document.getElementById('weightRecordContent').style.display = tab === 'weight' ? 'block' : 'none';
         document.getElementById('scheduleRecordContent').style.display = tab === 'schedule' ? 'block' : 'none';
@@ -1915,7 +1696,7 @@
         renderScheduleReminders(); 
         if (document.getElementById('pageHome').classList.contains('active')) renderHome(); 
     }
-    
+
     function renderRecentTasks() { 
         const recentTasks = [...appData.taskRecords].sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 10); 
         const container = document.getElementById('recentTaskList'); 
@@ -1924,7 +1705,7 @@
         container.innerHTML = recentTasks.map(task => { const pet = appData.pets.find(p => p.id === task.petId); return `<div class="task-item"><div><div class="task-badge">${task.type}</div><div style="font-size: 13px;">${pet ? pet.name : '未知'} · ${formatYMD(task.date)}</div>${task.note ? `<div style="font-size: 12px; color: var(--text-sub);">${task.note}</div>` : ''}</div><button class="btn-delete" onclick="app.deleteTaskRecord('${task.id}')"><i data-lucide="trash-2" style="width: 16px;"></i> 删除</button></div>`; }).join(''); 
         lucide.createIcons(); 
     }
-    
+
     function deleteTaskRecord(id) { 
         if (confirm('删除这条记录？')) { 
             appData.taskRecords = appData.taskRecords.filter(t => t.id != id); 
@@ -1936,7 +1717,6 @@
         } 
     }
 
-    // 长按删除家族相关变量
     let pressTimer = null;
     let longPressCategoryId = null;
 
@@ -1949,7 +1729,6 @@
             longPressCategoryId = null;
         }, 500);
         longPressCategoryId = catId;
-        // 添加视觉反馈
         element.style.backgroundColor = 'var(--primary-light)';
     }
 
@@ -2004,7 +1783,7 @@
         container.innerHTML = html; 
         lucide.createIcons(); 
     }
-    
+
     function showPetDetail(petId) { 
         const pet = appData.pets.find(p => p.id === petId); 
         if (!pet) return; 
@@ -2025,7 +1804,7 @@
         document.getElementById('petDetailModal').classList.add('show'); 
         lucide.createIcons(); 
     }
-    
+
     function openScheduleRecordFromPet(petId) { 
         refreshAllPetSelects();
         document.getElementById('taskRecordPetSelect').value = petId; 
@@ -2036,7 +1815,7 @@
         showPage('record'); 
         closePetDetail(); 
     }
-    
+
     function openLifeEventModal(petId) { 
         const select = document.getElementById('eventPetSelect'); 
         select.innerHTML = appData.pets.map(p => `<option value="${p.id}" ${p.id === petId ? 'selected' : ''}>${p.name}</option>`).join(''); 
@@ -2045,12 +1824,12 @@
         document.getElementById('eventNote').value = ''; 
         document.getElementById('lifeEventModal').classList.add('show'); 
     }
-    
+
     function closeLifeEventModal() { document.getElementById('lifeEventModal').classList.remove('show'); }
     function saveLifeEvent() { const petId = document.getElementById('eventPetSelect').value; if (!petId) return showToast('请选择宠物', false); const title = document.getElementById('eventTitle').value.trim(); if (!title) return showToast('请输入事件名称', false); const date = document.getElementById('eventDate').value; if (!date) return showToast('请选择日期', false); const note = document.getElementById('eventNote').value; appData.lifeEvents.push({ id: Date.now() + Math.random(), petId, title, date, note }); saveData(); closeLifeEventModal(); showToast('已记录'); const openPetId = document.getElementById('petDetailContent').getAttribute('data-current-pet'); if (openPetId) showPetDetail(openPetId); }
     function deleteLifeEvent(eventId) { if (confirm('删除？')) { appData.lifeEvents = appData.lifeEvents.filter(e => e.id != eventId); saveData(); const openPetId = document.getElementById('petDetailContent').getAttribute('data-current-pet'); if (openPetId) showPetDetail(openPetId); showToast('已删除'); } }
     function closePetDetail() { document.getElementById('petDetailModal').classList.remove('show'); }
-    
+
     let petContextMenuId = null;
     function showPetContextMenu(e, petId) { e.preventDefault(); petContextMenuId = petId; const menu = document.getElementById('petContextMenu'); if (!menu) { const newMenu = document.createElement('div'); newMenu.id = 'petContextMenu'; newMenu.className = 'context-menu'; newMenu.innerHTML = `<div class="context-menu-item" onclick="app.editPetFromContext()"><i data-lucide="edit"></i> 编辑</div><div class="context-menu-item delete" onclick="app.deletePetFromContext()"><i data-lucide="trash-2"></i> 删除</div>`; document.body.appendChild(newMenu); } const menuEl = document.getElementById('petContextMenu'); menuEl.style.left = (e.touches?.[0]?.clientX || e.clientX) + 'px'; menuEl.style.top = (e.touches?.[0]?.clientY || e.clientY) + 'px'; menuEl.classList.add('show'); setTimeout(() => document.addEventListener('click', () => menuEl.classList.remove('show'), { once: true }), 50); }
     function editPetFromContext() { if (petContextMenuId) { editPet(petContextMenuId); petContextMenuId = null; } }
@@ -2068,8 +1847,8 @@
     function selectAvatar() { document.getElementById('petAvatarInput').click(); }
     function previewAvatar() { const file = document.getElementById('petAvatarInput').files[0]; if (file) { const reader = new FileReader(); reader.onload = e => { tempAvatar = e.target.result; document.getElementById('petAvatarPreview').innerHTML = `<img src="${tempAvatar}">`; }; reader.readAsDataURL(file); } }
     function savePet() { const id = document.getElementById('editPetId').value; const categoryId = document.getElementById('editPetCategoryId').value; const name = document.getElementById('petNameInput').value.trim(); if (!name) return showToast('请输入名字', false); if (id) { const p = appData.pets.find(p => p.id === id); p.name = name; p.birthday = document.getElementById('petBirthdayInput').value; if (tempAvatar !== null) p.avatar = tempAvatar; } else { appData.pets.push({ id: Date.now() + '', categoryId, name, birthday: document.getElementById('petBirthdayInput').value, avatar: tempAvatar || '' }); } saveData(); closePetEdit(); renderPetsPage(); refreshAllPetSelects(); showToast('已保存'); }
-    
-    function setStatTab(tab) { statTab = tab; document.querySelectorAll('#pageStats .tab').forEach(t => t.classList.remove('active')); event.target.classList.add('active'); document.getElementById('expenseStatContent').style.display = tab === 'expense' ? 'block' : 'none'; document.getElementById('petStatsContent').style.display = tab === 'petStats' ? 'block' : 'none'; if (tab === 'expense') renderStatsPage(); if (tab === 'petStats') renderPetStatsPage(); }
+
+    function setStatTab(tab) { statTab = tab; document.querySelectorAll('#pageStats .tab').forEach(t => t.classList.remove('active')); if (event && event.target) event.target.classList.add('active'); document.getElementById('expenseStatContent').style.display = tab === 'expense' ? 'block' : 'none'; document.getElementById('petStatsContent').style.display = tab === 'petStats' ? 'block' : 'none'; if (tab === 'expense') renderStatsPage(); if (tab === 'petStats') renderPetStatsPage(); }
     function setStatPeriod(p) { statPeriod = p; renderStatsPage(); }
     function renderStatsPage() { const picker = document.getElementById('statDatePicker'); picker.value = `${statYear}-${String(statMonth).padStart(2, '0')}-${String(statDay).padStart(2, '0')}`; picker.onchange = () => { const d = new Date(picker.value); statYear = d.getFullYear(); statMonth = d.getMonth() + 1; statDay = d.getDate(); renderStatsPage(); }; const filtered = appData.records.filter(r => { if (!r.date) return false; const d = new Date(r.date); if (statPeriod === 'day') return d.getFullYear() === statYear && d.getMonth() + 1 === statMonth && d.getDate() === statDay; if (statPeriod === 'month') return d.getFullYear() === statYear && d.getMonth() + 1 === statMonth; return d.getFullYear() === statYear; }); const total = filtered.reduce((s, r) => s + (parseFloat(r.amount) || 0), 0); document.getElementById('statTotalAmount').innerText = `¥${total.toFixed(2)}`; let compareText = ''; if (statPeriod === 'month') { const prevMonth = new Date(statYear, statMonth - 2, 1); const prevFiltered = appData.records.filter(r => { if (!r.date) return false; const d = new Date(r.date); return d.getFullYear() === prevMonth.getFullYear() && d.getMonth() === prevMonth.getMonth(); }); const prevTotal = prevFiltered.reduce((s, r) => s + (parseFloat(r.amount) || 0), 0); if (prevTotal > 0) { const change = ((total - prevTotal) / prevTotal * 100).toFixed(1); compareText = `环比上月: ${change > 0 ? '↑' : '↓'} ${Math.abs(change)}%`; } } else if (statPeriod === 'year') { const prevYear = statYear - 1; const prevFiltered = appData.records.filter(r => { if (!r.date) return false; const d = new Date(r.date); return d.getFullYear() === prevYear; }); const prevTotal = prevFiltered.reduce((s, r) => s + (parseFloat(r.amount) || 0), 0); if (prevTotal > 0) { const change = ((total - prevTotal) / prevTotal * 100).toFixed(1); compareText = `同比去年: ${change > 0 ? '↑' : '↓'} ${Math.abs(change)}%`; } } document.getElementById('compareInfo').innerHTML = compareText; const catTotals = {}; appData.categories.forEach(c => { catTotals[c.id] = { name: c.name, amount: 0, icon: c.icon || 'cat' }; }); filtered.forEach(r => { if (catTotals[r.categoryId]) catTotals[r.categoryId].amount += parseFloat(r.amount) || 0; }); const colors = ['#c4b5fd', '#fde68a', '#bae6fd', '#a7f3d0', '#fbcfe8', '#fed7aa', '#fecaca', '#d9f99d']; const labels = [], amounts = [], bgColors = [], categoryIds = []; let idx = 0; for (let catId in catTotals) { if (catTotals[catId].amount > 0) { labels.push(catTotals[catId].name); amounts.push(catTotals[catId].amount); bgColors.push(colors[idx % colors.length]); categoryIds.push(catId); idx++; } } const ctx = document.getElementById('pieChart').getContext('2d'); if (pieChart) pieChart.destroy(); pieChart = new Chart(ctx, { type: 'pie', data: { labels: labels, datasets: [{ data: amounts, backgroundColor: bgColors }] }, options: { onClick: (e, activeEls) => { if (activeEls.length) { const index = activeEls[0].index; const catId = categoryIds[index]; const category = appData.categories.find(c => c.id === catId); if (category) { const catRecords = filtered.filter(r => r.categoryId === category.id); const expenseTotals = {}; catRecords.forEach(r => { if (!expenseTotals[r.expenseCategory]) expenseTotals[r.expenseCategory] = 0; expenseTotals[r.expenseCategory] += parseFloat(r.amount) || 0; }); const sortedExpenses = Object.entries(expenseTotals).sort((a, b) => b[1] - a[1]); let html = `<div style="margin-bottom:8px; font-weight:500;"><i data-lucide="${category.icon || 'cat'}"></i> ${category.name} 详细支出</div>`; for (let [expName, expAmount] of sortedExpenses) { html += `<div class="pie-detail-item"><span><span class="pie-detail-color" style="background: ${bgColors[index]}"></span>${expName}</span><span>¥${expAmount.toFixed(2)}</span></div>`; } if (Object.keys(expenseTotals).length === 0) html += '<div style="text-align:center; padding:12px;">暂无支出</div>'; document.getElementById('pieDetailContainer').innerHTML = html; lucide.createIcons(); } } } } }); if (categoryIds.length > 0) { const firstCat = appData.categories.find(c => c.id === categoryIds[0]); if (firstCat) { const catRecords = filtered.filter(r => r.categoryId === firstCat.id); const expenseTotals = {}; catRecords.forEach(r => { if (!expenseTotals[r.expenseCategory]) expenseTotals[r.expenseCategory] = 0; expenseTotals[r.expenseCategory] += parseFloat(r.amount) || 0; }); const sortedExpenses = Object.entries(expenseTotals).sort((a, b) => b[1] - a[1]); let html = `<div style="margin-bottom:8px; font-weight:500;"><i data-lucide="${firstCat.icon || 'cat'}"></i> ${firstCat.name} 详细支出</div>`; for (let [expName, expAmount] of sortedExpenses) { html += `<div class="pie-detail-item"><span><span class="pie-detail-color" style="background: ${bgColors[0]}"></span>${expName}</span><span>¥${expAmount.toFixed(2)}</span></div>`; } if (Object.keys(expenseTotals).length === 0) html += '<div style="text-align:center; padding:12px;">暂无支出</div>'; document.getElementById('pieDetailContainer').innerHTML = html; lucide.createIcons(); } } else { document.getElementById('pieDetailContainer').innerHTML = '<div style="text-align:center; padding:20px;">点击饼图查看详情</div>'; } const months = [], totalsTrend = []; for (let i = 5; i >= 0; i--) { const d = new Date(new Date().getFullYear(), new Date().getMonth() - i, 1); months.push(`${d.getMonth() + 1}月`); totalsTrend.push(appData.records.filter(r => { if (!r.date) return false; const rd = new Date(r.date); return rd.getFullYear() === d.getFullYear() && rd.getMonth() === d.getMonth(); }).reduce((s, r) => s + (parseFloat(r.amount) || 0), 0)); } const tCtx = document.getElementById('trendChart').getContext('2d'); if (trendChart) trendChart.destroy(); trendChart = new Chart(tCtx, { type: 'bar', data: { labels: months, datasets: [{ data: totalsTrend, backgroundColor: '#c4b5fd' }] }, options: { plugins: { legend: { display: false } } } }); }
     function renderPetStatsPage() { const selector = document.getElementById('petBillSelector'); selector.innerHTML = appData.pets.map(p => `<div class="pet-chip" onclick="app.showPetBill('${p.id}')">${p.name}</div>`).join(''); const yearSelect = document.getElementById('compareYearSelect'); const years = [...new Set(appData.records.map(r => new Date(r.date).getFullYear()).filter(y => y))]; yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}年</option>`).join(''); if (years.length) yearSelect.onchange = () => renderYearCompare(yearSelect.value); if (years.length) renderYearCompare(years[0]); }
@@ -2103,7 +1882,7 @@
         openLifeEventModal, closeLifeEventModal, saveLifeEvent, deleteLifeEvent,
         addTaskRecord, deleteTaskRecord, renderRecentTasks, openScheduleRecordFromPet,
         openWishlistModal, closeWishlistModal, saveWishlist, addWishItemField, removeWishItem,
-        openWishlistDetail, closeWishlistDetail, deleteWishlist,
+        openWishlistDetail, closeWishlistDetail, deleteWishlist, markWishItemBought,
         completeTask, getScheduleReminders, renderScheduleReminders,
         refreshAllPetSelects, toggleCollapse, toggleFilterPanel,
         filterRecords, setDateFilter, setPetFilter, setCategoryFilter, clearDateRange, clearSearch,
