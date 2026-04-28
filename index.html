@@ -81,8 +81,9 @@
         .btn-secondary:active { transform: scale(0.96); }
         .btn-edit { background: transparent; color: var(--text-sub); border: 1px solid var(--border-light); padding: 6px 12px; border-radius: var(--radius-btn-square); font-weight: 500; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s ease; }
         .btn-edit:active { transform: scale(0.96); }
-        .btn-delete { background: var(--danger-light); color: var(--danger-dark); border: none; padding: 6px 12px; border-radius: var(--radius-btn-square); font-weight: 500; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s ease; }
-        .btn-delete:active { transform: scale(0.96); }
+        /* 删除按钮统一改为红色边框 + 红色文字 */
+        .btn-delete { background: transparent; color: var(--danger-dark); border: 1px solid var(--danger-dark); padding: 6px 12px; border-radius: var(--radius-btn-square); font-weight: 500; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s ease; }
+        .btn-delete:active { transform: scale(0.96); background: var(--danger-light); }
         .btn-cancel { background: transparent; color: var(--text-sub); border: 1px solid var(--border-light); padding: 10px 16px; border-radius: var(--radius-btn); font-weight: 500; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-cancel:active { transform: scale(0.96); }
         .data-btn { background: var(--primary-dark); color: white; border: none; padding: 8px 16px; border-radius: var(--radius-btn); font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
@@ -190,6 +191,15 @@
         .task-type-name { font-weight: 500; }
         .task-type-interval { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
         .task-type-actions { display: flex; gap: 8px; }
+        /* 图标选择器样式 */
+        .icon-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+        .icon-option { background: var(--primary-light); border-radius: 16px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; border: 2px solid transparent; }
+        .icon-option:active { transform: scale(0.95); }
+        .icon-option.selected { background: var(--primary-dark); color: white; border-color: var(--primary-dark); }
+        .icon-option.selected .icon-emoji { filter: brightness(0) invert(1); }
+        .icon-emoji { font-size: 28px; margin-bottom: 4px; }
+        .icon-name { font-size: 10px; color: var(--text-sub); }
+        .icon-option.selected .icon-name { color: white; }
         @media (max-width: 400px) {
             .analysis-layout { flex-direction: column; }
             .detail-container { border-left: none; border-top: 1px solid var(--border-light); padding-left: 0; padding-top: 12px; }
@@ -377,7 +387,7 @@
     <div class="card"><h3>预算设置</h3><div class="form-row"><label>月度预算</label><input type="number" id="monthlyBudget" step="0.01"><button class="btn" style="margin-top: 8px;" onclick="app.saveBudget()">保存预算</button></div><div id="budgetDisplay" style="margin-top: 12px;"></div></div>
     <div class="card"><h3>记账模板</h3><div id="templatesList"></div><div style="margin-top: 8px;"><button class="btn-secondary btn-small" onclick="app.openTemplateModal()"><i data-lucide="plus"></i> 添加模板</button></div></div>
     <div class="card"><h3>数据</h3><div style="display: flex; flex-wrap: wrap; gap: 8px;"><button class="data-btn" onclick="app.exportData()"><i data-lucide="download"></i> 导出数据</button><label class="data-btn" style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;"><i data-lucide="upload"></i> 导入数据<input type="file" id="importFileInput" accept=".json" onchange="app.importData(this)" style="display: none;"></label><button class="data-btn" onclick="app.resetAllData()" style="background: #dc2626;"><i data-lucide="alert-triangle"></i> 重置</button></div></div>
-    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v3.8.2 · 正式版</div>
+    <div style="text-align:center; margin-top:16px; color:var(--text-sub);">小账本 v3.8.3 · 正式版</div>
 </div>
 
 <div class="nav-bar">
@@ -387,14 +397,25 @@
     <button class="nav-item" data-page="stats" onclick="app.showPage('stats')"><i data-lucide="chart-pie"></i>统计</button>
 </div>
 
-<div class="modal" id="addCategoryModal"><div class="modal-content"><h3>新建家族</h3><div class="form-row"><input type="text" id="newCategoryName" placeholder="名称"></div><div class="form-row"><input type="text" id="newCategoryIcon" placeholder="图标" value="cat"></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeAddCategory()">取消</button><button class="btn" onclick="app.saveCategory()">创建</button></div></div></div>
+<!-- 新建家族弹窗（带图标选择器） -->
+<div class="modal" id="addCategoryModal">
+    <div class="modal-content">
+        <h3>新建家族</h3>
+        <div class="form-row"><label>名称</label><input type="text" id="newCategoryName" placeholder="例：猫咪家族"></div>
+        <div class="form-row"><label>选择图标</label></div>
+        <div class="icon-grid" id="iconGrid"></div>
+        <div class="form-row"><label>或自定义图标名</label><input type="text" id="newCategoryIcon" placeholder="输入 lucide 图标名（如 cat、dog、dragon）"></div>
+        <div class="modal-buttons"><button class="btn-cancel" onclick="app.closeAddCategory()">取消</button><button class="btn" onclick="app.saveCategory()">创建</button></div>
+    </div>
+</div>
+
 <div class="modal" id="petEditModal"><div class="modal-content"><h3 id="petEditTitle">添加宠物</h3><input type="hidden" id="editPetId"><input type="hidden" id="editPetCategoryId"><div style="display: flex; justify-content: center; margin-bottom: 16px;"><div class="avatar" id="petAvatarPreview" onclick="app.selectAvatar()"><i data-lucide="camera"></i></div><input type="file" id="petAvatarInput" accept="image/*" style="display: none;" onchange="app.previewAvatar()"></div><div class="form-row"><label>名字</label><input type="text" id="petNameInput"></div><div class="form-row"><label>生日</label><input type="date" id="petBirthdayInput"></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closePetEdit()">取消</button><button class="btn" onclick="app.savePet()">保存</button></div></div></div>
 <div class="modal" id="petDetailModal"><div class="modal-content" id="petDetailContent"></div></div>
 <div class="modal" id="lifeEventModal"><div class="modal-content"><h3>📖 记录宠生大事</h3><div class="form-row"><label>宠物</label><select id="eventPetSelect"></select></div><div class="form-row"><label>事件名称</label><input type="text" id="eventTitle" placeholder="如：绝育、生病..."></div><div class="form-row"><label>日期</label><input type="date" id="eventDate"></div><div class="form-row"><label>备注</label><input type="text" id="eventNote" placeholder="可选"></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeLifeEventModal()">取消</button><button class="btn" onclick="app.saveLifeEvent()">保存</button></div></div></div>
 <div class="modal" id="editRecordModal"><div class="modal-content"><h3>编辑记录</h3><input type="hidden" id="editRecordId"><div class="form-row"><label>金额</label><input type="number" id="editAmountInput" step="0.01"></div><div class="form-row"><label>日期</label><input type="date" id="editDateInput"></div><div class="form-row"><label>所属宠物</label><select id="editPetSelect"></select></div><div class="form-row"><label>家族</label><select id="editCategorySelect"></select></div><div class="form-row"><label>类别</label><select id="editExpenseCategorySelect"></select></div><div class="form-row"><label>支付</label><select id="editPaymentSelect"><option>微信</option><option>支付宝</option><option>现金</option></select></div><div class="form-row"><label>备注</label><textarea id="editNoteInput" rows="2"></textarea></div><div class="modal-buttons"><button class="btn-cancel" onclick="app.closeEditModal()">取消</button><button class="btn" onclick="app.saveEditRecord()">保存</button></div></div></div>
 <div class="modal" id="deletePetModal"><div class="modal-content"><h3>删除宠物</h3><p style="margin-bottom: 16px;">请选择处理方式：</p><button class="btn" style="margin-bottom: 8px; background: #dc2626;" onclick="app.confirmDeletePet('both')">删除宠物及其所有账单</button><button class="btn-cancel" onclick="app.confirmDeletePet('keep')">保留账单，仅解除关联</button><div class="modal-buttons" style="margin-top: 12px;"><button class="btn-cancel" onclick="app.closeDeletePetModal()">取消</button></div></div></div>
 
-<!-- 愿望清单弹窗 - 修改版：支持选择家族和宠物 -->
+<!-- 愿望清单弹窗 -->
 <div class="modal" id="wishlistModal">
     <div class="modal-content">
         <h3 id="wishlistModalTitle">🎁 新建愿望清单</h3>
@@ -497,6 +518,22 @@
 (function(){
     'use strict';
 
+    // 预设图标列表（emoji, lucide名称）
+    const PRESET_ICONS = [
+        { emoji: '🐱', name: 'cat', label: '猫' },
+        { emoji: '🐶', name: 'dog', label: '狗' },
+        { emoji: '🐹', name: 'rabbit', label: '鼠' },
+        { emoji: '🐰', name: 'rabbit', label: '兔' },
+        { emoji: '🐦', name: 'bird', label: '鸟' },
+        { emoji: '🐟', name: 'fish', label: '鱼' },
+        { emoji: '🐢', name: 'turtle', label: '龟' },
+        { emoji: '🐸', name: 'frog', label: '蛙' },
+        { emoji: '🐍', name: 'snake', label: '蛇' },
+        { emoji: '🦎', name: 'lizard', label: '蜥蜴' },
+        { emoji: '🕷️', name: 'spider', label: '蜘蛛' },
+        { emoji: '🐾', name: 'paw-print', label: '爪印' }
+    ];
+
     const DEFAULT_DATA = {
         categories: [],
         pets: [],
@@ -513,8 +550,8 @@
     };
 
     let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    const STORAGE_KEY = 'pet_v382_full';
-    const OLD_STORAGE_KEYS = ['pet_v381_full', 'pet_v38_full', 'pet_v37_full', 'pet_v36_full'];
+    const STORAGE_KEY = 'pet_v383_full';
+    const OLD_STORAGE_KEYS = ['pet_v382_full', 'pet_v381_full', 'pet_v38_full', 'pet_v37_full', 'pet_v36_full'];
 
     const DEFAULT_TASK_TYPES = [
         { name: '驱虫', interval: 90 },
@@ -539,6 +576,33 @@
     let tempAvatar = null;
     let contextRecordId = null;
     let pendingDeletePetId = null;
+
+    // 渲染图标选择器
+    function renderIconSelector(selectedIconName) {
+        const container = document.getElementById('iconGrid');
+        if (!container) return;
+        let html = '';
+        PRESET_ICONS.forEach(icon => {
+            const isSelected = (selectedIconName === icon.name);
+            html += `<div class="icon-option ${isSelected ? 'selected' : ''}" data-icon-name="${icon.name}" onclick="app.selectPresetIcon('${icon.name}')">
+                <div class="icon-emoji">${icon.emoji}</div>
+                <div class="icon-name">${icon.label}</div>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function selectPresetIcon(iconName) {
+        document.getElementById('newCategoryIcon').value = iconName;
+        // 更新选中样式
+        document.querySelectorAll('.icon-option').forEach(el => {
+            if (el.getAttribute('data-icon-name') === iconName) {
+                el.classList.add('selected');
+            } else {
+                el.classList.remove('selected');
+            }
+        });
+    }
 
     function getTaskInterval(taskType) {
         const customType = appData.taskTypes.find(t => t.name === taskType);
@@ -1240,7 +1304,7 @@
         }
     }
 
-    // ========== 愿望清单 - 支持选择家族和宠物，自动记账 ==========
+    // ========== 愿望清单 ==========
     function renderWishlistFull() {
         const container = document.getElementById('wishlistFullList');
         if (!container) return;
@@ -1289,7 +1353,6 @@
         }
         let html = '';
         items.forEach((item, idx) => {
-            // 生成宠物下拉框（根据已选家族动态更新，这里先预设）
             const petOptions = '<option value="">不指定（归入家族）</option>' + (item.categoryId ? appData.pets.filter(p => p.categoryId === item.categoryId).map(p => `<option value="${p.id}" ${item.petId === p.id ? 'selected' : ''}>${escapeHtml(p.name)}</option>`).join('') : '<option value="">请先选择家族</option>');
             html += `<div style="margin-bottom: 16px; padding: 12px; background: var(--primary-light); border-radius: 14px;" data-wish-item-index="${idx}">
                 <div class="wish-item-input-group">
@@ -1298,39 +1361,35 @@
                 </div>
                 <div class="wish-item-input-group">
                     <input type="number" placeholder="实际 ¥" value="${item.actual || ''}" data-wish-item-actual="${idx}" style="flex: 1;">
-                    <select data-wish-item-expense="${idx}" style="flex: 1;" onchange="app.updateWishItemPets(${idx}, this.value)">
+                    <select data-wish-item-expense="${idx}" style="flex: 1;">
                         <option value="">选择支出类别</option>
                         ${appData.expenseCategories.map(ec => `<option value="${escapeHtml(ec.name)}" ${item.expenseCategory === ec.name ? 'selected' : ''}>${escapeHtml(ec.name)}</option>`).join('')}
                     </select>
                 </div>
                 <div class="wish-item-input-group">
                     <select data-wish-item-category="${idx}" style="flex: 1;" onchange="app.updateWishItemPets(${idx}, null, this.value)">
-                        <option value="">选择家族</option>
-                        ${appData.categories.map(c => `<option value="${c.id}" ${item.categoryId === c.id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}
+                        ${categoryOptions}
                     </select>
                     <select data-wish-item-pet="${idx}" style="flex: 1;">
                         ${petOptions}
                     </select>
                     <label style="display: flex; align-items: center; gap: 4px;"><input type="checkbox" data-wish-item-bought="${idx}" ${item.bought ? 'checked' : ''}> 已买</label>
-                    <button class="btn-edit btn-small" onclick="app.removeWishItem(${idx})">删除</button>
+                    <button class="btn-delete" onclick="app.removeWishItem(${idx})">删除</button>
                 </div>
             </div>`;
         });
         container.innerHTML = html;
-    }
-
-    // 辅助函数：当家族改变时，更新对应的宠物下拉框
-    function updateWishItemPets(idx, expenseCat, categoryId) {
-        const container = document.getElementById('wishItemsContainer');
-        const itemDiv = container.querySelector(`div[data-wish-item-index="${idx}"]`);
-        if (!itemDiv) return;
-        if (categoryId) {
-            const petSelect = itemDiv.querySelector(`select[data-wish-item-pet="${idx}"]`);
-            if (petSelect) {
-                const pets = appData.pets.filter(p => p.categoryId === categoryId);
-                petSelect.innerHTML = '<option value="">不指定（归入家族）</option>' + pets.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+        // 设置已保存的 categoryId 值
+        items.forEach((item, idx) => {
+            const catSelect = container.querySelector(`select[data-wish-item-category="${idx}"]`);
+            if (catSelect && item.categoryId) {
+                catSelect.value = item.categoryId;
+                // 触发宠物下拉框更新
+                updateWishItemPets(idx, null, item.categoryId);
+                const petSelect = container.querySelector(`select[data-wish-item-pet="${idx}"]`);
+                if (petSelect && item.petId) petSelect.value = item.petId;
             }
-        }
+        });
     }
 
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
@@ -1340,6 +1399,9 @@
         const idx = Date.now();
         const categoryOptions = '<option value="">选择家族</option>' + appData.categories.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
         const expenseOptions = appData.expenseCategories.map(ec => `<option value="${escapeHtml(ec.name)}">${escapeHtml(ec.name)}</option>`).join('');
+        // 删除默认的空状态提示
+        const emptyDiv = container.querySelector('div[style*="text-align: center"]');
+        if (emptyDiv && container.children.length === 1) emptyDiv.remove();
         container.insertAdjacentHTML('beforeend', `<div style="margin-bottom: 16px; padding: 12px; background: var(--primary-light); border-radius: 14px;" data-wish-item-index="${idx}">
             <div class="wish-item-input-group">
                 <input type="text" placeholder="项目名称" data-wish-item-name="${idx}" style="flex: 2;">
@@ -1360,7 +1422,7 @@
                     <option value="">不指定（归入家族）</option>
                 </select>
                 <label style="display: flex; align-items: center; gap: 4px;"><input type="checkbox" data-wish-item-bought="${idx}"> 已买</label>
-                <button class="btn-edit btn-small" onclick="app.removeWishItem(${idx})">删除</button>
+                <button class="btn-delete" onclick="app.removeWishItem(${idx})">删除</button>
             </div>
         </div>`);
     }
@@ -1369,6 +1431,10 @@
         const container = document.getElementById('wishItemsContainer');
         const item = container.querySelector(`div[data-wish-item-index="${idx}"]`);
         if (item) item.remove();
+        // 如果没有项目了，显示提示
+        if (container.children.length === 0 || (container.children.length === 1 && container.children[0].style && container.children[0].style.textAlign === 'center')) {
+            container.innerHTML = '<div style="padding: 12px; text-align: center; color: var(--text-sub);">暂无项目，点击下方按钮添加</div>';
+        }
     }
     
     function collectWishItems() {
@@ -1417,6 +1483,19 @@
         closeWishlistModal();
         renderWishlistFull();
         showToast('愿望清单已保存');
+    }
+    
+    function updateWishItemPets(idx, expenseCat, categoryId) {
+        const container = document.getElementById('wishItemsContainer');
+        const itemDiv = container.querySelector(`div[data-wish-item-index="${idx}"]`);
+        if (!itemDiv) return;
+        if (categoryId) {
+            const petSelect = itemDiv.querySelector(`select[data-wish-item-pet="${idx}"]`);
+            if (petSelect) {
+                const pets = appData.pets.filter(p => p.categoryId === categoryId);
+                petSelect.innerHTML = '<option value="">不指定（归入家族）</option>' + pets.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+            }
+        }
     }
     
     function openWishlistDetail(wishId) {
@@ -1481,7 +1560,6 @@
             showToast('请先选择家族', false);
             return;
         }
-        // 检查是否重复记账
         const alreadyRecorded = appData.records.some(r => r.wishAutoId === `${wishId}_${itemIndex}`);
         if (!alreadyRecorded) {
             const newRecord = {
@@ -1811,9 +1889,29 @@
     function closeDeletePetModal() { pendingDeletePetId = null; document.getElementById('deletePetModal').classList.remove('show'); }
     function confirmDeletePet(action) { if (!pendingDeletePetId) return; if (action === 'both') { appData.records = appData.records.filter(r => r.petId !== pendingDeletePetId); appData.weightRecords = appData.weightRecords.filter(w => w.petId !== pendingDeletePetId); appData.lifeEvents = appData.lifeEvents.filter(e => e.petId !== pendingDeletePetId); appData.taskRecords = appData.taskRecords.filter(t => t.petId !== pendingDeletePetId); appData.pets = appData.pets.filter(p => p.id !== pendingDeletePetId); showToast('已删除宠物及其所有记录'); } else if (action === 'keep') { appData.records.forEach(r => { if (r.petId === pendingDeletePetId) r.petId = ''; }); appData.weightRecords = appData.weightRecords.filter(w => w.petId !== pendingDeletePetId); appData.lifeEvents = appData.lifeEvents.filter(e => e.petId !== pendingDeletePetId); appData.taskRecords = appData.taskRecords.filter(t => t.petId !== pendingDeletePetId); appData.pets = appData.pets.filter(p => p.id !== pendingDeletePetId); showToast('已删除宠物，账单已保留'); } saveData(); closeDeletePetModal(); renderPetsPage(); refreshAllPetSelects(); if (document.getElementById('pageHome').classList.contains('active')) renderHome(); }
     function deleteCategory(id) { if (!confirm('删除家族？相关宠物也会被删除。')) return; const petsToDelete = appData.pets.filter(p => p.categoryId === id); petsToDelete.forEach(pet => { appData.records = appData.records.filter(r => r.petId !== pet.id); appData.weightRecords = appData.weightRecords.filter(w => w.petId !== pet.id); appData.lifeEvents = appData.lifeEvents.filter(e => e.petId !== pet.id); appData.taskRecords = appData.taskRecords.filter(t => t.petId !== pet.id); }); appData.categories = appData.categories.filter(c => c.id !== id); appData.pets = appData.pets.filter(p => p.categoryId !== id); saveData(); renderPetsPage(); refreshAllPetSelects(); showToast('已删除'); }
-    function showAddCategory() { document.getElementById('addCategoryModal').classList.add('show'); }
+    function showAddCategory() { 
+        const modal = document.getElementById('addCategoryModal');
+        // 清空输入框
+        document.getElementById('newCategoryName').value = '';
+        document.getElementById('newCategoryIcon').value = '';
+        // 渲染图标选择器
+        renderIconSelector('');
+        modal.classList.add('show');
+    }
     function closeAddCategory() { document.getElementById('addCategoryModal').classList.remove('show'); }
-    function saveCategory() { const name = document.getElementById('newCategoryName').value.trim(); if (!name) return showToast('请输入名称', false); appData.categories.push({ id: Date.now() + '', name, icon: document.getElementById('newCategoryIcon').value.trim() || 'cat' }); saveData(); closeAddCategory(); renderPetsPage(); refreshAllPetSelects(); showToast('已创建'); document.getElementById('newCategoryName').value = ''; }
+    function saveCategory() { 
+        const name = document.getElementById('newCategoryName').value.trim(); 
+        if (!name) return showToast('请输入名称', false); 
+        const icon = document.getElementById('newCategoryIcon').value.trim() || 'cat';
+        appData.categories.push({ id: Date.now() + '', name, icon }); 
+        saveData(); 
+        closeAddCategory(); 
+        renderPetsPage(); 
+        refreshAllPetSelects(); 
+        showToast('已创建'); 
+        document.getElementById('newCategoryName').value = ''; 
+        document.getElementById('newCategoryIcon').value = '';
+    }
     function showAddPet(catId) { document.getElementById('petEditTitle').innerText = '添加宠物'; document.getElementById('editPetId').value = ''; document.getElementById('editPetCategoryId').value = catId; document.getElementById('petNameInput').value = ''; document.getElementById('petBirthdayInput').value = ''; tempAvatar = null; document.getElementById('petAvatarPreview').innerHTML = '<i data-lucide="camera"></i>'; document.getElementById('petEditModal').classList.add('show'); lucide.createIcons(); }
     function editPet(petId) { const p = appData.pets.find(p => p.id === petId); if (!p) return; document.getElementById('petEditTitle').innerText = '编辑宠物'; document.getElementById('editPetId').value = petId; document.getElementById('editPetCategoryId').value = p.categoryId; document.getElementById('petNameInput').value = p.name; document.getElementById('petBirthdayInput').value = p.birthday || ''; tempAvatar = p.avatar || null; const preview = document.getElementById('petAvatarPreview'); preview.innerHTML = p.avatar ? `<img src="${p.avatar}">` : '<i data-lucide="camera"></i>'; document.getElementById('petEditModal').classList.add('show'); lucide.createIcons(); closePetDetail(); }
     function closePetEdit() { document.getElementById('petEditModal').classList.remove('show'); }
@@ -1864,7 +1962,8 @@
         openAddTemplateModal, closeAddTemplateModal, saveTemplate, editTemplate, deleteTemplate,
         openTaskTypeManageModal, closeTaskTypeManageModal, openAddTaskTypeModal, closeAddTaskTypeModal,
         saveTaskType, editTaskType, deleteTaskType,
-        startPress, cancelPress
+        startPress, cancelPress,
+        selectPresetIcon, renderIconSelector
     };
 
     loadData();
